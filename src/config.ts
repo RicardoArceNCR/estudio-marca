@@ -64,7 +64,7 @@ export interface ColorOficial {
 
 export interface Rampa {
   familia: string;
-  /** Prefijo de los tokens: `--color-tomato-` + paso. */
+  /** Prefijo de los tokens: `--color-brand-` + paso. */
   prefijo: string;
   pasos: number[];
   ancla?: number;

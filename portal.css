@@ -690,6 +690,15 @@
     font-size: 0.9375rem;
   }
 
+  .mk-falta {
+    font-weight: 700;
+    color: var(--mk-error);
+  }
+
+  .mk-falta::before {
+    content: "✕ ";
+  }
+
   .mk-par-resultado {
     font-weight: 700;
   }

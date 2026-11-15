@@ -20,8 +20,37 @@ export function useVersionTema(): number {
   return v;
 }
 
+/**
+ * Color resuelto de un elemento. Si el navegador lo devuelve en un espacio
+ * que no es sRGB (oklch, lab, display-p3), lo pasa por un canvas.
+ */
 function medir(el: Element | null, prop: "color" | "backgroundColor"): Rgba | null {
-  return el ? parseColor(getComputedStyle(el)[prop]) : null;
+  if (!el) return null;
+  const valor = getComputedStyle(el)[prop];
+  const directo = parseColor(valor);
+  if (directo) return directo;
+  const ctx = document.createElement("canvas").getContext("2d", { willReadFrequently: true });
+  if (!ctx) return null;
+  ctx.canvas.width = ctx.canvas.height = 1;
+  ctx.clearRect(0, 0, 1, 1);
+  ctx.fillStyle = valor;
+  ctx.fillRect(0, 0, 1, 1);
+  const [r = 0, g = 0, b = 0, a = 0] = ctx.getImageData(0, 0, 1, 1).data;
+  return [r, g, b, a / 255];
+}
+
+/** Un token sin definir pinta el valor heredado: hay que decirlo, no medirlo. */
+function faltan(...tokens: string[]): string[] {
+  const raiz = getComputedStyle(document.documentElement);
+  return tokens.filter((t) => !raiz.getPropertyValue(t).trim());
+}
+
+function FaltaToken({ tokens }: { tokens: string[] }) {
+  return (
+    <span className="mk-falta" data-mk-falta={tokens.join(" ")}>
+      Falta el token {tokens.join(", ")}
+    </span>
+  );
 }
 
 /** Fondo opaco más cercano: contra eso se mide un texto. */
@@ -115,7 +144,12 @@ export function Muestra({
   const ref = useRef<HTMLSpanElement>(null);
   const v = useVersionTema();
   const [c, setC] = useState<Rgba | null>(null);
-  useEffect(() => setC(medir(ref.current, "backgroundColor")), [v]);
+  const [falta, setFalta] = useState<string[]>([]);
+  useEffect(() => {
+    const f = faltan(token);
+    setFalta(f);
+    setC(f.length ? null : medir(ref.current, "backgroundColor"));
+  }, [v, token]);
   const hex = c ? toHex(c) : "";
   return (
     <figure className="mk-muestra">
@@ -128,7 +162,7 @@ export function Muestra({
       >
         <span ref={ref} className="mk-muestra-color" style={{ background: `var(${token})` }} />
         <span className="mk-muestra-nombre">{nombre}</span>
-        <span className="mk-muestra-hex">{hex || "…"}</span>
+        {falta.length ? <FaltaToken tokens={falta} /> : <span className="mk-muestra-hex">{hex || "…"}</span>}
         <span className="mk-oculto">Copiar el valor hexadecimal</span>
       </button>
       <figcaption className="mk-muestra-datos">
@@ -157,15 +191,18 @@ export function Rampa({
   const refs = useRef<(HTMLSpanElement | null)[]>([]);
   const v = useVersionTema();
   const [hex, setHex] = useState<string[]>([]);
+  const [falta, setFalta] = useState<string[]>([]);
   useEffect(() => {
+    setFalta(faltan(...pasos.map((p) => `${prefijo}${p}`)));
     setHex(refs.current.map((el) => {
       const c = medir(el, "backgroundColor");
       return c ? toHex(c) : "";
     }));
-  }, [v, pasos.length]);
+  }, [v, prefijo, pasos]);
   return (
     <div className="mk-rampa">
       <h3 className="mk-rampa-titulo">{familia}</h3>
+      {falta.length ? <FaltaToken tokens={falta} /> : null}
       <ul className="mk-rampa-pasos">
         {pasos.map((paso, i) => (
           <li key={paso}>
@@ -214,11 +251,14 @@ export function ParContraste({
   const ref = useRef<HTMLDivElement>(null);
   const v = useVersionTema();
   const [ratio, setRatio] = useState<number | null>(null);
+  const [falta, setFalta] = useState<string[]>([]);
   useEffect(() => {
+    const f = faltan(texto, fondo);
+    setFalta(f);
     const fg = medir(ref.current, "color");
     const bg = fondoEfectivo(ref.current);
-    setRatio(fg && bg ? contrast(fg, bg) : null);
-  }, [v]);
+    setRatio(!f.length && fg && bg ? contrast(fg, bg) : null);
+  }, [v, texto, fondo]);
   const cumple = ratio !== null && ratio >= minimo;
   return (
     <figure className="mk-par">
@@ -229,9 +269,13 @@ export function ParContraste({
         <code>
           {texto} sobre {fondo}
         </code>
-        <span className="mk-par-resultado" data-cumple={ratio === null ? undefined : String(cumple)} data-mk-ratio={ratio ?? ""}>
-          {ratio === null ? "Midiendo…" : `${formatRatio(ratio)} · ${cumple ? "cumple" : "no cumple"} ${formatRatio(minimo)}`}
-        </span>
+        {falta.length ? (
+          <FaltaToken tokens={falta} />
+        ) : (
+          <span className="mk-par-resultado" data-cumple={ratio === null ? undefined : String(cumple)} data-mk-ratio={ratio ?? ""}>
+            {ratio === null ? "Midiendo…" : `${formatRatio(ratio)} · ${cumple ? "cumple" : "no cumple"} ${formatRatio(minimo)}`}
+          </span>
+        )}
       </figcaption>
     </figure>
   );

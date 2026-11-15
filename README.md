@@ -82,6 +82,15 @@ estudio: `--background-page`, `--surface-*`, `--text-primary`,
 `--typography-family-*`. Para ajustar uno, pisá su `--mk-*` en el CSS del
 sitio.
 
+### Capas de CSS
+
+`portal.css` vive en `@layer marca`, así el sitio puede pisarlo sin pelear
+especificidad. La contracara: cualquier regla **sin capa** del sitio le gana.
+Si el `globals.css` del sitio estiliza elementos sueltos (`h1`, `section`,
+`dialog`, `input`), metelos en una capa (`@layer base { … }`) o acotalos a
+las páginas del sitio; si no, se cuelan en el portal. Con Tailwind v4 el
+orden de capas ya lo resuelve.
+
 ## Desarrollo
 
 ```sh

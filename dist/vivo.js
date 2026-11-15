@@ -1,5 +1,5 @@
 "use client";
-import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+import { jsxs as _jsxs, jsx as _jsx } from "react/jsx-runtime";
 import { useEffect, useRef, useState } from "react";
 import { contrast, formatRatio, parseColor, toHex, toRgb } from "./color.js";
 /**
@@ -17,8 +17,34 @@ export function useVersionTema() {
     }, []);
     return v;
 }
+/**
+ * Color resuelto de un elemento. Si el navegador lo devuelve en un espacio
+ * que no es sRGB (oklch, lab, display-p3), lo pasa por un canvas.
+ */
 function medir(el, prop) {
-    return el ? parseColor(getComputedStyle(el)[prop]) : null;
+    if (!el)
+        return null;
+    const valor = getComputedStyle(el)[prop];
+    const directo = parseColor(valor);
+    if (directo)
+        return directo;
+    const ctx = document.createElement("canvas").getContext("2d", { willReadFrequently: true });
+    if (!ctx)
+        return null;
+    ctx.canvas.width = ctx.canvas.height = 1;
+    ctx.clearRect(0, 0, 1, 1);
+    ctx.fillStyle = valor;
+    ctx.fillRect(0, 0, 1, 1);
+    const [r = 0, g = 0, b = 0, a = 0] = ctx.getImageData(0, 0, 1, 1).data;
+    return [r, g, b, a / 255];
+}
+/** Un token sin definir pinta el valor heredado: hay que decirlo, no medirlo. */
+function faltan(...tokens) {
+    const raiz = getComputedStyle(document.documentElement);
+    return tokens.filter((t) => !raiz.getPropertyValue(t).trim());
+}
+function FaltaToken({ tokens }) {
+    return (_jsxs("span", { className: "mk-falta", "data-mk-falta": tokens.join(" "), children: ["Falta el token ", tokens.join(", ")] }));
 }
 /** Fondo opaco más cercano: contra eso se mide un texto. */
 function fondoEfectivo(el) {
@@ -89,21 +115,28 @@ export function Muestra({ nombre, token, uso, fuente, cmyk, pantone, }) {
     const ref = useRef(null);
     const v = useVersionTema();
     const [c, setC] = useState(null);
-    useEffect(() => setC(medir(ref.current, "backgroundColor")), [v]);
+    const [falta, setFalta] = useState([]);
+    useEffect(() => {
+        const f = faltan(token);
+        setFalta(f);
+        setC(f.length ? null : medir(ref.current, "backgroundColor"));
+    }, [v, token]);
     const hex = c ? toHex(c) : "";
-    return (_jsxs("figure", { className: "mk-muestra", children: [_jsxs("button", { type: "button", className: "mk-muestra-boton", onClick: () => hex && copiar(hex), "data-mk-copiar": true, "data-mk-valor": hex, children: [_jsx("span", { ref: ref, className: "mk-muestra-color", style: { background: `var(${token})` } }), _jsx("span", { className: "mk-muestra-nombre", children: nombre }), _jsx("span", { className: "mk-muestra-hex", children: hex || "…" }), _jsx("span", { className: "mk-oculto", children: "Copiar el valor hexadecimal" })] }), _jsxs("figcaption", { className: "mk-muestra-datos", children: [c ? _jsxs("span", { children: ["RGB ", toRgb(c)] }) : null, cmyk ? _jsxs("span", { children: ["CMYK ", cmyk] }) : null, pantone ? _jsxs("span", { children: ["Pantone ", pantone] }) : null, _jsx("code", { children: token }), uso ? _jsx("span", { className: "mk-muestra-uso", children: uso }) : null, fuente ? _jsxs("span", { className: "mk-fuente", children: ["Fuente: ", fuente] }) : null] })] }));
+    return (_jsxs("figure", { className: "mk-muestra", children: [_jsxs("button", { type: "button", className: "mk-muestra-boton", onClick: () => hex && copiar(hex), "data-mk-copiar": true, "data-mk-valor": hex, children: [_jsx("span", { ref: ref, className: "mk-muestra-color", style: { background: `var(${token})` } }), _jsx("span", { className: "mk-muestra-nombre", children: nombre }), falta.length ? _jsx(FaltaToken, { tokens: falta }) : _jsx("span", { className: "mk-muestra-hex", children: hex || "…" }), _jsx("span", { className: "mk-oculto", children: "Copiar el valor hexadecimal" })] }), _jsxs("figcaption", { className: "mk-muestra-datos", children: [c ? _jsxs("span", { children: ["RGB ", toRgb(c)] }) : null, cmyk ? _jsxs("span", { children: ["CMYK ", cmyk] }) : null, pantone ? _jsxs("span", { children: ["Pantone ", pantone] }) : null, _jsx("code", { children: token }), uso ? _jsx("span", { className: "mk-muestra-uso", children: uso }) : null, fuente ? _jsxs("span", { className: "mk-fuente", children: ["Fuente: ", fuente] }) : null] })] }));
 }
 export function Rampa({ familia, prefijo, pasos, ancla, }) {
     const refs = useRef([]);
     const v = useVersionTema();
     const [hex, setHex] = useState([]);
+    const [falta, setFalta] = useState([]);
     useEffect(() => {
+        setFalta(faltan(...pasos.map((p) => `${prefijo}${p}`)));
         setHex(refs.current.map((el) => {
             const c = medir(el, "backgroundColor");
             return c ? toHex(c) : "";
         }));
-    }, [v, pasos.length]);
-    return (_jsxs("div", { className: "mk-rampa", children: [_jsx("h3", { className: "mk-rampa-titulo", children: familia }), _jsx("ul", { className: "mk-rampa-pasos", children: pasos.map((paso, i) => (_jsx("li", { children: _jsxs("button", { type: "button", className: "mk-rampa-paso", "data-ancla": paso === ancla ? "" : undefined, onClick: () => hex[i] && copiar(hex[i]), "data-mk-copiar": true, "data-mk-valor": hex[i] ?? "", children: [_jsx("span", { ref: (el) => {
+    }, [v, prefijo, pasos]);
+    return (_jsxs("div", { className: "mk-rampa", children: [_jsx("h3", { className: "mk-rampa-titulo", children: familia }), falta.length ? _jsx(FaltaToken, { tokens: falta }) : null, _jsx("ul", { className: "mk-rampa-pasos", children: pasos.map((paso, i) => (_jsx("li", { children: _jsxs("button", { type: "button", className: "mk-rampa-paso", "data-ancla": paso === ancla ? "" : undefined, onClick: () => hex[i] && copiar(hex[i]), "data-mk-copiar": true, "data-mk-valor": hex[i] ?? "", children: [_jsx("span", { ref: (el) => {
                                     refs.current[i] = el;
                                 }, className: "mk-rampa-color", style: { background: `var(${prefijo}${paso})` } }), _jsxs("span", { className: "mk-rampa-numero", children: [_jsxs("span", { className: "mk-oculto", children: [familia, " "] }), paso, paso === ancla ? _jsx("span", { className: "mk-oculto", children: " (color de marca)" }) : null] }), _jsx("span", { className: "mk-rampa-hex", children: hex[i] ?? "" }), _jsx("span", { className: "mk-oculto", children: ", copiar" })] }) }, paso))) })] }));
 }
@@ -112,13 +145,16 @@ export function ParContraste({ etiqueta, texto, fondo, minimo = 4.5, }) {
     const ref = useRef(null);
     const v = useVersionTema();
     const [ratio, setRatio] = useState(null);
+    const [falta, setFalta] = useState([]);
     useEffect(() => {
+        const f = faltan(texto, fondo);
+        setFalta(f);
         const fg = medir(ref.current, "color");
         const bg = fondoEfectivo(ref.current);
-        setRatio(fg && bg ? contrast(fg, bg) : null);
-    }, [v]);
+        setRatio(!f.length && fg && bg ? contrast(fg, bg) : null);
+    }, [v, texto, fondo]);
     const cumple = ratio !== null && ratio >= minimo;
-    return (_jsxs("figure", { className: "mk-par", children: [_jsxs("div", { ref: ref, className: "mk-par-muestra", style: { color: `var(${texto})`, background: `var(${fondo})` }, children: ["Aa ", etiqueta] }), _jsxs("figcaption", { className: "mk-par-datos", children: [_jsxs("code", { children: [texto, " sobre ", fondo] }), _jsx("span", { className: "mk-par-resultado", "data-cumple": ratio === null ? undefined : String(cumple), "data-mk-ratio": ratio ?? "", children: ratio === null ? "Midiendo…" : `${formatRatio(ratio)} · ${cumple ? "cumple" : "no cumple"} ${formatRatio(minimo)}` })] })] }));
+    return (_jsxs("figure", { className: "mk-par", children: [_jsxs("div", { ref: ref, className: "mk-par-muestra", style: { color: `var(${texto})`, background: `var(${fondo})` }, children: ["Aa ", etiqueta] }), _jsxs("figcaption", { className: "mk-par-datos", children: [_jsxs("code", { children: [texto, " sobre ", fondo] }), falta.length ? (_jsx(FaltaToken, { tokens: falta })) : (_jsx("span", { className: "mk-par-resultado", "data-cumple": ratio === null ? undefined : String(cumple), "data-mk-ratio": ratio ?? "", children: ratio === null ? "Midiendo…" : `${formatRatio(ratio)} · ${cumple ? "cumple" : "no cumple"} ${formatRatio(minimo)}` }))] })] }));
 }
 export function Especimen({ nombre, size, lineHeight, family, weight, tracking, children, }) {
     const ref = useRef(null);

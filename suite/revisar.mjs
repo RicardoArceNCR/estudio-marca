@@ -113,11 +113,15 @@ async function revisarPagina({ page, AxeBuilder, origen, ruta, ancho, informe, p
     if (img.alt === null) informe.falla(donde, `imagen sin alt: ${img.src}`);
     else if (/\.(svg|png|jpe?g|webp)$/i.test(img.alt)) informe.aviso(donde, `alt con nombre de archivo: ${img.alt}`);
   }
+  const faltas = await page.$$eval("[data-mk-falta]", (els) => els.map((e) => e.getAttribute("data-mk-falta")));
+  for (const f of faltas) informe.falla(donde, `la configuración usa tokens que el CSS no define: ${f}`);
+  const midiendo = await page.$$eval(".mk-par-resultado", (els) => els.filter((e) => /Midiendo/.test(e.textContent ?? "")).length);
+  if (midiendo) informe.falla(donde, `${midiendo} par(es) de contraste sin medir`);
   for (const termino of prohibidos) {
     if (datos.html.includes(termino)) informe.falla(donde, `el HTML contiene "${termino}" (dato de otro cliente)`);
   }
 
-  if (ancho === 1440 || ancho === 390) {
+  {
     const axe = await new AxeBuilder({ page }).withTags(ETIQUETAS_AXE).analyze();
     for (const v of axe.violations) {
       const msg = `axe ${v.id} (${v.impact}): ${v.nodes.length} nodo(s) — ${v.help}`;
@@ -148,7 +152,10 @@ async function revisarTeclado({ page, url, informe }) {
       const el = document.activeElement;
       if (!el || el === document.body) return null;
       const cs = getComputedStyle(el);
-      const visible = (cs.outlineStyle !== "none" && parseFloat(cs.outlineWidth) > 0) || cs.boxShadow !== "none";
+      const transparente = (c) => /rgba\([^)]*,\s*0\)|transparent/.test(c);
+      const visible =
+        (cs.outlineStyle !== "none" && parseFloat(cs.outlineWidth) > 0 && !transparente(cs.outlineColor)) ||
+        (cs.boxShadow !== "none" && !transparente(cs.boxShadow));
       const rect = el.getBoundingClientRect();
       const x = Math.min(Math.max(rect.left + rect.width / 2, 0), window.innerWidth - 1);
       const y = Math.min(Math.max(rect.top + Math.min(rect.height / 2, 10), 0), window.innerHeight - 1);
@@ -191,13 +198,21 @@ async function revisarMenu({ page, url, informe }) {
 
 async function revisarCopiar({ page, origen, rutas, informe }) {
   await page.setViewportSize({ width: 1440, height: 900 });
+  const base = new URL(origen + rutas[0]).pathname.replace(/\/$/, "");
+  let probado = false;
   for (const ruta of rutas) {
     await page.goto(origen + ruta, { waitUntil: "networkidle" });
     const botones = page.locator("[data-mk-copiar]");
     if (!(await botones.count())) continue;
     const donde = `copiar ${ruta}`;
     const boton = botones.first();
-    await page.waitForFunction(() => document.querySelector("[data-mk-copiar]")?.getAttribute("data-mk-valor"));
+    try {
+      await page.waitForFunction(() => document.querySelector("[data-mk-copiar]")?.getAttribute("data-mk-valor"), null, { timeout: 5000 });
+    } catch {
+      informe.falla(donde, "la primera muestra nunca resolvió su valor");
+      probado = true;
+      break;
+    }
     const valor = await boton.getAttribute("data-mk-valor");
     await page.evaluate(() => {
       window.__mkAnuncios = 0;
@@ -214,8 +229,10 @@ async function revisarCopiar({ page, origen, rutas, informe }) {
     if (copiado !== valor) informe.falla(donde, `se copió "${copiado}" y la muestra dice "${valor}"`);
     const anuncios = await page.evaluate(() => window.__mkAnuncios);
     if (anuncios < 2) informe.falla(donde, `copiar dos veces se anunció ${anuncios} vez(ces): el lector no se entera`);
-    return;
+    probado = true;
+    break;
   }
+  if (!probado && rutas.includes(`${base}/color`)) informe.falla("copiar", "la sección de color no tiene muestras para copiar");
 }
 
 async function revisarDescargas({ page, origen, rutas, informe }) {
@@ -278,6 +295,8 @@ export async function revisar({ url, anchos = [320, 390, 1440], prohibidos = [] 
     await revisarMenu({ page, url, informe });
     await revisarCopiar({ page, origen, rutas, informe });
     const descargas = await revisarDescargas({ page, origen, rutas, informe });
+    const base = new URL(url).pathname.replace(/\/$/, "");
+    if (rutas.includes(`${base}/logo`) && descargas === 0) informe.falla("descargas", "la sección de logo no ofrece ninguna descarga");
     return { rutas, descargas, ...informe };
   } finally {
     await navegador.close();

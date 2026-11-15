@@ -19,7 +19,8 @@
   --feedback-error-text: #a8231c;
   --input-border-error: #a8231c;
   --brand-main: #5b35d5;
-  --brand-accent: #f2b33d;
+  /* En oklch, como lo publica Tailwind v4: la muestra tiene que leerlo igual. */
+  --brand-accent: oklch(0.81 0.15 75);
   --color-violeta-100: #ebe5fc;
   --color-violeta-300: #b3a0f0;
   --color-violeta-500: #5b35d5;
