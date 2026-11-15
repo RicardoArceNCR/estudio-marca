@@ -32,7 +32,11 @@ export interface VersionLogo {
     nombre: string;
     /** Ruta pública del SVG con curvas: `/marca/logo/principal.svg`. */
     svg: string;
-    fondo: "claro" | "oscuro";
+    /**
+     * Sobre qué se muestra: "claro", "oscuro" o un token de color de la marca
+     * (`--brand-main`) cuando la versión está pensada para ese fondo.
+     */
+    fondo: "claro" | "oscuro" | `--${string}`;
     uso: string;
 }
 export type UsoIncorrecto = "estirar" | "rotar" | "recolorear" | "sombra" | "contorno" | "apretar";

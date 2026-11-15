@@ -520,6 +520,19 @@
     background: var(--mk-superficie-inversa);
   }
 
+  .mk-minimo {
+    display: inline-flex;
+    width: fit-content;
+    padding: 0.75rem;
+    border: 1px solid var(--mk-borde-suave);
+    border-radius: var(--mk-radio-chico);
+    background: var(--mk-superficie);
+  }
+
+  .mk-minimo[data-fondo="oscuro"] {
+    background: var(--mk-superficie-inversa);
+  }
+
   .mk-logo-lamina img {
     max-height: 100%;
   }

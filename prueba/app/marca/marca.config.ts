@@ -24,6 +24,7 @@ export default defineMarca({
     versiones: [
       { id: "principal", nombre: "Principal", svg: "/marca/logo/principal.svg", fondo: "claro", uso: "Sobre fondos claros." },
       { id: "negativo", nombre: "Negativo", svg: "/marca/logo/negativo.svg", fondo: "oscuro", uso: "Sobre fondos oscuros." },
+      { id: "sobre-violeta", nombre: "Sobre violeta", svg: "/marca/logo/negativo.svg", fondo: "--brand-main", uso: "Sobre el color de marca." },
     ],
     respeto: { medida: "1 × la altura del círculo", descripcion: "Nada entra en ese margen alrededor del logo." },
     minimo: { digital: "96 px", impreso: "2,5 cm" },

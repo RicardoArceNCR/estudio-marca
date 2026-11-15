@@ -37,7 +37,11 @@ export interface VersionLogo {
   nombre: string;
   /** Ruta pública del SVG con curvas: `/marca/logo/principal.svg`. */
   svg: string;
-  fondo: "claro" | "oscuro";
+  /**
+   * Sobre qué se muestra: "claro", "oscuro" o un token de color de la marca
+   * (`--brand-main`) cuando la versión está pensada para ese fondo.
+   */
+  fondo: "claro" | "oscuro" | `--${string}`;
   uso: string;
 }
 
@@ -160,6 +164,7 @@ export function validarMarca(c: MarcaConfig): string[] {
     ...(c.color?.oficiales.map((o) => o.token) ?? []),
     ...(c.color?.pares?.flatMap((p) => [p.texto, p.fondo]) ?? []),
     ...(c.tipografia?.familias.map((f) => f.token) ?? []),
+    ...(c.logo?.versiones.map((v) => v.fondo).filter((f) => f.startsWith("--")) ?? []),
     ...(c.sistema?.espaciado ?? []),
     ...(c.sistema?.radios ?? []),
     ...(c.sistema?.sombras ?? []),

@@ -8,6 +8,7 @@ import {
   type MarcaConfig,
   type Seccion,
   type UsoIncorrecto,
+  type VersionLogo,
 } from "./config.js";
 import { DescargaZip, DescargasVersion } from "./descargas.js";
 import { slugDe } from "./rutas.js";
@@ -99,6 +100,13 @@ const INCORRECTOS: Record<UsoIncorrecto, { texto: string; clase: string }> = {
   apretar: { texto: "No invadas su área de respeto.", clase: "mk-mal-apretar" },
 };
 
+/** Lámina del logo: fondo claro, oscuro o el color de marca que pide la versión. */
+function lamina(fondo: VersionLogo["fondo"]) {
+  return fondo.startsWith("--")
+    ? { "data-fondo": "marca", style: { background: `var(${fondo})` } }
+    : { "data-fondo": fondo };
+}
+
 function PaginaLogo({ config, logo, seccion }: { config: MarcaConfig; logo: LogoConfig; seccion: Seccion }) {
   const principal = logo.versiones[0];
   const incorrectos = logo.incorrectos ?? (Object.keys(INCORRECTOS) as UsoIncorrecto[]);
@@ -112,7 +120,7 @@ function PaginaLogo({ config, logo, seccion }: { config: MarcaConfig; logo: Logo
         <div className="mk-rejilla">
           {logo.versiones.map((v) => (
             <figure key={v.id} className="mk-logo">
-              <div className="mk-logo-lamina" data-fondo={v.fondo}>
+              <div className="mk-logo-lamina" {...lamina(v.fondo)}>
                 <img src={v.svg} alt={`${config.marca}: ${v.nombre}`} />
               </div>
               <figcaption>
@@ -128,7 +136,7 @@ function PaginaLogo({ config, logo, seccion }: { config: MarcaConfig; logo: Logo
         <>
           <Bloque id="respeto" titulo="Área de respeto">
             <div className="mk-columnas">
-              <div className="mk-logo-lamina mk-respeto" data-fondo={principal.fondo}>
+              <div className="mk-logo-lamina mk-respeto" {...lamina(principal.fondo)}>
                 <img src={principal.svg} alt={`${config.marca} con su área de respeto marcada`} />
               </div>
               <div>
@@ -143,7 +151,9 @@ function PaginaLogo({ config, logo, seccion }: { config: MarcaConfig; logo: Logo
                 <span className="mk-dato">{logo.minimo.digital}</span>
                 <span>En pantalla, de ancho.</span>
                 {anchoMinimo ? (
-                  <img src={principal.svg} alt={`${config.marca} a ${logo.minimo.digital}`} style={{ width: anchoMinimo }} />
+                  <span className="mk-minimo" {...lamina(principal.fondo)}>
+                    <img src={principal.svg} alt={`${config.marca} a ${logo.minimo.digital}`} style={{ width: anchoMinimo }} />
+                  </span>
                 ) : null}
               </div>
               <div className="mk-tarjeta mk-tarjeta-fija">
@@ -156,7 +166,7 @@ function PaginaLogo({ config, logo, seccion }: { config: MarcaConfig; logo: Logo
             <div className="mk-rejilla">
               {incorrectos.map((id) => (
                 <figure key={id} className="mk-logo mk-incorrecto">
-                  <div className="mk-logo-lamina" data-fondo={principal.fondo}>
+                  <div className="mk-logo-lamina" {...lamina(principal.fondo)}>
                     <img className={INCORRECTOS[id].clase} src={principal.svg} alt={`Ejemplo incorrecto: ${INCORRECTOS[id].texto}`} />
                   </div>
                   <figcaption>
