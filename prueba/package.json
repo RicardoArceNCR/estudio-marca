@@ -1,0 +1,14 @@
+{
+  "name": "cliente-de-prueba",
+  "private": true,
+  "scripts": {
+    "build": "next build",
+    "start": "next start -p 3107"
+  },
+  "dependencies": {
+    "@estudio/marca": "file:../estudio-marca-0.1.0.tgz",
+    "next": "15.5.29",
+    "react": "19.2.9",
+    "react-dom": "19.2.9"
+  }
+}

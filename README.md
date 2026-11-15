@@ -1,0 +1,99 @@
+# @estudio/marca
+
+Portal de marca (`/marca`) para sitios Next.js del estudio. Trae el marco, las
+páginas que se arman desde la configuración, las descargas y las pruebas. **No
+trae datos de ningún cliente**: nombres, textos, archivos y colores los pone el
+sitio. Por qué existe: ADR 0011 del estudio.
+
+## Usarlo en un sitio
+
+```sh
+pnpm add "github:RicardoArceNCR/estudio-marca#v0.1.0"
+pnpm add -D playwright @axe-core/playwright
+```
+
+1. **Estilos**, en el layout raíz y después de los tokens del cliente:
+
+   ```tsx
+   import "@cliente/ui/tokens.css";
+   import "@estudio/marca/portal.css";
+   ```
+
+2. **Configuración** en `src/app/marca/marca.config.ts`, con `defineMarca`.
+   Los colores se escriben como tokens (`--brand-main`), nunca como hex. Una
+   sección sin material va con `estado: "pendiente"` y su `pendiente`.
+
+3. **Rutas**, tres archivos de pocas líneas:
+
+   ```tsx
+   // src/app/marca/layout.tsx
+   import { MarcaShell } from "@estudio/marca";
+   import config from "./marca.config";
+   export default function Layout({ children }) {
+     return <MarcaShell config={config}>{children}</MarcaShell>;
+   }
+
+   // src/app/marca/[[...slug]]/page.tsx
+   import { MarcaPagina, marcaMetadata, marcaParams } from "@estudio/marca";
+   import config from "../marca.config";
+   export const generateStaticParams = () => marcaParams(config);
+   export async function generateMetadata({ params }) {
+     return marcaMetadata(config, (await params).slug);
+   }
+   export default async function Pagina({ params }) {
+     return <MarcaPagina config={config} slug={(await params).slug} />;
+   }
+
+   // src/app/marca/not-found.tsx
+   import { MarcaNoEncontrada } from "@estudio/marca";
+   import config from "./marca.config";
+   export default function NoEncontrada() {
+     return <MarcaNoEncontrada config={config} />;
+   }
+   ```
+
+   Una sección propia del sitio va en su ruta explícita
+   (`src/app/marca/productos/page.tsx`): le gana a la comodín. Puede usar
+   `Encabezado`, `Bloque`, `Muestra` y el resto de las piezas.
+
+4. **Revisión** en `quality`, con el build servido:
+
+   ```sh
+   npx marca-revisar --url http://localhost:3101/marca
+   ```
+
+## Qué pinta el paquete
+
+| Sección | Desde |
+| --- | --- |
+| Inicio | `secciones`: accesos a tareas y a cada sección |
+| `logo` | `logo`: versiones sobre su fondo, área de respeto, tamaño mínimo, seis usos incorrectos dibujados desde el SVG, descargas SVG, PNG 1200/2400 y ZIP |
+| `color` | `color`: muestras copiables con HEX, RGB y CMYK, pares medidos con resultado en texto, rampas |
+| `tipografia` | `tipografia`: familias con pesos y licencia, jerarquía medida |
+| `sistema` | `sistema`: componentes con estados, espaciado, radios, sombras |
+| Pendiente | `estado: "pendiente"`: qué falta, quién y para cuándo |
+
+## Tokens que lee
+
+`portal.css` usa ganchos `--mk-*` que caen en los tokens semánticos del
+estudio: `--background-page`, `--surface-*`, `--text-primary`,
+`--text-secondary`, `--text-brand`, `--border-default`, `--border-subtle`,
+`--focus-ring-color`, `--button-primary-*`, `--feedback-error-text` y
+`--typography-family-*`. Para ajustar uno, pisá su `--mk-*` en el CSS del
+sitio.
+
+## Desarrollo
+
+```sh
+npm ci
+npm run verify   # build, pruebas y sin-clientes
+npm run prueba   # arma el cliente de prueba y corre marca-revisar
+```
+
+Reglas:
+
+- Nada de nombres, textos, hex ni archivos de un cliente. `sin-clientes` lo
+  verifica; al sumar un cliente al estudio, agregalo a
+  `scripts/prohibidos.json`.
+- Cada release: `npm run prueba` en verde, `CHANGELOG.md` y tag igual a
+  `version`. Nunca se mueve un tag publicado.

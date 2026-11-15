@@ -1,0 +1,60 @@
+{
+  "name": "@estudio/marca",
+  "version": "0.1.0",
+  "description": "Portal de marca (/marca) para sitios Next.js: shell, muestras en vivo, descargas y pruebas. Sin datos de ningún cliente.",
+  "type": "module",
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./portal.css": "./portal.css",
+    "./suite": "./suite/revisar.mjs"
+  },
+  "bin": {
+    "marca-revisar": "./suite/revisar.mjs"
+  },
+  "files": [
+    "dist",
+    "portal.css",
+    "suite",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "rm -rf dist && tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "node --test scripts/*.test.mjs",
+    "sin-clientes": "node scripts/sin-clientes.mjs",
+    "prueba": "node scripts/prueba.mjs",
+    "verify": "npm run build && npm test && npm run sin-clientes"
+  },
+  "peerDependencies": {
+    "next": ">=15",
+    "react": ">=19",
+    "react-dom": ">=19"
+  },
+  "peerDependenciesMeta": {
+    "playwright": {
+      "optional": true
+    },
+    "@axe-core/playwright": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "4.14.0",
+    "@types/node": "22.20.5",
+    "@types/react": "19.3.0",
+    "next": "15.5.29",
+    "playwright": "1.63.0",
+    "react": "19.2.9",
+    "react-dom": "19.2.9",
+    "typescript": "5.9.3"
+  }
+}

@@ -1,0 +1,6 @@
+node_modules/
+prueba/node_modules/
+prueba/.next/
+prueba/next-env.d.ts
+*.tgz
+.DS_Store

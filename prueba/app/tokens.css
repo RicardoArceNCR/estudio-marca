@@ -1,0 +1,45 @@
+/* Tokens de un cliente ficticio, solo para probar el paquete. */
+:root {
+  --background-page: #fbfaf7;
+  --surface-base: #ffffff;
+  --surface-raised: #ffffff;
+  --surface-subtle: #f1efe9;
+  --surface-inverse: #1d1b26;
+  --text-primary: #1d1b26;
+  --text-secondary: #4a4757;
+  --text-inverse: #ffffff;
+  --text-brand: #4b2bb3;
+  --text-on-brand: #ffffff;
+  --border-default: #77738a;
+  --border-subtle: #d9d6cf;
+  --focus-ring-color: #4b2bb3;
+  --button-primary-bg: #4b2bb3;
+  --button-primary-bg-hover: #3a1f91;
+  --button-primary-text: #ffffff;
+  --feedback-error-text: #a8231c;
+  --input-border-error: #a8231c;
+  --brand-main: #5b35d5;
+  --brand-accent: #f2b33d;
+  --color-violeta-100: #ebe5fc;
+  --color-violeta-300: #b3a0f0;
+  --color-violeta-500: #5b35d5;
+  --color-violeta-700: #3a1f91;
+  --color-violeta-900: #1f1052;
+  --typography-family-display: Georgia, "Times New Roman", serif;
+  --typography-family-body: system-ui, sans-serif;
+  --typography-family-mono: ui-monospace, monospace;
+  --typography-size-sm: 0.875rem;
+  --typography-size-md: 1rem;
+  --typography-size-2xl: 1.5rem;
+  --typography-size-5xl: 3rem;
+  --typography-weight-regular: 400;
+  --typography-weight-bold: 700;
+  --spacing-2: 0.5rem;
+  --spacing-4: 1rem;
+  --spacing-8: 2rem;
+  --spacing-16: 4rem;
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-full: 999px;
+  --shadow-md: 0 4px 12px rgb(0 0 0 / 0.15);
+}

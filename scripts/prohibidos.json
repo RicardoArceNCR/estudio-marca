@@ -1,0 +1,9 @@
+{
+  "$comentario": "Nombres que no pueden aparecer en el paquete ni en el HTML del cliente de prueba: clientes de repos.json del estudio y piezas propias de uno de ellos. Al sumar un cliente al estudio, sumalo acá.",
+  "terminos": [
+    "vper", "vpercito", "obviously", "misitio",
+    "divergentes", "contracorriente", "hablemos", "bluezone",
+    "tomatola", "toma tola", "qonexia", "wok-ui", "gobi", "soefe",
+    "hanley", "montserrat"
+  ]
+}
