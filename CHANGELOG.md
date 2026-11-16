@@ -2,6 +2,12 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). Versionado: semver; mientras sea 0.x, un cambio de la configuración puede romper.
 
+## [0.4.1] — 2026-11-16
+
+### Cambiado
+
+- Textos del portal más cortos y sin explicar cómo está hecho: se quitan "Los PNG se generan desde los SVG originales", "Medidas sobre el CSS que carga este sitio" y "Todo se lee del CSS que carga el sitio"; "listos para pegar" pasa a "para copiar".
+
 ## [0.4.0] — 2026-11-16
 
 Tercer incremento de diseño: que cada marca pueda verse propia sin salir del paquete. Apunta a **marca** y **vistas** de la rúbrica.

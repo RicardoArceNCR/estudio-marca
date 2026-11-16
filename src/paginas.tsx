@@ -198,11 +198,11 @@ function PaginaInicio({ config }: { config: MarcaConfig }) {
     lista("color") && {
       href: `${hrefDe(config, "color")}#oficiales`,
       titulo: "Copiar un color",
-      texto: config.color?.oficiales.some((o) => o.cmyk) ? "Valores en HEX, RGB y CMYK, listos para pegar." : "Valores en HEX y RGB, listos para pegar.",
+      texto: config.color?.oficiales.some((o) => o.cmyk) ? "Valores en HEX, RGB y CMYK para copiar." : "Valores en HEX y RGB para copiar.",
       icono: "copiar" as const,
     },
     lista("tipografia") && { href: hrefDe(config, "tipografia"), titulo: "Ver la tipografía", texto: "Familias, pesos y jerarquía.", icono: "tipografia" as const },
-    lista("sistema") && { href: hrefDe(config, "sistema"), titulo: "Usar el sistema", texto: "Tokens y componentes como los pinta el sitio.", icono: "sistema" as const },
+    lista("sistema") && { href: hrefDe(config, "sistema"), titulo: "Usar el sistema", texto: "Tokens y componentes del sitio.", icono: "sistema" as const },
   ];
   const generados = candidatos.filter((t): t is Atajo => Boolean(t));
   const tareas: Atajo[] = config.inicio?.atajos === false ? [] : (config.inicio?.atajos ?? generados);
@@ -352,7 +352,7 @@ function PaginaLogo({ config, logo, seccion }: { config: MarcaConfig; logo: Logo
               </div>
               <div className="mk-tarjeta mk-tarjeta-fija">
                 <span className="mk-dato">{logo.minimo.impreso}</span>
-                <span>En impresión, de ancho. En pantalla, a escala aproximada.</span>
+                <span>Impreso, de ancho. La muestra es aproximada.</span>
                 {anchoImpreso ? (
                   <span className="mk-minimo" {...lamina(principal.fondo)}>
                     <img src={principal.svg} alt={`${config.marca} a ${logo.minimo.impreso}, a escala aproximada`} style={{ width: anchoImpreso }} />
@@ -409,7 +409,7 @@ function PaginaColor({ config, seccion }: { config: MarcaConfig; seccion: Seccio
       </Bloque>
       {color.pares?.length ? (
         <Bloque id="combinaciones" titulo="Combinaciones con texto">
-          <p>Medidas sobre el CSS que carga este sitio. Texto: 4,5:1 como mínimo; texto grande e indicadores: 3:1.</p>
+          <p>Contraste mínimo: 4,5:1 para texto y 3:1 para texto grande e indicadores.</p>
           <Rejilla n={color.pares.length} max={4}>
             {color.pares.map((p) => (
               <ParContraste key={`${p.texto}-${p.fondo}`} {...p} />
@@ -475,7 +475,7 @@ function PaginaSistema({ config, seccion }: { config: MarcaConfig; seccion: Secc
   return (
     <>
       <Encabezado antetitulo={seccion.grupo} titulo={seccion.titulo} config={config} capitulo={seccion.capitulo}>
-        <p>{seccion.resumen} Todo se lee del CSS que carga el sitio.</p>
+        <p>{seccion.resumen}</p>
       </Encabezado>
       {seccion.siDudas ? <SiDudas texto={seccion.siDudas} /> : null}
       <Bloque id="componentes" titulo="Componentes y estados">
@@ -498,7 +498,7 @@ function PaginaSistema({ config, seccion }: { config: MarcaConfig; seccion: Secc
             <button type="button" className="mk-boton mk-boton-fantasma mk-boton-brillo">
               Con brillo
             </button>
-            <span>Sin relleno y con brillo: uno solo por vista, sobre un fondo oscuro o de marca.</span>
+            <span>Uno por pantalla, sobre fondo oscuro o de marca.</span>
           </div>
           <div className="mk-campo">
             <label htmlFor="mk-campo-ejemplo">Correo</label>

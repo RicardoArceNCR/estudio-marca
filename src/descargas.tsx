@@ -193,7 +193,7 @@ export function PanelDescargas({
     <div className="mk-panel-descargas">
       <div className="mk-panel-zip">
         <p className="mk-panel-zip-texto">
-          Todas las versiones en SVG y en PNG de 2400 px, con un LEEME. Los PNG se generan desde los SVG originales.
+          Todas las versiones en SVG y en PNG de 2400 px, con un LEEME.
         </p>
         <DescargaZip versiones={versiones} archivo={archivo} marca={marca} version={version} leeme={leeme} />
       </div>
