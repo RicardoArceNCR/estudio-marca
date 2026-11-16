@@ -154,7 +154,7 @@ async function revisarPagina({ page, AxeBuilder, origen, ruta, ancho, informe, p
     const brillos = botones.filter((b) => b.classList.contains("mk-boton-brillo")).length;
     const secciones = [...document.querySelectorAll("main section[id]")].filter((x) => !x.parentElement?.closest("section[id]")).length;
     const indiceMovil = document.querySelector("[data-mk-indice-movil]");
-    const portada = document.querySelector(".mk-portada")?.getBoundingClientRect().height ?? 0;
+    const portada = document.querySelector(".mk-portada, .mk-capitulo")?.getBoundingClientRect().height ?? 0;
     const alto = window.innerHeight;
     const esInicio = location.pathname.replace(/\/$/, "") === (document.querySelector(".mk-marca")?.getAttribute("href") ?? "").replace(/\/$/, "");
     return { chico, objetivos, huerfanas, botonesBajos, mayusTecleadas, brillos, secciones, esInicio, portada, alto, indiceMovil: indiceMovil ? visible(indiceMovil) : false };
@@ -300,8 +300,6 @@ async function revisarDescargas({ page, origen, rutas, informe }) {
   let total = 0;
   for (const ruta of rutas) {
     await page.goto(origen + ruta, { waitUntil: "networkidle" });
-    const menus = page.locator("[data-mk-formatos][aria-expanded='false']");
-    for (let i = await menus.count(); i > 0; i--) await menus.first().click();
     const botones = page.locator("[data-mk-descarga]");
     const n = await botones.count();
     for (let i = 0; i < n; i++) {

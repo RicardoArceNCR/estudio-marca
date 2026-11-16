@@ -11,10 +11,11 @@ export declare function DescargaZip({ versiones, archivo, marca, version, leeme,
     leeme: string;
 }): import("react").JSX.Element;
 /**
- * Panel de descargas: el ZIP primero y, por versión, una vista previa con sus
- * formatos agrupados en un menú. Va arriba en Logo: es la tarea más común.
+ * Versiones y descargas: el ZIP arriba y, debajo, una galería con cada
+ * versión grande sobre su fondo, para qué sirve y sus formatos a la vista.
+ * Va arriba en Logo: es la tarea más común.
  */
-export declare function PanelDescargas({ versiones, archivo, marca, version, leeme, fondos, }: {
+export declare function PanelDescargas({ versiones, archivo, marca, version, leeme, fondos, porDefecto, }: {
     versiones: VersionLogo[];
     archivo: string;
     marca: string;
@@ -25,4 +26,6 @@ export declare function PanelDescargas({ versiones, archivo, marca, version, lee
         "data-fondo": string;
         style?: Record<string, string>;
     }>;
+    /** Id de la versión por defecto: lleva la etiqueta "Por defecto". */
+    porDefecto?: string;
 }): import("react").JSX.Element;

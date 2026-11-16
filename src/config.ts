@@ -33,6 +33,28 @@ export interface Ayuda {
   texto?: string;
 }
 
+/**
+ * Portada de capítulo: el encabezado de la sección a color pleno, de borde a
+ * borde, con su número enorme. `tinta` es el color del texto: "clara" sobre
+ * fondos oscuros o saturados, "oscura" sobre fondos claros.
+ */
+export interface Capitulo {
+  /** "01". Va grande y decorativo (oculto para lectores de pantalla). */
+  numero: string;
+  /** Token del fondo: `--brand-main`. */
+  fondo: `--${string}`;
+  tinta?: "clara" | "oscura";
+}
+
+/** Un público del portal y la tarea que viene a resolver. */
+export interface Perfil {
+  /** "Diseñadores y agencias". */
+  quien: string;
+  /** Qué necesita, con verbo: "Bajar el logo y copiar los colores." */
+  necesita: string;
+  href: string;
+}
+
 /** Lo que falta para que una sección pendiente se pueda publicar. */
 export interface Pendiente {
   falta: string;
@@ -61,6 +83,8 @@ export interface Seccion {
    * frases. Va arriba de todo, antes de las reglas.
    */
   siDudas?: string;
+  /** Portada de capítulo de la sección. Sin esto, encabezado simple. */
+  capitulo?: Capitulo;
 }
 
 export interface VersionLogo {
@@ -181,7 +205,15 @@ export interface MarcaConfig {
     alt?: string;
     /** Una sola acción en la portada: botón sin relleno con borde iluminado. */
     accion?: { texto: string; href: string };
+    /** De borde a borde del área de contenido, sin radio, como las portadas de capítulo. */
+    sangrado?: boolean;
   };
+  /**
+   * Gesto de los títulos de página: un signo de cierre (por ejemplo, ".")
+   * pintado con `--mk-titulo-punto`. Decorativo: no lo leen los lectores de
+   * pantalla, y no se agrega si el título ya termina en un signo.
+   */
+  titulos?: { punto?: string };
   /** Marca chica junto al nombre en la cabecera: logo sobre su color. */
   cabecera?: { logo: string; fondo: `--${string}` };
   /** Inicio: encabezado propio, atajos por tarea y títulos de sus bloques. */
@@ -189,7 +221,9 @@ export interface MarcaConfig {
     encabezado?: Titular;
     /** `false` quita los atajos; sin el campo, el paquete arma los de siempre. */
     atajos?: Atajo[] | false;
-    bloques?: { atajos?: Titular; secciones?: Titular };
+    bloques?: { atajos?: Titular; secciones?: Titular; publico?: Titular };
+    /** "¿Para quién es esto?": cada público con su tarea y su destino. */
+    publico?: Perfil[];
   };
   /** Estado del portal, a la vista en cada página. */
   estado?: "vigente" | "borrador" | "en-revision";
@@ -231,6 +265,7 @@ export function validarMarca(c: MarcaConfig): string[] {
     ...(c.tipografia?.familias.map((f) => f.token) ?? []),
     ...(c.logo?.versiones.map((v) => v.fondo).filter((f) => f.startsWith("--")) ?? []),
     ...(c.portada ? [c.portada.fondo] : []),
+    ...c.secciones.flatMap((s) => (s.capitulo ? [s.capitulo.fondo] : [])),
     ...(c.cabecera ? [c.cabecera.fondo] : []),
     ...(c.sistema?.espaciado ?? []),
     ...(c.sistema?.radios ?? []),
@@ -254,6 +289,7 @@ export function validarMarca(c: MarcaConfig): string[] {
     if (a.icono && !esIcono(a.icono)) errores.push(`atajo "${a.titulo}": ícono "${a.icono}" no existe`);
     destino(`atajo "${a.titulo}"`, a.href);
   }
+  for (const p of c.inicio?.publico ?? []) destino(`público "${p.quien}"`, p.href);
   if (c.portada?.accion) destino(`acción de la portada "${c.portada.accion.texto}"`, c.portada.accion.href);
   if (c.logo?.porDefecto && !c.logo.versiones.some((v) => v.id === c.logo!.porDefecto)) {
     errores.push(`logo.porDefecto "${c.logo.porDefecto}": no es el id de ninguna versión`);

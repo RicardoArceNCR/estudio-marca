@@ -3,6 +3,7 @@ import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import { useState } from "react";
 import { fetchText, medidasSvg, rasterize } from "./raster.js";
 import { saveBlob } from "./save.js";
+import { columnas } from "./rejilla.js";
 import { avisar } from "./vivo.js";
 import { makeZip } from "./zip.js";
 /**
@@ -30,20 +31,21 @@ function useTarea() {
     }
     return { ocupado, correr };
 }
-function BotonDescarga({ id, tipo, nombre, ocupado, onClick, children, principal = false, }) {
+function BotonDescarga({ id, tipo, nombre, ocupado, onClick, children, principal = false, etiqueta, }) {
     const este = ocupado === id;
-    return (_jsx("button", { type: "button", className: principal ? "mk-boton" : "mk-boton mk-boton-secundario", "aria-disabled": ocupado ? true : undefined, onClick: onClick, "data-mk-descarga": true, "data-mk-tipo": tipo, "data-mk-archivo": nombre, children: este ? `Preparando ${children}…` : children }));
+    return (_jsx("button", { type: "button", className: principal ? "mk-boton" : "mk-boton mk-boton-secundario", "aria-label": etiqueta && !este ? etiqueta : undefined, "aria-disabled": ocupado ? true : undefined, onClick: onClick, "data-mk-descarga": true, "data-mk-tipo": tipo, "data-mk-archivo": nombre, children: este ? `Preparando ${children}…` : children }));
 }
 const png = async (svg, ancho) => rasterize(svg, medidasSvg(svg), ancho);
 export function DescargasVersion({ version, archivo }) {
     const { ocupado, correr } = useTarea();
     const base = `${archivo}-logo-${version.id}`;
+    const de = `de ${version.nombre}`;
     return (_jsxs("div", { className: "mk-descargas", role: "group", "aria-label": `Descargas: ${version.nombre}`, children: [_jsx(BotonDescarga, { id: "svg", tipo: "svg", nombre: `${base}.svg`, ocupado: ocupado, onClick: () => correr("svg", `${base}.svg`, async () => {
                     const svg = await fetchText(version.svg);
                     saveBlob(new Blob([svg], { type: "image/svg+xml" }), `${base}.svg`);
-                }), children: "SVG" }), ANCHOS_PNG.map((ancho) => (_jsx(BotonDescarga, { id: `png-${ancho}`, tipo: "png", nombre: `${base}-${ancho}.png`, ocupado: ocupado, onClick: () => correr(`png-${ancho}`, `${base}-${ancho}.png`, async () => {
+                }), etiqueta: `SVG ${de}`, children: "SVG" }), ANCHOS_PNG.map((ancho) => (_jsx(BotonDescarga, { id: `png-${ancho}`, tipo: "png", nombre: `${base}-${ancho}.png`, ocupado: ocupado, onClick: () => correr(`png-${ancho}`, `${base}-${ancho}.png`, async () => {
                     saveBlob(await png(await fetchText(version.svg), ancho), `${base}-${ancho}.png`);
-                }), children: `PNG ${ancho} px` }, ancho)))] }));
+                }), etiqueta: `PNG ${ancho} px ${de}`, children: `PNG ${ancho}` }, ancho)))] }));
 }
 export function DescargaZip({ versiones, archivo, marca, version, leeme, }) {
     const { ocupado, correr } = useTarea();
@@ -65,19 +67,14 @@ export function DescargaZip({ versiones, archivo, marca, version, leeme, }) {
         }), children: `Descargar todo (.zip)` }));
 }
 /**
- * Panel de descargas: el ZIP primero y, por versión, una vista previa con sus
- * formatos agrupados en un menú. Va arriba en Logo: es la tarea más común.
+ * Versiones y descargas: el ZIP arriba y, debajo, una galería con cada
+ * versión grande sobre su fondo, para qué sirve y sus formatos a la vista.
+ * Va arriba en Logo: es la tarea más común.
  */
-export function PanelDescargas({ versiones, archivo, marca, version, leeme, fondos, }) {
-    return (_jsxs("div", { className: "mk-panel-descargas", children: [_jsxs("div", { className: "mk-panel-zip", children: [_jsx("p", { className: "mk-panel-zip-texto", children: "Todas las versiones en SVG y en PNG de 2400 px, con un LEEME. Los PNG se generan desde los SVG originales." }), _jsx(DescargaZip, { versiones: versiones, archivo: archivo, marca: marca, version: version, leeme: leeme })] }), _jsx("ul", { className: "mk-panel-lista", children: versiones.map((v) => (_jsxs("li", { className: "mk-panel-item", children: [_jsx("span", { className: "mk-panel-vista mk-logo-lamina", ...fondos[v.id], children: _jsx("img", { src: v.svg, alt: "" }) }), _jsx("span", { className: "mk-panel-nombre", children: v.nombre }), _jsx(Formatos, { version: v, archivo: archivo })] }, v.id))) })] }));
-}
-function Formatos({ version, archivo }) {
-    const [abierto, setAbierto] = useState(false);
-    const id = `mk-formatos-${version.id}`;
-    return (_jsxs("div", { className: "mk-formatos", onKeyDown: (e) => {
-            if (e.key === "Escape" && abierto) {
-                setAbierto(false);
-                e.currentTarget.querySelector("[data-mk-formatos]")?.focus();
-            }
-        }, children: [_jsxs("button", { type: "button", className: "mk-boton mk-boton-secundario", "aria-expanded": abierto, "aria-controls": id, "data-mk-formatos": true, onClick: () => setAbierto((a) => !a), children: ["Formatos", _jsxs("span", { className: "mk-oculto", children: [" de ", version.nombre] }), _jsx("span", { "aria-hidden": "true", children: abierto ? " ▴" : " ▾" })] }), _jsx("div", { id: id, hidden: !abierto, className: "mk-formatos-lista", children: _jsx(DescargasVersion, { version: version, archivo: archivo }) })] }));
+export function PanelDescargas({ versiones, archivo, marca, version, leeme, fondos, porDefecto, }) {
+    // La versión por defecto ocupa su propia fila; el resto se reparte sin huérfanos.
+    const destacada = versiones.some((v) => v.id === porDefecto);
+    const n = versiones.length - (destacada ? 1 : 0);
+    const estilo = { "--mk-cols": columnas(n, 3), "--mk-cols-md": columnas(n, 2) };
+    return (_jsxs("div", { className: "mk-panel-descargas", children: [_jsxs("div", { className: "mk-panel-zip", children: [_jsx("p", { className: "mk-panel-zip-texto", children: "Todas las versiones en SVG y en PNG de 2400 px, con un LEEME. Los PNG se generan desde los SVG originales." }), _jsx(DescargaZip, { versiones: versiones, archivo: archivo, marca: marca, version: version, leeme: leeme })] }), _jsx("div", { className: "mk-rejilla mk-galeria", style: estilo, "data-mk-rejilla": true, children: versiones.map((v) => (_jsxs("figure", { id: `version-${v.id}`, className: "mk-logo mk-galeria-item", "data-mk-destacada": v.id === porDefecto ? "" : undefined, children: [_jsx("div", { className: "mk-logo-lamina", ...fondos[v.id], children: _jsx("img", { src: v.svg, alt: `${marca}: ${v.nombre}` }) }), _jsxs("figcaption", { children: [_jsxs("strong", { children: [v.nombre, v.id === porDefecto ? _jsx("span", { className: "mk-etiqueta", children: "Por defecto" }) : null] }), _jsx("span", { children: v.uso }), _jsx(DescargasVersion, { version: v, archivo: archivo })] })] }, v.id))) })] }));
 }

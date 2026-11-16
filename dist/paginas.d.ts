@@ -1,14 +1,21 @@
 import type { ReactNode } from "react";
-import { type MarcaConfig } from "./config.js";
+import { type MarcaConfig, type Capitulo } from "./config.js";
 /** "Vigente · Actualizado el 15 de noviembre de 2026", si la configuración lo trae. */
 export declare function EstadoPortal({ config }: {
     config: MarcaConfig;
 }): import("react").JSX.Element | null;
-export declare function Encabezado({ antetitulo, titulo, children, config, }: {
+/** Título de página con el gesto de la marca (`titulos.punto`), si lo tiene. */
+export declare function Titulo({ titulo, config }: {
+    titulo: string;
+    config?: MarcaConfig;
+}): import("react").JSX.Element;
+export declare function Encabezado({ antetitulo, titulo, children, config, capitulo, }: {
     antetitulo: string;
     titulo: string;
     children?: ReactNode;
     config?: MarcaConfig;
+    /** Portada de capítulo: a color pleno, de borde a borde, con su número. */
+    capitulo?: Capitulo;
 }): import("react").JSX.Element;
 export declare function Bloque({ id, titulo, antetitulo, bajada, children, }: {
     id: string;

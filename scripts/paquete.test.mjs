@@ -114,3 +114,21 @@ test("logo guiado: versión por defecto, porqués y acción de portada", () => {
   assert.ok(errores.some((e) => e.includes("porque.sombra")));
   assert.ok(errores.some((e) => e.includes("acción de la portada") && e.includes("pendiente")));
 });
+
+test("capítulos y público: el fondo es un token y el destino existe", () => {
+  const bien = {
+    ...BASE,
+    titulos: { punto: "." },
+    secciones: BASE.secciones.map((s) => (s.slug === "color" ? { ...s, capitulo: { numero: "02", fondo: "--brand-gold", tinta: "oscura" } } : s)),
+    inicio: { publico: [{ quien: "Diseño", necesita: "Copiar un color.", href: "/marca/color" }] },
+  };
+  assert.deepEqual(validarMarca(bien), []);
+  const mal = {
+    ...bien,
+    secciones: bien.secciones.map((s) => (s.slug === "color" ? { ...s, capitulo: { numero: "02", fondo: "#edb824" } } : s)),
+    inicio: { publico: [{ quien: "Prensa", necesita: "Ver la voz.", href: "/marca/voz" }] },
+  };
+  const errores = validarMarca(mal).join("\n");
+  assert.match(errores, /"#edb824" no es un token/);
+  assert.match(errores, /público "Prensa": \/marca\/voz está pendiente/);
+});

@@ -4,6 +4,7 @@ import { useState } from "react";
 import type { VersionLogo } from "./config.js";
 import { fetchText, medidasSvg, rasterize } from "./raster.js";
 import { saveBlob } from "./save.js";
+import { columnas } from "./rejilla.js";
 import { avisar } from "./vivo.js";
 import { makeZip, type ZipEntry } from "./zip.js";
 
@@ -42,6 +43,7 @@ function BotonDescarga({
   onClick,
   children,
   principal = false,
+  etiqueta,
 }: {
   id: string;
   tipo: "svg" | "png" | "zip";
@@ -50,12 +52,15 @@ function BotonDescarga({
   onClick: () => void;
   children: string;
   principal?: boolean;
+  /** Nombre accesible completo; empieza con el texto visible. */
+  etiqueta?: string;
 }) {
   const este = ocupado === id;
   return (
     <button
       type="button"
       className={principal ? "mk-boton" : "mk-boton mk-boton-secundario"}
+      aria-label={etiqueta && !este ? etiqueta : undefined}
       aria-disabled={ocupado ? true : undefined}
       onClick={onClick}
       data-mk-descarga
@@ -72,6 +77,7 @@ const png = async (svg: string, ancho: number) => rasterize(svg, medidasSvg(svg)
 export function DescargasVersion({ version, archivo }: { version: VersionLogo; archivo: string }) {
   const { ocupado, correr } = useTarea();
   const base = `${archivo}-logo-${version.id}`;
+  const de = `de ${version.nombre}`;
   return (
     <div className="mk-descargas" role="group" aria-label={`Descargas: ${version.nombre}`}>
       <BotonDescarga
@@ -85,6 +91,7 @@ export function DescargasVersion({ version, archivo }: { version: VersionLogo; a
             saveBlob(new Blob([svg], { type: "image/svg+xml" }), `${base}.svg`);
           })
         }
+        etiqueta={`SVG ${de}`}
       >
         SVG
       </BotonDescarga>
@@ -100,8 +107,9 @@ export function DescargasVersion({ version, archivo }: { version: VersionLogo; a
               saveBlob(await png(await fetchText(version.svg), ancho), `${base}-${ancho}.png`);
             })
           }
+          etiqueta={`PNG ${ancho} px ${de}`}
         >
-          {`PNG ${ancho} px`}
+          {`PNG ${ancho}`}
         </BotonDescarga>
       ))}
     </div>
@@ -154,8 +162,9 @@ export function DescargaZip({
 }
 
 /**
- * Panel de descargas: el ZIP primero y, por versión, una vista previa con sus
- * formatos agrupados en un menú. Va arriba en Logo: es la tarea más común.
+ * Versiones y descargas: el ZIP arriba y, debajo, una galería con cada
+ * versión grande sobre su fondo, para qué sirve y sus formatos a la vista.
+ * Va arriba en Logo: es la tarea más común.
  */
 export function PanelDescargas({
   versiones,
@@ -164,6 +173,7 @@ export function PanelDescargas({
   version,
   leeme,
   fondos,
+  porDefecto,
 }: {
   versiones: VersionLogo[];
   archivo: string;
@@ -172,7 +182,13 @@ export function PanelDescargas({
   leeme: string;
   /** Estilo de la lámina de cada versión (fondo claro, oscuro o token). */
   fondos: Record<string, { "data-fondo": string; style?: Record<string, string> }>;
+  /** Id de la versión por defecto: lleva la etiqueta "Por defecto". */
+  porDefecto?: string;
 }) {
+  // La versión por defecto ocupa su propia fila; el resto se reparte sin huérfanos.
+  const destacada = versiones.some((v) => v.id === porDefecto);
+  const n = versiones.length - (destacada ? 1 : 0);
+  const estilo = { "--mk-cols": columnas(n, 3), "--mk-cols-md": columnas(n, 2) } as Record<string, number>;
   return (
     <div className="mk-panel-descargas">
       <div className="mk-panel-zip">
@@ -181,47 +197,27 @@ export function PanelDescargas({
         </p>
         <DescargaZip versiones={versiones} archivo={archivo} marca={marca} version={version} leeme={leeme} />
       </div>
-      <ul className="mk-panel-lista">
+      <div className="mk-rejilla mk-galeria" style={estilo} data-mk-rejilla>
         {versiones.map((v) => (
-          <li key={v.id} className="mk-panel-item">
-            <span className="mk-panel-vista mk-logo-lamina" {...fondos[v.id]}>
-              <img src={v.svg} alt="" />
-            </span>
-            <span className="mk-panel-nombre">{v.nombre}</span>
-            <Formatos version={v} archivo={archivo} />
-          </li>
+          <figure
+            key={v.id}
+            id={`version-${v.id}`}
+            className="mk-logo mk-galeria-item"
+            data-mk-destacada={v.id === porDefecto ? "" : undefined}
+          >
+            <div className="mk-logo-lamina" {...fondos[v.id]}>
+              <img src={v.svg} alt={`${marca}: ${v.nombre}`} />
+            </div>
+            <figcaption>
+              <strong>
+                {v.nombre}
+                {v.id === porDefecto ? <span className="mk-etiqueta">Por defecto</span> : null}
+              </strong>
+              <span>{v.uso}</span>
+              <DescargasVersion version={v} archivo={archivo} />
+            </figcaption>
+          </figure>
         ))}
-      </ul>
-    </div>
-  );
-}
-
-function Formatos({ version, archivo }: { version: VersionLogo; archivo: string }) {
-  const [abierto, setAbierto] = useState(false);
-  const id = `mk-formatos-${version.id}`;
-  return (
-    <div
-      className="mk-formatos"
-      onKeyDown={(e) => {
-        if (e.key === "Escape" && abierto) {
-          setAbierto(false);
-          (e.currentTarget.querySelector("[data-mk-formatos]") as HTMLButtonElement | null)?.focus();
-        }
-      }}
-    >
-      <button
-        type="button"
-        className="mk-boton mk-boton-secundario"
-        aria-expanded={abierto}
-        aria-controls={id}
-        data-mk-formatos
-        onClick={() => setAbierto((a) => !a)}
-      >
-        Formatos<span className="mk-oculto"> de {version.nombre}</span>
-        <span aria-hidden="true">{abierto ? " ▴" : " ▾"}</span>
-      </button>
-      <div id={id} hidden={!abierto} className="mk-formatos-lista">
-        <DescargasVersion version={version} archivo={archivo} />
       </div>
     </div>
   );

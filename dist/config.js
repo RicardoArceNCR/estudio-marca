@@ -38,6 +38,7 @@ export function validarMarca(c) {
         ...(c.tipografia?.familias.map((f) => f.token) ?? []),
         ...(c.logo?.versiones.map((v) => v.fondo).filter((f) => f.startsWith("--")) ?? []),
         ...(c.portada ? [c.portada.fondo] : []),
+        ...c.secciones.flatMap((s) => (s.capitulo ? [s.capitulo.fondo] : [])),
         ...(c.cabecera ? [c.cabecera.fondo] : []),
         ...(c.sistema?.espaciado ?? []),
         ...(c.sistema?.radios ?? []),
@@ -70,6 +71,8 @@ export function validarMarca(c) {
             errores.push(`atajo "${a.titulo}": ícono "${a.icono}" no existe`);
         destino(`atajo "${a.titulo}"`, a.href);
     }
+    for (const p of c.inicio?.publico ?? [])
+        destino(`público "${p.quien}"`, p.href);
     if (c.portada?.accion)
         destino(`acción de la portada "${c.portada.accion.texto}"`, c.portada.accion.href);
     if (c.logo?.porDefecto && !c.logo.versiones.some((v) => v.id === c.logo.porDefecto)) {

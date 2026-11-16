@@ -8,7 +8,7 @@ sitio. Por qué existe: ADR 0011 del estudio.
 ## Usarlo en un sitio
 
 ```sh
-pnpm add "github:RicardoArceNCR/estudio-marca#v0.1.0"
+pnpm add "github:RicardoArceNCR/estudio-marca#v0.4.0"
 pnpm add -D playwright @axe-core/playwright
 ```
 
@@ -62,6 +62,20 @@ pnpm add -D playwright @axe-core/playwright
    npx marca-revisar --url http://localhost:3101/marca
    ```
 
+## Portadas de capítulo
+
+```ts
+secciones: [
+  { slug: "logo", titulo: "Logo", grupo: "Identidad", resumen: "…",
+    capitulo: { numero: "01", fondo: "--brand-main", tinta: "clara" } },
+]
+```
+
+El encabezado de la sección va a color pleno, de borde a borde, con el
+número enorme detrás del texto; en el inicio, la tarjeta de la sección lleva
+el mismo color. `tinta: "oscura"` para fondos claros. Comprobá el contraste
+del texto sobre cada fondo en `color.pares`.
+
 ## Campos para que el portal oriente, no solo describa
 
 ```ts
@@ -70,8 +84,12 @@ defineMarca({
   estado: "vigente",              // vigente | borrador | en-revision
   actualizado: "2026-11-16",      // ISO: va en el encabezado de cada página
   ayuda: { nombre: "Equipo de marca", correo: "marca@cliente.com" },
+  titulos: { punto: "." },        // gesto: cierre de los títulos en --mk-titulo-punto
   inicio: {
     encabezado: { titulo: "Marca Acme", bajada: "Para quién es y qué encuentra." },
+    publico: [
+      { quien: "Diseño y agencias", necesita: "Bajar el logo y copiar colores.", href: "/marca/logo#descargas" },
+    ],
     atajos: [
       { titulo: "Bajar el logo", texto: "SVG, PNG y ZIP.", href: "/marca/logo#descargas", icono: "descargar" },
     ],

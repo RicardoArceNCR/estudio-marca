@@ -2,6 +2,24 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). Versionado: semver; mientras sea 0.x, un cambio de la configuración puede romper.
 
+## [0.4.0] — 2026-11-16
+
+Tercer incremento de diseño: que cada marca pueda verse propia sin salir del paquete. Apunta a **marca** y **vistas** de la rúbrica.
+
+### Agregado
+
+- **Portadas de capítulo** (`seccion.capitulo`: `numero`, `fondo`, `tinta`): el encabezado de la sección a color pleno, de borde a borde del área de contenido, con el número enorme detrás del texto. En el inicio, la tarjeta de cada sección lleva el mismo color y número.
+- **Gesto de los títulos** (`titulos.punto`): un signo de cierre pintado con `--mk-titulo-punto`, oculto para lectores de pantalla.
+- **"¿Para quién es esto?"** en el inicio (`inicio.publico`): cada público con su tarea y su destino, validado como los atajos.
+- **Portada de borde a borde** (`portada.sangrado`).
+- Ganchos `--mk-titulo-tamano`, `--mk-capitulo-numero-color`, `--mk-capitulo-numero-opacidad`, `--mk-capitulo-texto-claro`, `--mk-capitulo-texto-oscuro`, `--mk-tarjeta-filete`, `--mk-tarjeta-fondo`, `--mk-tarjeta-icono-fondo` y `--mk-tarjeta-icono-texto`.
+- `Titulo` exportado, para las rutas propias del sitio.
+
+### Cambiado
+
+- **Logo: versiones y descargas en una galería.** Cada versión grande sobre su fondo, con su uso y sus formatos a la vista (SVG, PNG 1200, PNG 2400). La versión por defecto va destacada en su propia fila y "Si dudás" queda solo con el texto. Reemplaza la lista con menús "Formatos" y el bloque "Versiones", que repetía las mismas láminas. Los botones llevan el nombre de la versión en su nombre accesible.
+- `marca-revisar` también mide que la portada de capítulo no pase de media pantalla en móvil.
+
 ## [0.3.1] — 2026-11-16
 
 ### Corregido

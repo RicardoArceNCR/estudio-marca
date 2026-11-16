@@ -26,6 +26,26 @@ export interface Ayuda {
     correo?: string;
     texto?: string;
 }
+/**
+ * Portada de capítulo: el encabezado de la sección a color pleno, de borde a
+ * borde, con su número enorme. `tinta` es el color del texto: "clara" sobre
+ * fondos oscuros o saturados, "oscura" sobre fondos claros.
+ */
+export interface Capitulo {
+    /** "01". Va grande y decorativo (oculto para lectores de pantalla). */
+    numero: string;
+    /** Token del fondo: `--brand-main`. */
+    fondo: `--${string}`;
+    tinta?: "clara" | "oscura";
+}
+/** Un público del portal y la tarea que viene a resolver. */
+export interface Perfil {
+    /** "Diseñadores y agencias". */
+    quien: string;
+    /** Qué necesita, con verbo: "Bajar el logo y copiar los colores." */
+    necesita: string;
+    href: string;
+}
 /** Lo que falta para que una sección pendiente se pueda publicar. */
 export interface Pendiente {
     falta: string;
@@ -52,6 +72,8 @@ export interface Seccion {
      * frases. Va arriba de todo, antes de las reglas.
      */
     siDudas?: string;
+    /** Portada de capítulo de la sección. Sin esto, encabezado simple. */
+    capitulo?: Capitulo;
 }
 export interface VersionLogo {
     id: string;
@@ -172,6 +194,16 @@ export interface MarcaConfig {
             texto: string;
             href: string;
         };
+        /** De borde a borde del área de contenido, sin radio, como las portadas de capítulo. */
+        sangrado?: boolean;
+    };
+    /**
+     * Gesto de los títulos de página: un signo de cierre (por ejemplo, ".")
+     * pintado con `--mk-titulo-punto`. Decorativo: no lo leen los lectores de
+     * pantalla, y no se agrega si el título ya termina en un signo.
+     */
+    titulos?: {
+        punto?: string;
     };
     /** Marca chica junto al nombre en la cabecera: logo sobre su color. */
     cabecera?: {
@@ -186,7 +218,10 @@ export interface MarcaConfig {
         bloques?: {
             atajos?: Titular;
             secciones?: Titular;
+            publico?: Titular;
         };
+        /** "¿Para quién es esto?": cada público con su tarea y su destino. */
+        publico?: Perfil[];
     };
     /** Estado del portal, a la vista en cada página. */
     estado?: "vigente" | "borrador" | "en-revision";

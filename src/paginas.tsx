@@ -8,10 +8,11 @@ import {
   type MarcaConfig,
   type Seccion,
   type Atajo,
+  type Capitulo,
   type UsoIncorrecto,
   type VersionLogo,
 } from "./config.js";
-import { DescargasVersion, PanelDescargas } from "./descargas.js";
+import { PanelDescargas } from "./descargas.js";
 import { Icono } from "./iconos.js";
 import { columnas } from "./rejilla.js";
 import { slugDe } from "./rutas.js";
@@ -52,23 +53,53 @@ function Rejilla({ n, max = 4, className, children }: { n: number; max?: number;
   );
 }
 
+/** Título de página con el gesto de la marca (`titulos.punto`), si lo tiene. */
+export function Titulo({ titulo, config }: { titulo: string; config?: MarcaConfig }) {
+  const punto = config?.titulos?.punto;
+  const cierra = punto && !/[.!?…:;]$/.test(titulo.trim());
+  return (
+    <h1 className="mk-titulo">
+      {titulo}
+      {cierra ? (
+        <span className="mk-titulo-punto" aria-hidden="true">
+          {punto}
+        </span>
+      ) : null}
+    </h1>
+  );
+}
+
+/** Fondo y tinta de una superficie de color (portada de capítulo o tarjeta). */
+function superficie(c: Capitulo) {
+  return { "data-tinta": c.tinta ?? "clara", "data-fondo": c.fondo, style: { background: `var(${c.fondo})` } };
+}
+
 export function Encabezado({
   antetitulo,
   titulo,
   children,
   config,
+  capitulo,
 }: {
   antetitulo: string;
   titulo: string;
   children?: ReactNode;
   config?: MarcaConfig;
+  /** Portada de capítulo: a color pleno, de borde a borde, con su número. */
+  capitulo?: Capitulo;
 }) {
   return (
-    <header className="mk-encabezado">
-      {config ? <EstadoPortal config={config} /> : null}
-      <p className="mk-antetitulo">{antetitulo}</p>
-      <h1 className="mk-titulo">{titulo}</h1>
-      {children ? <div className="mk-bajada">{children}</div> : null}
+    <header className={capitulo ? "mk-encabezado mk-capitulo" : "mk-encabezado"} {...(capitulo ? superficie(capitulo) : {})}>
+      {capitulo ? (
+        // El número va como contenido de CSS: es decorativo y no es texto que leer.
+        <span className="mk-capitulo-numero" aria-hidden="true" data-numero={capitulo.numero} />
+      ) : null}
+      <div className="mk-encabezado-texto">
+        {config ? <EstadoPortal config={config} /> : null}
+        <p className="mk-antetitulo">{antetitulo}</p>
+        <Titulo titulo={titulo} config={config} />
+        {children ? <div className="mk-bajada">{children}</div> : null}
+      </div>
     </header>
   );
 }
@@ -120,6 +151,7 @@ function Tarjeta({
   pendiente = false,
   icono,
   atajo = false,
+  capitulo,
 }: {
   href: string;
   titulo: string;
@@ -127,9 +159,19 @@ function Tarjeta({
   pendiente?: boolean;
   icono?: Atajo["icono"];
   atajo?: boolean;
+  /** Tarjeta de capítulo: con el color y el número de la portada de su sección. */
+  capitulo?: Capitulo;
 }) {
   return (
-    <Link href={href} className="mk-tarjeta" data-mk-atajo={atajo ? "" : undefined}>
+    <Link
+      href={href}
+      className={capitulo ? "mk-tarjeta mk-tarjeta-capitulo" : "mk-tarjeta"}
+      data-mk-atajo={atajo ? "" : undefined}
+      {...(capitulo ? superficie(capitulo) : {})}
+    >
+      {capitulo ? (
+        <span className="mk-tarjeta-numero" aria-hidden="true" data-numero={capitulo.numero} />
+      ) : null}
       {icono ? (
         <span className="mk-tarjeta-icono">
           <Icono nombre={icono} />
@@ -168,14 +210,20 @@ function PaginaInicio({ config }: { config: MarcaConfig }) {
   const bajadaInicio = enc?.bajada ?? `Todo lo necesario para aplicar la marca ${config.marca}: lineamientos, archivos y el sistema de diseño en uso.`;
   const bAtajos = config.inicio?.bloques?.atajos;
   const bSecciones = config.inicio?.bloques?.secciones;
+  const bPublico = config.inicio?.bloques?.publico;
+  const publico = config.inicio?.publico ?? [];
   return (
     <>
       {config.portada ? (
-        <header className="mk-portada" style={{ background: `var(${config.portada.fondo})` }}>
+        <header
+          className={config.portada.sangrado ? "mk-portada mk-portada-sangrado" : "mk-portada"}
+          data-fondo={config.portada.fondo}
+          style={{ background: `var(${config.portada.fondo})` }}
+        >
           <div className="mk-portada-texto">
             <EstadoPortal config={config} />
             <p className="mk-antetitulo">{enc?.antetitulo ?? `Versión ${config.version}`}</p>
-            <h1 className="mk-titulo">{enc?.titulo ?? config.nombre}</h1>
+            <Titulo titulo={enc?.titulo ?? config.nombre} config={config} />
             <p className="mk-portada-bajada">{bajadaInicio}</p>
             {config.portada.accion ? (
               <p className="mk-portada-accion">
@@ -203,10 +251,27 @@ function PaginaInicio({ config }: { config: MarcaConfig }) {
           </Rejilla>
         </Bloque>
       ) : null}
+      {publico.length ? (
+        <Bloque id="publico" titulo={bPublico?.titulo ?? "¿Para quién es esto?"} antetitulo={bPublico?.antetitulo} bajada={bPublico?.bajada}>
+          <Rejilla n={publico.length}>
+            {publico.map((p) => (
+              <Tarjeta key={p.quien} href={p.href} titulo={p.quien}>
+                {p.necesita}
+              </Tarjeta>
+            ))}
+          </Rejilla>
+        </Bloque>
+      ) : null}
       <Bloque id="secciones" titulo={bSecciones?.titulo ?? "Secciones"} antetitulo={bSecciones?.antetitulo} bajada={bSecciones?.bajada}>
         <Rejilla n={config.secciones.length}>
           {config.secciones.map((s) => (
-            <Tarjeta key={s.slug} href={hrefDe(config, s.slug)} titulo={s.titulo} pendiente={s.estado === "pendiente"}>
+            <Tarjeta
+              key={s.slug}
+              href={hrefDe(config, s.slug)}
+              titulo={s.titulo}
+              pendiente={s.estado === "pendiente"}
+              capitulo={s.estado === "pendiente" ? undefined : s.capitulo}
+            >
               {s.resumen}
             </Tarjeta>
           ))}
@@ -245,51 +310,21 @@ function PaginaLogo({ config, logo, seccion }: { config: MarcaConfig; logo: Logo
   const fondos = Object.fromEntries(logo.versiones.map((v) => [v.id, lamina(v.fondo)]));
   return (
     <>
-      <Encabezado antetitulo={seccion.grupo} titulo={seccion.titulo} config={config}>
+      <Encabezado antetitulo={seccion.grupo} titulo={seccion.titulo} config={config} capitulo={seccion.capitulo}>
         <p>{seccion.resumen}</p>
       </Encabezado>
-      {seccion.siDudas ? (
-        <SiDudas texto={seccion.siDudas}>
-          {porDefecto ? (
-            <figure className="mk-logo mk-si-dudas-logo">
-              <div className="mk-logo-lamina" {...lamina(porDefecto.fondo)}>
-                <img src={porDefecto.svg} alt={`${config.marca}: ${porDefecto.nombre}`} />
-              </div>
-              <figcaption>
-                <strong>{porDefecto.nombre}</strong>
-                <DescargasVersion version={porDefecto} archivo={config.archivo} />
-              </figcaption>
-            </figure>
-          ) : null}
-        </SiDudas>
-      ) : null}
-      <Bloque id="descargas" titulo="Descargas">
+      {/* La versión por defecto va destacada en la galería, justo debajo. */}
+      {seccion.siDudas ? <SiDudas texto={seccion.siDudas} /> : null}
+      <Bloque id="descargas" titulo="Versiones y descargas">
         <PanelDescargas
           versiones={logo.versiones}
           archivo={config.archivo}
           marca={config.marca}
           version={config.version}
           fondos={fondos}
+          porDefecto={porDefecto?.id}
           leeme={`Usá el SVG siempre que se pueda. Respetá el área de respeto (${logo.respeto.medida}) y el tamaño mínimo (${logo.minimo.digital} en pantalla, ${logo.minimo.impreso} impreso).`}
         />
-      </Bloque>
-      <Bloque id="versiones" titulo="Versiones">
-        <Rejilla n={logo.versiones.length} max={3}>
-          {logo.versiones.map((v) => (
-            <figure key={v.id} className="mk-logo">
-              <div className="mk-logo-lamina" {...lamina(v.fondo)}>
-                <img src={v.svg} alt={`${config.marca}: ${v.nombre}`} />
-              </div>
-              <figcaption>
-                <strong>
-                  {v.nombre}
-                  {porDefecto && v.id === porDefecto.id ? <span className="mk-etiqueta">Por defecto</span> : null}
-                </strong>
-                <span>{v.uso}</span>
-              </figcaption>
-            </figure>
-          ))}
-        </Rejilla>
       </Bloque>
       {principal ? (
         <>
@@ -361,7 +396,7 @@ function PaginaColor({ config, seccion }: { config: MarcaConfig; seccion: Seccio
   const color = config.color!;
   return (
     <>
-      <Encabezado antetitulo={seccion.grupo} titulo={seccion.titulo} config={config}>
+      <Encabezado antetitulo={seccion.grupo} titulo={seccion.titulo} config={config} capitulo={seccion.capitulo}>
         <p>{seccion.resumen} Hacé clic en una muestra para copiar su valor.</p>
       </Encabezado>
       {seccion.siDudas ? <SiDudas texto={seccion.siDudas} /> : null}
@@ -397,7 +432,7 @@ function PaginaTipografia({ config, seccion }: { config: MarcaConfig; seccion: S
   const tipo = config.tipografia!;
   return (
     <>
-      <Encabezado antetitulo={seccion.grupo} titulo={seccion.titulo} config={config}>
+      <Encabezado antetitulo={seccion.grupo} titulo={seccion.titulo} config={config} capitulo={seccion.capitulo}>
         <p>{seccion.resumen}</p>
       </Encabezado>
       {seccion.siDudas ? <SiDudas texto={seccion.siDudas} /> : null}
@@ -439,7 +474,7 @@ function PaginaSistema({ config, seccion }: { config: MarcaConfig; seccion: Secc
   const s = config.sistema!;
   return (
     <>
-      <Encabezado antetitulo={seccion.grupo} titulo={seccion.titulo} config={config}>
+      <Encabezado antetitulo={seccion.grupo} titulo={seccion.titulo} config={config} capitulo={seccion.capitulo}>
         <p>{seccion.resumen} Todo se lee del CSS que carga el sitio.</p>
       </Encabezado>
       {seccion.siDudas ? <SiDudas texto={seccion.siDudas} /> : null}

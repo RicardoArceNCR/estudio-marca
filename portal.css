@@ -40,6 +40,21 @@
     --mk-nav-actual-texto: var(--text-brand, var(--mk-texto));
     --mk-portada-texto: var(--text-on-brand, var(--mk-texto-inverso));
     --mk-tarjeta-acento: var(--border-brand, var(--mk-borde));
+    /* Tarjetas: cada marca puede quitar el filete superior o cambiar su superficie. */
+    --mk-tarjeta-filete: 3px;
+    --mk-tarjeta-fondo: var(--mk-superficie);
+    --mk-tarjeta-icono-fondo: var(--mk-nav-actual-fondo);
+    --mk-tarjeta-icono-texto: var(--mk-nav-actual-texto);
+    /*
+     * Títulos de página y portadas de capítulo. El número del capítulo es
+     * decorativo: su color y opacidad los decide cada marca.
+     */
+    --mk-titulo-tamano: clamp(2.25rem, 1.2rem + 3.6vw, 4.5rem);
+    --mk-titulo-punto: currentColor;
+    --mk-capitulo-numero-color: currentColor;
+    --mk-capitulo-numero-opacidad: 0.2;
+    --mk-capitulo-texto-claro: var(--text-inverse, Canvas);
+    --mk-capitulo-texto-oscuro: var(--text-primary, CanvasText);
     /*
      * Botones. Cada marca los pisa en su hoja: radio, voz (mayúsculas,
      * tracking) y el color del brillo. El brillo se pinta una vez y solo
@@ -191,9 +206,11 @@
   }
 
   .mk-principal {
+    --mk-principal-x: 1rem;
+    --mk-principal-y: 1.5rem;
     min-width: 0;
     max-width: 72rem;
-    padding: 1.5rem 1rem 3rem;
+    padding: var(--mk-principal-y) var(--mk-principal-x) 3rem;
   }
 
   .mk-principal:focus {
@@ -208,6 +225,7 @@
     .mk-cuerpo {
       display: grid;
       grid-template-columns: var(--mk-lateral) minmax(0, 1fr);
+      container-type: inline-size;
     }
 
     .mk-lateral {
@@ -222,7 +240,11 @@
     }
 
     .mk-principal {
-      padding: 2.5rem 3rem 4rem;
+      --mk-principal-x: 3rem;
+      --mk-principal-y: 2.5rem;
+      /* Lo que queda a la derecha del contenido cuando llega a su ancho máximo. */
+      --mk-principal-sobrante: max(0px, 100cqw - var(--mk-lateral) - 72rem);
+      padding: var(--mk-principal-y) var(--mk-principal-x) 4rem;
     }
   }
 
@@ -543,9 +565,102 @@
   .mk-titulo {
     margin: 0;
     font-family: var(--mk-fuente-titulos);
-    font-size: clamp(2.25rem, 1.2rem + 3.6vw, 4.5rem);
-    line-height: 1.1;
+    font-size: var(--mk-titulo-tamano);
+    line-height: 1.05;
     overflow-wrap: anywhere;
+  }
+
+  .mk-titulo-punto {
+    color: var(--mk-titulo-punto);
+  }
+
+  /*
+   * Portada de capítulo: el encabezado de la sección a color pleno, de borde
+   * a borde del área de contenido, con el número enorme detrás del texto.
+   */
+  .mk-capitulo {
+    position: relative;
+    display: grid;
+    align-content: end;
+    margin: calc(-1 * var(--mk-principal-y)) calc(-1 * var(--mk-principal-x) - var(--mk-principal-sobrante, 0px)) 2.5rem
+      calc(-1 * var(--mk-principal-x));
+    padding: 2rem calc(var(--mk-principal-x) + var(--mk-principal-sobrante, 0px)) 2.25rem var(--mk-principal-x);
+    min-height: 13rem;
+    overflow: hidden;
+    isolation: isolate;
+  }
+
+  .mk-capitulo[data-tinta="clara"] {
+    color: var(--mk-capitulo-texto-claro);
+  }
+
+  .mk-capitulo[data-tinta="oscura"] {
+    color: var(--mk-capitulo-texto-oscuro);
+  }
+
+  .mk-capitulo .mk-antetitulo,
+  .mk-capitulo .mk-estado,
+  .mk-capitulo .mk-bajada,
+  .mk-capitulo .mk-bajada a {
+    color: inherit;
+  }
+
+  .mk-capitulo :focus-visible {
+    outline-color: currentColor;
+  }
+
+  .mk-capitulo-numero {
+    position: absolute;
+    z-index: -1;
+    right: calc(var(--mk-principal-x) + var(--mk-principal-sobrante, 0px));
+    bottom: -0.12em;
+    font-family: var(--mk-fuente-titulos);
+    font-size: clamp(7rem, 3rem + 16vw, 17rem);
+    line-height: 0.8;
+    color: var(--mk-capitulo-numero-color);
+    opacity: var(--mk-capitulo-numero-opacidad);
+    pointer-events: none;
+    user-select: none;
+  }
+
+  .mk-capitulo-numero::before,
+  .mk-tarjeta-numero::before {
+    content: attr(data-numero);
+  }
+
+  .mk-encabezado-texto {
+    max-width: 52rem;
+  }
+
+  /* En móvil el número es más chico y queda por debajo del texto. */
+  @media (max-width: 47.99rem) {
+    .mk-capitulo {
+      padding-bottom: 4.5rem;
+    }
+
+    .mk-capitulo-numero {
+      font-size: 5.5rem;
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .mk-capitulo {
+      min-height: 22rem;
+      padding-block: 3.5rem 3rem;
+    }
+  }
+
+  /* La portada del inicio, de borde a borde como las de capítulo. */
+  .mk-portada-sangrado {
+    margin: calc(-1 * var(--mk-principal-y)) calc(-1 * var(--mk-principal-x) - var(--mk-principal-sobrante, 0px)) 1.5rem
+      calc(-1 * var(--mk-principal-x));
+    border-radius: 0;
+  }
+
+  @media (min-width: 48rem) {
+    .mk-portada-sangrado {
+      padding-inline: var(--mk-principal-x) calc(var(--mk-principal-x) + var(--mk-principal-sobrante, 0px));
+    }
   }
 
   .mk-bajada {
@@ -642,8 +757,62 @@
     width: 2.75rem;
     height: 2.75rem;
     border-radius: var(--mk-radio-chico);
-    background: var(--mk-nav-actual-fondo);
-    color: var(--mk-nav-actual-texto);
+    background: var(--mk-tarjeta-icono-fondo);
+    color: var(--mk-tarjeta-icono-texto);
+  }
+
+  /* Tarjeta de capítulo: el color y el número de la portada de su sección. */
+  a.mk-tarjeta.mk-tarjeta-capitulo {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    min-height: 11rem;
+    padding: 1.25rem 2.75rem 1.25rem 1.25rem;
+    border: 0;
+  }
+
+  a.mk-tarjeta-capitulo[data-tinta="clara"] {
+    color: var(--mk-capitulo-texto-claro);
+  }
+
+  a.mk-tarjeta-capitulo[data-tinta="oscura"] {
+    color: var(--mk-capitulo-texto-oscuro);
+  }
+
+  a.mk-tarjeta-capitulo .mk-tarjeta-texto,
+  a.mk-tarjeta-capitulo::after {
+    color: inherit;
+  }
+
+  a.mk-tarjeta-capitulo .mk-tarjeta-titulo {
+    font-family: var(--mk-fuente-titulos);
+    font-size: 1.75rem;
+    line-height: 1.1;
+  }
+
+  .mk-tarjeta-numero {
+    font-family: var(--mk-fuente-titulos);
+    font-size: 3.5rem;
+    line-height: 0.9;
+    color: var(--mk-capitulo-numero-color);
+    opacity: var(--mk-capitulo-numero-opacidad);
+  }
+
+  a.mk-tarjeta.mk-tarjeta-capitulo::after {
+    top: auto;
+    bottom: 1rem;
+    color: inherit;
+    font-size: 1.5rem;
+    line-height: 1;
+  }
+
+  /* Galería de versiones: los tres formatos en una fila en tarjetas angostas. */
+  .mk-galeria .mk-descargas {
+    gap: 0.5rem;
+  }
+
+  .mk-galeria .mk-boton {
+    --mk-boton-relleno-x: 0.75rem;
   }
 
   /* panel de descargas */
@@ -651,84 +820,53 @@
   .mk-panel-descargas {
     display: grid;
     gap: 1.5rem;
-    padding: 1.5rem;
-    border: 1px solid var(--mk-borde-suave);
-    border-radius: var(--mk-radio);
-    background: var(--mk-superficie);
-  }
-
-  @media (min-width: 64rem) {
-    .mk-panel-descargas {
-      grid-template-columns: minmax(14rem, 1fr) minmax(0, 2.2fr);
-      align-items: start;
-    }
   }
 
   .mk-panel-zip {
     display: grid;
     gap: 1rem;
     justify-items: start;
+    padding: 1.25rem;
+    border-radius: var(--mk-radio);
+    background: var(--mk-tarjeta-fondo);
+    border: 1px solid var(--mk-borde-suave);
+  }
+
+  @media (min-width: 48rem) {
+    .mk-panel-zip {
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+    }
+  }
+
+  .mk-galeria-item .mk-logo-lamina {
+    aspect-ratio: 4 / 3;
+  }
+
+  .mk-galeria-item[data-mk-destacada] {
+    grid-column: 1 / -1;
+  }
+
+  @media (min-width: 48rem) {
+    .mk-galeria-item[data-mk-destacada] {
+      display: grid;
+      grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .mk-galeria-item[data-mk-destacada] .mk-logo-lamina {
+      aspect-ratio: 16 / 9;
+    }
+  }
+
+  .mk-galeria-item figcaption > span {
+    color: var(--mk-texto-suave);
   }
 
   .mk-panel-zip-texto {
     margin: 0;
     color: var(--mk-texto-suave);
-  }
-
-  .mk-panel-lista {
-    display: grid;
-    gap: 0.5rem;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  .mk-panel-item {
-    display: grid;
-    grid-template-columns: 4rem minmax(0, 1fr);
-    align-items: center;
-    gap: 0.75rem 1rem;
-    padding: 0.5rem;
-    border: 1px solid var(--mk-borde-suave);
-    border-radius: var(--mk-radio-chico);
-  }
-
-  .mk-panel-vista.mk-logo-lamina {
-    aspect-ratio: 3 / 2;
-    padding: 0.375rem;
-    border-radius: var(--mk-radio-chico);
-  }
-
-  .mk-panel-nombre {
-    font-weight: 700;
-    min-width: 0;
-  }
-
-  .mk-formatos {
-    display: contents;
-  }
-
-  .mk-panel-item [data-mk-formatos] {
-    grid-column: 2;
-    justify-self: start;
-  }
-
-  @media (min-width: 40rem) {
-    .mk-panel-item {
-      grid-template-columns: 4.5rem minmax(0, 1fr) auto;
-    }
-
-    .mk-panel-item [data-mk-formatos] {
-      grid-column: auto;
-    }
-  }
-
-  .mk-formatos-lista {
-    grid-column: 1 / -1;
-  }
-
-  .mk-formatos-lista[hidden] {
-    display: none;
   }
 
   .mk-columnas {
@@ -750,7 +888,7 @@
     padding: 1.25rem;
     border: 1px solid var(--mk-borde-suave);
     border-radius: var(--mk-radio);
-    background: var(--mk-superficie);
+    background: var(--mk-tarjeta-fondo);
     color: var(--mk-texto);
     text-decoration: none;
     min-width: 0;
@@ -759,7 +897,7 @@
   a.mk-tarjeta {
     position: relative;
     padding-right: 2.75rem;
-    border-top: 3px solid var(--mk-tarjeta-acento);
+    border-top: var(--mk-tarjeta-filete) solid var(--mk-tarjeta-acento);
     transition: transform 0.15s ease, border-color 0.15s ease;
   }
 

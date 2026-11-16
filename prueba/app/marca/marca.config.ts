@@ -10,7 +10,9 @@ export default defineMarca({
     logo: "/marca/logo/negativo.svg",
     fondo: "--brand-main",
     accion: { texto: "Bajar el logo", href: "/marca/logo#si-dudas" },
+    sangrado: true,
   },
+  titulos: { punto: "." },
   estado: "vigente",
   actualizado: "2026-11-16",
   ayuda: { nombre: "el equipo de prueba", correo: "marca@example.com" },
@@ -22,6 +24,10 @@ export default defineMarca({
       { titulo: "Ver la letra", texto: "Familias y jerarquía.", href: "/marca/tipografia#familias", icono: "tipografia" },
     ],
     bloques: { atajos: { antetitulo: "Atajos", titulo: "¿Qué necesitás?" } },
+    publico: [
+      { quien: "Diseño", necesita: "Bajar el logo y copiar los colores.", href: "/marca/logo#descargas" },
+      { quien: "Desarrollo", necesita: "Usar los tokens del sistema.", href: "/marca/color" },
+    ],
   },
   cabecera: { logo: "/marca/logo/negativo.svg", fondo: "--surface-inverse" },
   secciones: [
@@ -31,6 +37,7 @@ export default defineMarca({
       grupo: "Identidad",
       resumen: "Versiones, área de respeto, tamaño mínimo y descargas.",
       siDudas: "Usá la principal sobre fondo claro. Si el fondo es oscuro, la negativa.",
+      capitulo: { numero: "01", fondo: "--brand-main", tinta: "clara" },
     },
     { slug: "color", titulo: "Color", grupo: "Identidad", resumen: "Colores oficiales, combinaciones y rampas." },
     { slug: "tipografia", titulo: "Tipografía", grupo: "Identidad", resumen: "Familias, pesos y jerarquía." },
