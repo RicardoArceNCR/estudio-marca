@@ -16,12 +16,14 @@ Segundo incremento después de la revisión de diseño. Botones con la voz de ca
 - **"En esta página" en móvil**: franja pegada a la cabecera que sigue la sección que se lee.
 - **Ayuda en el lateral**, además del pie.
 - Tercer nivel de títulos (`--mk-nivel-3`) para tarjetas, versiones y "Si dudás".
-- `marca-revisar` también verifica: botones de 44 px de alto, etiquetas que no vengan tecleadas en mayúsculas, un solo brillo por vista y el índice a la vista en móvil.
+- `marca-revisar` también verifica: botones de 44 px de alto, etiquetas que no vengan tecleadas en mayúsculas, un solo brillo por vista, el índice a la vista en móvil y que la portada no pase de media pantalla en móvil.
 
 ### Cambiado
 
 - El botón de menú usa los ganchos de botón.
 - Títulos un poco más chicos en móvil (H1 desde 2,25rem, bloque desde 1,5rem).
+- Portada compacta en móvil: el logo arriba y chico (`--mk-portada-logo-movil`, 7,5rem por defecto; que no baje del mínimo de la marca), sin pasar de media pantalla.
+- El punto del estado queda alineado con la primera línea cuando el texto se parte.
 
 ## [0.2.0] — 2026-11-16
 

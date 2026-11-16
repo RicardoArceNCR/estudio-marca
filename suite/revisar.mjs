@@ -154,14 +154,19 @@ async function revisarPagina({ page, AxeBuilder, origen, ruta, ancho, informe, p
     const brillos = botones.filter((b) => b.classList.contains("mk-boton-brillo")).length;
     const secciones = [...document.querySelectorAll("main section[id]")].filter((x) => !x.parentElement?.closest("section[id]")).length;
     const indiceMovil = document.querySelector("[data-mk-indice-movil]");
+    const portada = document.querySelector(".mk-portada")?.getBoundingClientRect().height ?? 0;
+    const alto = window.innerHeight;
     const esInicio = location.pathname.replace(/\/$/, "") === (document.querySelector(".mk-marca")?.getAttribute("href") ?? "").replace(/\/$/, "");
-    return { chico, objetivos, huerfanas, botonesBajos, mayusTecleadas, brillos, secciones, esInicio, indiceMovil: indiceMovil ? visible(indiceMovil) : false };
+    return { chico, objetivos, huerfanas, botonesBajos, mayusTecleadas, brillos, secciones, esInicio, portada, alto, indiceMovil: indiceMovil ? visible(indiceMovil) : false };
   });
   if (medidas.botonesBajos.length) informe.falla(donde, `botones de menos de 44 px de alto: ${medidas.botonesBajos.slice(0, 3).join("; ")}`);
   if (medidas.mayusTecleadas.length) {
     informe.falla(donde, `botones escritos en mayúsculas en el HTML (van en minúscula y las pone el CSS): ${medidas.mayusTecleadas.slice(0, 3).join("; ")}`);
   }
   if (medidas.brillos > 1) informe.falla(donde, `${medidas.brillos} botones con brillo: uno por vista`);
+  if (ancho < 768 && medidas.portada > medidas.alto / 2) {
+    informe.falla(donde, `la portada ocupa ${Math.round(medidas.portada)} de ${medidas.alto} px: más de media pantalla`);
+  }
   if (ancho < 1024 && !medidas.esInicio && medidas.secciones >= 3 && !medidas.indiceMovil) {
     informe.falla(donde, "en móvil falta el índice «En esta página» a la vista");
   }
