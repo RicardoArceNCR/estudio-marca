@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { baseDe, gruposDe, hrefDe, type MarcaConfig } from "./config.js";
+import { baseDe, gruposDe, hrefDe, type Ayuda, type MarcaConfig } from "./config.js";
 import { enfocarSeccion, useIndice, type Indice } from "./toc.js";
 import { Aviso } from "./vivo.js";
 
@@ -69,6 +69,7 @@ export function MarcaShell({
             <Navegacion config={config} pathname={pathname} />
           </nav>
           <IndicePagina indice={indice} actual={actual} />
+          {config.ayuda ? <AyudaLateral ayuda={config.ayuda} /> : null}
           {salir ? (
             <button type="button" className="mk-boton mk-boton-secundario mk-salir" onClick={() => void salir()}>
               Salir
@@ -76,6 +77,7 @@ export function MarcaShell({
           ) : null}
         </aside>
         <main id="contenido" tabIndex={-1} className="mk-principal">
+          {pathname !== baseDe(config) ? <IndiceMovil indice={indice} actual={actual} /> : null}
           {children}
           <footer className="mk-pie">
             <span>
@@ -238,6 +240,54 @@ function IndicePagina({
               onClick={(e) => {
                 e.preventDefault();
                 alElegir(t.id);
+              }}
+            >
+              {t.titulo}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  );
+}
+
+function AyudaLateral({ ayuda }: { ayuda: Ayuda }) {
+  return (
+    <div className="mk-ayuda-lateral">
+      <h2 className="mk-nav-titulo">¿Algo falta?</h2>
+      <p>
+        {ayuda.correo ? <a href={`mailto:${ayuda.correo}`}>{ayuda.nombre}</a> : ayuda.nombre}
+      </p>
+    </div>
+  );
+}
+
+/**
+ * "En esta página" en pantallas chicas: una franja que se desliza de lado,
+ * pegada a la cabecera. En escritorio vive en el lateral.
+ */
+function IndiceMovil({ indice, actual }: { indice: Indice; actual: string }) {
+  const lista = useRef<HTMLUListElement>(null);
+  useEffect(() => {
+    // Lleva a la vista la sección que se está leyendo, sin mover la página.
+    const ul = lista.current;
+    const a = ul?.querySelector<HTMLElement>("[aria-current]");
+    if (!ul || !a) return;
+    const izq = a.offsetLeft - ul.offsetLeft;
+    if (izq < ul.scrollLeft || izq + a.offsetWidth > ul.scrollLeft + ul.clientWidth) ul.scrollLeft = izq - 16;
+  }, [actual]);
+  if (indice.length < 2) return null;
+  return (
+    <nav className="mk-indice-movil" aria-label="En esta página" data-mk-indice-movil>
+      <ul ref={lista}>
+        {indice.map((t) => (
+          <li key={t.id}>
+            <a
+              href={`#${t.id}`}
+              aria-current={actual === t.id ? "location" : undefined}
+              onClick={(e) => {
+                e.preventDefault();
+                enfocarSeccion(t.id, true);
               }}
             >
               {t.titulo}

@@ -95,3 +95,22 @@ test("columnas: nunca un elemento solo en la última fila", () => {
     }
   }
 });
+
+test("logo guiado: versión por defecto, porqués y acción de portada", () => {
+  const logo = {
+    versiones: [{ id: "principal", nombre: "Principal", svg: "/marca/logo/principal.svg", fondo: "claro", uso: "u" }],
+    respeto: { medida: "m", descripcion: "d" },
+    minimo: { digital: "80 px", impreso: "3 cm" },
+    incorrectos: ["estirar"],
+  };
+  const conLogo = { ...BASE, secciones: [...BASE.secciones, { slug: "logo", titulo: "Logo", grupo: "Identidad", resumen: "r", siDudas: "Usá la principal." }] };
+  assert.deepEqual(validarMarca({ ...conLogo, logo: { ...logo, porDefecto: "principal", porque: { estirar: "Se deforma." } } }), []);
+  const errores = validarMarca({
+    ...conLogo,
+    logo: { ...logo, porDefecto: "otra", porque: { sombra: "No se muestra." } },
+    portada: { logo: "/l.svg", fondo: "--brand-main", accion: { texto: "Voz", href: "/marca/voz" } },
+  });
+  assert.ok(errores.some((e) => e.includes('porDefecto "otra"')));
+  assert.ok(errores.some((e) => e.includes("porque.sombra")));
+  assert.ok(errores.some((e) => e.includes("acción de la portada") && e.includes("pendiente")));
+});

@@ -56,6 +56,11 @@ export interface Seccion {
   resumen: string;
   estado?: EstadoSeccion;
   pendiente?: Pendiente;
+  /**
+   * "Si dudás, usá esto": la decisión por defecto de la sección, en una o dos
+   * frases. Va arriba de todo, antes de las reglas.
+   */
+  siDudas?: string;
 }
 
 export interface VersionLogo {
@@ -71,7 +76,8 @@ export interface VersionLogo {
   uso: string;
 }
 
-export type UsoIncorrecto = "estirar" | "rotar" | "recolorear" | "sombra" | "contorno" | "apretar";
+export const USOS_INCORRECTOS = ["estirar", "rotar", "recolorear", "sombra", "contorno", "apretar"] as const;
+export type UsoIncorrecto = (typeof USOS_INCORRECTOS)[number];
 
 export interface LogoConfig {
   versiones: VersionLogo[];
@@ -79,6 +85,13 @@ export interface LogoConfig {
   minimo: { digital: string; impreso: string };
   /** Se dibujan desde el SVG principal. Por defecto, los seis. */
   incorrectos?: UsoIncorrecto[];
+  /** Por qué no: una frase por uso incorrecto, con la consecuencia real. */
+  porque?: Partial<Record<UsoIncorrecto, string>>;
+  /**
+   * Id de la versión que se usa cuando no hay otra indicación. Se muestra
+   * arriba, con sus descargas directas. Sin esto, la primera.
+   */
+  porDefecto?: string;
 }
 
 export interface ColorOficial {
@@ -162,7 +175,13 @@ export interface MarcaConfig {
    * Portada del inicio: una banda con el color de marca y el logo. Sin esto,
    * el inicio abre con un encabezado simple.
    */
-  portada?: { logo: string; fondo: `--${string}`; alt?: string };
+  portada?: {
+    logo: string;
+    fondo: `--${string}`;
+    alt?: string;
+    /** Una sola acción en la portada: botón sin relleno con borde iluminado. */
+    accion?: { texto: string; href: string };
+  };
   /** Marca chica junto al nombre en la cabecera: logo sobre su color. */
   cabecera?: { logo: string; fondo: `--${string}` };
   /** Inicio: encabezado propio, atajos por tarea y títulos de sus bloques. */
@@ -224,13 +243,24 @@ export function validarMarca(c: MarcaConfig): string[] {
   if (!/^[a-z0-9-]+$/.test(c.archivo)) errores.push(`archivo "${c.archivo}": solo minúsculas, números y guiones`);
   if (c.actualizado && !/^\d{4}-\d{2}-\d{2}$/.test(c.actualizado)) errores.push(`actualizado "${c.actualizado}": fecha ISO (AAAA-MM-DD)`);
   const base = baseDe(c);
+  const destino = (que: string, href: string) => {
+    const ruta = href.split("#")[0] ?? "";
+    if (!ruta.startsWith(`${base}/`)) return;
+    const s = seccionDe(c, ruta.slice(base.length + 1));
+    if (!s) errores.push(`${que}: ${ruta} no es una sección del portal`);
+    else if (s.estado === "pendiente") errores.push(`${que}: ${ruta} está pendiente`);
+  };
   for (const a of c.inicio?.atajos || []) {
     if (a.icono && !esIcono(a.icono)) errores.push(`atajo "${a.titulo}": ícono "${a.icono}" no existe`);
-    const ruta = a.href.split("#")[0] ?? "";
-    if (ruta.startsWith(`${base}/`)) {
-      const s = seccionDe(c, ruta.slice(base.length + 1));
-      if (!s) errores.push(`atajo "${a.titulo}": ${ruta} no es una sección del portal`);
-      else if (s.estado === "pendiente") errores.push(`atajo "${a.titulo}": ${ruta} está pendiente`);
+    destino(`atajo "${a.titulo}"`, a.href);
+  }
+  if (c.portada?.accion) destino(`acción de la portada "${c.portada.accion.texto}"`, c.portada.accion.href);
+  if (c.logo?.porDefecto && !c.logo.versiones.some((v) => v.id === c.logo!.porDefecto)) {
+    errores.push(`logo.porDefecto "${c.logo.porDefecto}": no es el id de ninguna versión`);
+  }
+  for (const u of Object.keys(c.logo?.porque ?? {})) {
+    if (!(c.logo?.incorrectos ?? USOS_INCORRECTOS).includes(u as UsoIncorrecto)) {
+      errores.push(`logo.porque.${u}: ese uso incorrecto no se muestra`);
     }
   }
   return errores;

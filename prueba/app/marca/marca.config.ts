@@ -6,7 +6,11 @@ export default defineMarca({
   version: "0.1 · prueba",
   archivo: "cliente-prueba",
   contacto: { nombre: "Equipo de prueba", correo: "marca@example.com" },
-  portada: { logo: "/marca/logo/negativo.svg", fondo: "--brand-main" },
+  portada: {
+    logo: "/marca/logo/negativo.svg",
+    fondo: "--brand-main",
+    accion: { texto: "Bajar el logo", href: "/marca/logo#si-dudas" },
+  },
   estado: "vigente",
   actualizado: "2026-11-16",
   ayuda: { nombre: "el equipo de prueba", correo: "marca@example.com" },
@@ -21,7 +25,13 @@ export default defineMarca({
   },
   cabecera: { logo: "/marca/logo/negativo.svg", fondo: "--surface-inverse" },
   secciones: [
-    { slug: "logo", titulo: "Logo", grupo: "Identidad", resumen: "Versiones, área de respeto, tamaño mínimo y descargas." },
+    {
+      slug: "logo",
+      titulo: "Logo",
+      grupo: "Identidad",
+      resumen: "Versiones, área de respeto, tamaño mínimo y descargas.",
+      siDudas: "Usá la principal sobre fondo claro. Si el fondo es oscuro, la negativa.",
+    },
     { slug: "color", titulo: "Color", grupo: "Identidad", resumen: "Colores oficiales, combinaciones y rampas." },
     { slug: "tipografia", titulo: "Tipografía", grupo: "Identidad", resumen: "Familias, pesos y jerarquía." },
     {
@@ -42,6 +52,8 @@ export default defineMarca({
     ],
     respeto: { medida: "1 × la altura del círculo", descripcion: "Nada entra en ese margen alrededor del logo." },
     minimo: { digital: "96 px", impreso: "2,5 cm" },
+    porDefecto: "principal",
+    porque: { estirar: "Deformado deja de ser el mismo logo y se nota a simple vista." },
   },
   color: {
     oficiales: [

@@ -93,7 +93,8 @@ defineMarca({
 | Sección | Desde |
 | --- | --- |
 | Inicio | `secciones`: accesos a tareas y a cada sección |
-| `logo` | `logo`: panel de descargas arriba (ZIP y formatos por versión), versiones sobre su fondo, área de respeto, tamaño mínimo, usos incorrectos dibujados desde el SVG |
+| Toda sección | `siDudas`: la decisión por defecto, arriba de todo |
+| `logo` | `logo`: "si dudás" con la versión `porDefecto` y sus descargas, panel de descargas (ZIP y formatos por versión), versiones sobre su fondo, área de respeto, tamaño mínimo, usos incorrectos dibujados desde el SVG, con su `porque` |
 | `color` | `color`: muestras copiables con HEX, RGB y CMYK, pares medidos con resultado en texto, rampas |
 | `tipografia` | `tipografia`: familias con pesos y licencia, jerarquía medida |
 | `sistema` | `sistema`: componentes con estados, espaciado, radios, sombras |
@@ -107,6 +108,26 @@ estudio: `--background-page`, `--surface-*`, `--text-primary`,
 `--focus-ring-color`, `--button-primary-*`, `--feedback-error-text` y
 `--typography-family-*`. Para ajustar uno, pisá su `--mk-*` en el CSS del
 sitio.
+
+### Botones con la voz de la marca
+
+Los botones (`mk-boton`, `mk-boton-secundario`, `mk-boton-fantasma`) leen
+`--mk-boton-*`. Un ejemplo, en el CSS del sitio:
+
+```css
+:root {
+  --mk-boton-radio: var(--button-radius);
+  --mk-boton-mayus: uppercase; /* las etiquetas se escriben en minúscula */
+  --mk-boton-tracking: 0.06em;
+  --mk-boton-tamano: 0.875rem;
+}
+.mk-portada { --mk-boton-brillo: var(--color-white); }
+```
+
+`mk-boton-brillo` agrega un borde iluminado que solo anima su opacidad. Va
+en **un** botón por vista, sobre un fondo oscuro o de marca; `marca-revisar`
+falla si hay más de uno. El color del brillo tiene que dar 3:1 contra el
+fondo (el dorado sobre un rojo medio, por ejemplo, no llega).
 
 ### Capas de CSS
 

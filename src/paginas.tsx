@@ -11,7 +11,7 @@ import {
   type UsoIncorrecto,
   type VersionLogo,
 } from "./config.js";
-import { PanelDescargas } from "./descargas.js";
+import { DescargasVersion, PanelDescargas } from "./descargas.js";
 import { Icono } from "./iconos.js";
 import { columnas } from "./rejilla.js";
 import { slugDe } from "./rutas.js";
@@ -98,6 +98,21 @@ export function Bloque({
   );
 }
 
+/** "Si dudás, usá esto": la decisión por defecto, arriba de las reglas. */
+function SiDudas({ texto, children }: { texto: string; children?: ReactNode }) {
+  return (
+    <section id="si-dudas" className="mk-si-dudas" aria-labelledby="si-dudas-titulo" data-toc="Si dudás">
+      <div className="mk-si-dudas-texto">
+        <h2 id="si-dudas-titulo" className="mk-si-dudas-titulo">
+          Si dudás
+        </h2>
+        <p>{texto}</p>
+      </div>
+      {children}
+    </section>
+  );
+}
+
 function Tarjeta({
   href,
   titulo,
@@ -162,6 +177,13 @@ function PaginaInicio({ config }: { config: MarcaConfig }) {
             <p className="mk-antetitulo">{enc?.antetitulo ?? `Versión ${config.version}`}</p>
             <h1 className="mk-titulo">{enc?.titulo ?? config.nombre}</h1>
             <p className="mk-portada-bajada">{bajadaInicio}</p>
+            {config.portada.accion ? (
+              <p className="mk-portada-accion">
+                <Link className="mk-boton mk-boton-fantasma mk-boton-brillo" href={config.portada.accion.href}>
+                  {config.portada.accion.texto}
+                </Link>
+              </p>
+            ) : null}
           </div>
           <img className="mk-portada-logo" src={config.portada.logo} alt={config.portada.alt ?? config.marca} />
         </header>
@@ -212,6 +234,7 @@ function lamina(fondo: VersionLogo["fondo"]) {
 
 function PaginaLogo({ config, logo, seccion }: { config: MarcaConfig; logo: LogoConfig; seccion: Seccion }) {
   const principal = logo.versiones[0];
+  const porDefecto = logo.versiones.find((v) => v.id === logo.porDefecto) ?? (seccion.siDudas ? principal : undefined);
   const incorrectos = logo.incorrectos ?? (Object.keys(INCORRECTOS) as UsoIncorrecto[]);
   const medida = (v: string, unidad: "px" | "cm") => {
     const limpio = v.replace(/\s/g, "").replace(",", ".");
@@ -225,6 +248,21 @@ function PaginaLogo({ config, logo, seccion }: { config: MarcaConfig; logo: Logo
       <Encabezado antetitulo={seccion.grupo} titulo={seccion.titulo} config={config}>
         <p>{seccion.resumen}</p>
       </Encabezado>
+      {seccion.siDudas ? (
+        <SiDudas texto={seccion.siDudas}>
+          {porDefecto ? (
+            <figure className="mk-logo mk-si-dudas-logo">
+              <div className="mk-logo-lamina" {...lamina(porDefecto.fondo)}>
+                <img src={porDefecto.svg} alt={`${config.marca}: ${porDefecto.nombre}`} />
+              </div>
+              <figcaption>
+                <strong>{porDefecto.nombre}</strong>
+                <DescargasVersion version={porDefecto} archivo={config.archivo} />
+              </figcaption>
+            </figure>
+          ) : null}
+        </SiDudas>
+      ) : null}
       <Bloque id="descargas" titulo="Descargas">
         <PanelDescargas
           versiones={logo.versiones}
@@ -243,7 +281,10 @@ function PaginaLogo({ config, logo, seccion }: { config: MarcaConfig; logo: Logo
                 <img src={v.svg} alt={`${config.marca}: ${v.nombre}`} />
               </div>
               <figcaption>
-                <strong>{v.nombre}</strong>
+                <strong>
+                  {v.nombre}
+                  {porDefecto && v.id === porDefecto.id ? <span className="mk-etiqueta">Por defecto</span> : null}
+                </strong>
                 <span>{v.uso}</span>
               </figcaption>
             </figure>
@@ -304,6 +345,7 @@ function PaginaLogo({ config, logo, seccion }: { config: MarcaConfig; logo: Logo
                       ✕
                     </span>{" "}
                     {INCORRECTOS[id].texto}
+                    {logo.porque?.[id] ? <span className="mk-porque">{logo.porque[id]}</span> : null}
                   </figcaption>
                 </figure>
               ))}
@@ -322,6 +364,7 @@ function PaginaColor({ config, seccion }: { config: MarcaConfig; seccion: Seccio
       <Encabezado antetitulo={seccion.grupo} titulo={seccion.titulo} config={config}>
         <p>{seccion.resumen} Hacé clic en una muestra para copiar su valor.</p>
       </Encabezado>
+      {seccion.siDudas ? <SiDudas texto={seccion.siDudas} /> : null}
       <Bloque id="oficiales" titulo="Colores oficiales">
         <Rejilla n={color.oficiales.length} max={4} className="mk-rejilla-muestras">
           {color.oficiales.map((c) => (
@@ -357,6 +400,7 @@ function PaginaTipografia({ config, seccion }: { config: MarcaConfig; seccion: S
       <Encabezado antetitulo={seccion.grupo} titulo={seccion.titulo} config={config}>
         <p>{seccion.resumen}</p>
       </Encabezado>
+      {seccion.siDudas ? <SiDudas texto={seccion.siDudas} /> : null}
       <Bloque id="familias" titulo="Familias">
         <Rejilla n={tipo.familias.length} max={3}>
           {tipo.familias.map((f) => (
@@ -398,6 +442,7 @@ function PaginaSistema({ config, seccion }: { config: MarcaConfig; seccion: Secc
       <Encabezado antetitulo={seccion.grupo} titulo={seccion.titulo} config={config}>
         <p>{seccion.resumen} Todo se lee del CSS que carga el sitio.</p>
       </Encabezado>
+      {seccion.siDudas ? <SiDudas texto={seccion.siDudas} /> : null}
       <Bloque id="componentes" titulo="Componentes y estados">
         <div className="mk-componentes">
           <div className="mk-fila">
@@ -407,9 +452,18 @@ function PaginaSistema({ config, seccion }: { config: MarcaConfig; seccion: Secc
             <button type="button" className="mk-boton mk-boton-secundario">
               Acción secundaria
             </button>
+            <button type="button" className="mk-boton mk-boton-fantasma">
+              Sin relleno
+            </button>
             <a className="mk-enlace" href="#componentes">
               Enlace de texto
             </a>
+          </div>
+          <div className="mk-fila mk-banda-inversa">
+            <button type="button" className="mk-boton mk-boton-fantasma mk-boton-brillo">
+              Con brillo
+            </button>
+            <span>Sin relleno y con brillo: uno solo por vista, sobre un fondo oscuro o de marca.</span>
           </div>
           <div className="mk-campo">
             <label htmlFor="mk-campo-ejemplo">Correo</label>

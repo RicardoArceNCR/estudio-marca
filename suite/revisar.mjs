@@ -145,8 +145,26 @@ async function revisarPagina({ page, AxeBuilder, origen, ruta, ancho, informe, p
         huerfanas.push(g.closest("section")?.id ?? "rejilla");
       }
     }
-    return { chico, objetivos, huerfanas };
+    // Botones: alto de 44 px, mayúsculas solo por CSS y un único brillo por vista.
+    const botones = [...document.querySelectorAll(".mk-boton")].filter(visible);
+    const botonesBajos = botones.filter((b) => b.getBoundingClientRect().height < 43.5).map((b) => b.textContent.trim().slice(0, 30));
+    const mayusTecleadas = botones
+      .map((b) => b.textContent.trim())
+      .filter((t) => /\p{L}{4,}/u.test(t) && t === t.toUpperCase() && t !== t.toLowerCase());
+    const brillos = botones.filter((b) => b.classList.contains("mk-boton-brillo")).length;
+    const secciones = [...document.querySelectorAll("main section[id]")].filter((x) => !x.parentElement?.closest("section[id]")).length;
+    const indiceMovil = document.querySelector("[data-mk-indice-movil]");
+    const esInicio = location.pathname.replace(/\/$/, "") === (document.querySelector(".mk-marca")?.getAttribute("href") ?? "").replace(/\/$/, "");
+    return { chico, objetivos, huerfanas, botonesBajos, mayusTecleadas, brillos, secciones, esInicio, indiceMovil: indiceMovil ? visible(indiceMovil) : false };
   });
+  if (medidas.botonesBajos.length) informe.falla(donde, `botones de menos de 44 px de alto: ${medidas.botonesBajos.slice(0, 3).join("; ")}`);
+  if (medidas.mayusTecleadas.length) {
+    informe.falla(donde, `botones escritos en mayúsculas en el HTML (van en minúscula y las pone el CSS): ${medidas.mayusTecleadas.slice(0, 3).join("; ")}`);
+  }
+  if (medidas.brillos > 1) informe.falla(donde, `${medidas.brillos} botones con brillo: uno por vista`);
+  if (ancho < 1024 && !medidas.esInicio && medidas.secciones >= 3 && !medidas.indiceMovil) {
+    informe.falla(donde, "en móvil falta el índice «En esta página» a la vista");
+  }
   if (medidas.chico.length) informe.falla(donde, `texto de menos de 12 px: ${medidas.chico.slice(0, 3).join("; ")}`);
   if (medidas.objetivos.length) informe.falla(donde, `objetivos de menos de 24 px: ${medidas.objetivos.slice(0, 3).join("; ")}`);
   for (const h of medidas.huerfanas) informe.falla(donde, `la rejilla de "${h}" deja un elemento solo en la última fila`);

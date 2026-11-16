@@ -2,6 +2,27 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). Versionado: semver; mientras sea 0.x, un cambio de la configuración puede romper.
 
+## [0.3.0] — 2026-11-16
+
+Segundo incremento después de la revisión de diseño. Botones con la voz de cada marca y contenido que decide por el lector. Apunta a **contenido**, **tareas**, **jerarquía** y **móvil**.
+
+### Agregado
+
+- **Ganchos de botón** `--mk-boton-*`: radio, fuente, peso, mayúsculas, tracking, tamaño, alto, relleno, ancho de borde, colores del secundario y del sin relleno, y color del brillo. Cada marca los pisa en su hoja; el paquete no trae valores de ningún cliente. Por defecto el radio sale de `--button-radius`.
+- **Botón sin relleno** (`mk-boton-fantasma`) y **borde iluminado** (`mk-boton-brillo`). El brillo se pinta una vez en `::after` y solo anima `opacity`; sin animación con `prefers-reduced-motion`.
+- **Acción de la portada** (`portada.accion`): un botón sin relleno con brillo sobre el color de marca. Su destino se valida como el de los atajos.
+- **"Si dudás"** (`seccion.siDudas`): la decisión por defecto arriba de cada sección. En Logo muestra la versión por defecto (`logo.porDefecto`) con sus descargas directas y la marca "Por defecto" en su tarjeta.
+- **Porqué de cada uso incorrecto** (`logo.porque`).
+- **"En esta página" en móvil**: franja pegada a la cabecera que sigue la sección que se lee.
+- **Ayuda en el lateral**, además del pie.
+- Tercer nivel de títulos (`--mk-nivel-3`) para tarjetas, versiones y "Si dudás".
+- `marca-revisar` también verifica: botones de 44 px de alto, etiquetas que no vengan tecleadas en mayúsculas, un solo brillo por vista y el índice a la vista en móvil.
+
+### Cambiado
+
+- El botón de menú usa los ganchos de botón.
+- Títulos un poco más chicos en móvil (H1 desde 2,25rem, bloque desde 1,5rem).
+
 ## [0.2.0] — 2026-11-16
 
 Primer incremento después de la revisión de diseño (ADR 0012 del estudio). Sube los criterios **descargas**, **tareas**, **arquitectura** y **jerarquía**.
