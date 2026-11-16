@@ -23,11 +23,15 @@ function PaginaInicio({ config }) {
     };
     const tareas = [
         lista("logo") && { href: `${hrefDe(config, "logo")}#descargas`, titulo: "Descargar el logo", texto: "SVG, PNG y un ZIP con todas las versiones." },
-        lista("color") && { href: `${hrefDe(config, "color")}#oficiales`, titulo: "Copiar un color", texto: "Valores en HEX, RGB y CMYK, listos para pegar." },
+        lista("color") && {
+            href: `${hrefDe(config, "color")}#oficiales`,
+            titulo: "Copiar un color",
+            texto: config.color?.oficiales.some((o) => o.cmyk) ? "Valores en HEX, RGB y CMYK, listos para pegar." : "Valores en HEX y RGB, listos para pegar.",
+        },
         lista("tipografia") && { href: hrefDe(config, "tipografia"), titulo: "Ver la tipografía", texto: "Familias, pesos y jerarquía." },
         lista("sistema") && { href: hrefDe(config, "sistema"), titulo: "Usar el sistema", texto: "Tokens y componentes como los pinta el sitio." },
     ].filter((t) => Boolean(t));
-    return (_jsxs(_Fragment, { children: [_jsx(Encabezado, { antetitulo: `Versión ${config.version}`, titulo: config.nombre, children: _jsxs("p", { children: ["Todo lo necesario para aplicar la marca ", config.marca, ": lineamientos, archivos y el sistema de dise\u00F1o en uso."] }) }), tareas.length ? (_jsx(Bloque, { id: "tareas", titulo: "Lo m\u00E1s usado", children: _jsx("div", { className: "mk-rejilla", children: tareas.map((t) => (_jsx(Tarjeta, { href: t.href, titulo: t.titulo, children: t.texto }, t.href))) }) })) : null, _jsx(Bloque, { id: "secciones", titulo: "Secciones", children: _jsx("div", { className: "mk-rejilla", children: config.secciones.map((s) => (_jsx(Tarjeta, { href: hrefDe(config, s.slug), titulo: s.titulo, pendiente: s.estado === "pendiente", children: s.resumen }, s.slug))) }) })] }));
+    return (_jsxs(_Fragment, { children: [config.portada ? (_jsxs("header", { className: "mk-portada", style: { background: `var(${config.portada.fondo})` }, children: [_jsxs("div", { className: "mk-portada-texto", children: [_jsxs("p", { className: "mk-antetitulo", children: ["Versi\u00F3n ", config.version] }), _jsx("h1", { className: "mk-titulo", children: config.nombre }), _jsxs("p", { className: "mk-portada-bajada", children: ["Todo lo necesario para aplicar la marca ", config.marca, ": lineamientos, archivos y el sistema de dise\u00F1o en uso."] })] }), _jsx("img", { className: "mk-portada-logo", src: config.portada.logo, alt: config.portada.alt ?? config.marca })] })) : (_jsx(Encabezado, { antetitulo: `Versión ${config.version}`, titulo: config.nombre, children: _jsxs("p", { children: ["Todo lo necesario para aplicar la marca ", config.marca, ": lineamientos, archivos y el sistema de dise\u00F1o en uso."] }) })), tareas.length ? (_jsx(Bloque, { id: "tareas", titulo: "Lo m\u00E1s usado", children: _jsx("div", { className: "mk-rejilla", children: tareas.map((t) => (_jsx(Tarjeta, { href: t.href, titulo: t.titulo, children: t.texto }, t.href))) }) })) : null, _jsx(Bloque, { id: "secciones", titulo: "Secciones", children: _jsx("div", { className: "mk-rejilla", children: config.secciones.map((s) => (_jsx(Tarjeta, { href: hrefDe(config, s.slug), titulo: s.titulo, pendiente: s.estado === "pendiente", children: s.resumen }, s.slug))) }) })] }));
 }
 const INCORRECTOS = {
     estirar: { texto: "No lo estires ni lo deformes.", clase: "mk-mal-estirar" },

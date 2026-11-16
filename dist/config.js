@@ -35,6 +35,8 @@ export function validarMarca(c) {
         ...(c.color?.pares?.flatMap((p) => [p.texto, p.fondo]) ?? []),
         ...(c.tipografia?.familias.map((f) => f.token) ?? []),
         ...(c.logo?.versiones.map((v) => v.fondo).filter((f) => f.startsWith("--")) ?? []),
+        ...(c.portada ? [c.portada.fondo] : []),
+        ...(c.cabecera ? [c.cabecera.fondo] : []),
         ...(c.sistema?.espaciado ?? []),
         ...(c.sistema?.radios ?? []),
         ...(c.sistema?.sombras ?? []),

@@ -132,6 +132,13 @@ export interface MarcaConfig {
   /** Prefijo de los archivos descargados: `acme`. */
   archivo: string;
   contacto?: { nombre: string; correo?: string };
+  /**
+   * Portada del inicio: una banda con el color de marca y el logo. Sin esto,
+   * el inicio abre con un encabezado simple.
+   */
+  portada?: { logo: string; fondo: `--${string}`; alt?: string };
+  /** Marca chica junto al nombre en la cabecera: logo sobre su color. */
+  cabecera?: { logo: string; fondo: `--${string}` };
   /** Aparece en buscadores. Por defecto no: el portal se comparte por enlace. */
   indexar?: boolean;
   secciones: Seccion[];
@@ -165,6 +172,8 @@ export function validarMarca(c: MarcaConfig): string[] {
     ...(c.color?.pares?.flatMap((p) => [p.texto, p.fondo]) ?? []),
     ...(c.tipografia?.familias.map((f) => f.token) ?? []),
     ...(c.logo?.versiones.map((v) => v.fondo).filter((f) => f.startsWith("--")) ?? []),
+    ...(c.portada ? [c.portada.fondo] : []),
+    ...(c.cabecera ? [c.cabecera.fondo] : []),
     ...(c.sistema?.espaciado ?? []),
     ...(c.sistema?.radios ?? []),
     ...(c.sistema?.sombras ?? []),

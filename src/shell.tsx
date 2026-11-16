@@ -39,6 +39,11 @@ export function MarcaShell({
       </a>
       <header className="mk-cabecera">
         <Link href={baseDe(config)} className="mk-marca">
+          {config.cabecera ? (
+            <span className="mk-marca-insignia" style={{ background: `var(${config.cabecera.fondo})` }} aria-hidden="true">
+              <img src={config.cabecera.logo} alt="" />
+            </span>
+          ) : null}
           {config.nombre}
         </Link>
         <button

@@ -2,6 +2,18 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). Versionado: semver; mientras sea 0.x, un cambio de la configuración puede romper.
 
+## [0.1.2] — 2026-11-15
+
+### Agregado
+
+- `portada`: el inicio abre con una banda del color de marca y el logo.
+- `cabecera`: insignia con el logo junto al nombre del portal.
+- Ganchos `--mk-nav-actual-*`, `--mk-portada-texto` y `--mk-tarjeta-acento`: la sección actual, el índice y las tarjetas toman el color de la marca (`--brand-subtle`, `--text-brand`, `--border-brand`).
+
+### Corregido
+
+- "Copiar un color" no promete CMYK si la configuración no lo trae.
+
 ## [0.1.1] — 2026-11-15
 
 ### Corregido

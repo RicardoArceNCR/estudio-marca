@@ -6,6 +6,8 @@ export default defineMarca({
   version: "0.1 · prueba",
   archivo: "cliente-prueba",
   contacto: { nombre: "Equipo de prueba", correo: "marca@example.com" },
+  portada: { logo: "/marca/logo/negativo.svg", fondo: "--brand-main" },
+  cabecera: { logo: "/marca/logo/negativo.svg", fondo: "--surface-inverse" },
   secciones: [
     { slug: "logo", titulo: "Logo", grupo: "Identidad", resumen: "Versiones, área de respeto, tamaño mínimo y descargas." },
     { slug: "color", titulo: "Color", grupo: "Identidad", resumen: "Colores oficiales, combinaciones y rampas." },

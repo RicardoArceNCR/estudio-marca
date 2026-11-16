@@ -125,6 +125,20 @@ export interface MarcaConfig {
         nombre: string;
         correo?: string;
     };
+    /**
+     * Portada del inicio: una banda con el color de marca y el logo. Sin esto,
+     * el inicio abre con un encabezado simple.
+     */
+    portada?: {
+        logo: string;
+        fondo: `--${string}`;
+        alt?: string;
+    };
+    /** Marca chica junto al nombre en la cabecera: logo sobre su color. */
+    cabecera?: {
+        logo: string;
+        fondo: `--${string}`;
+    };
     /** Aparece en buscadores. Por defecto no: el portal se comparte por enlace. */
     indexar?: boolean;
     secciones: Seccion[];

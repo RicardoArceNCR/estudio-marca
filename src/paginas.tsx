@@ -58,15 +58,32 @@ function PaginaInicio({ config }: { config: MarcaConfig }) {
   };
   const tareas = [
     lista("logo") && { href: `${hrefDe(config, "logo")}#descargas`, titulo: "Descargar el logo", texto: "SVG, PNG y un ZIP con todas las versiones." },
-    lista("color") && { href: `${hrefDe(config, "color")}#oficiales`, titulo: "Copiar un color", texto: "Valores en HEX, RGB y CMYK, listos para pegar." },
+    lista("color") && {
+      href: `${hrefDe(config, "color")}#oficiales`,
+      titulo: "Copiar un color",
+      texto: config.color?.oficiales.some((o) => o.cmyk) ? "Valores en HEX, RGB y CMYK, listos para pegar." : "Valores en HEX y RGB, listos para pegar.",
+    },
     lista("tipografia") && { href: hrefDe(config, "tipografia"), titulo: "Ver la tipografía", texto: "Familias, pesos y jerarquía." },
     lista("sistema") && { href: hrefDe(config, "sistema"), titulo: "Usar el sistema", texto: "Tokens y componentes como los pinta el sitio." },
   ].filter((t): t is { href: string; titulo: string; texto: string } => Boolean(t));
   return (
     <>
-      <Encabezado antetitulo={`Versión ${config.version}`} titulo={config.nombre}>
-        <p>Todo lo necesario para aplicar la marca {config.marca}: lineamientos, archivos y el sistema de diseño en uso.</p>
-      </Encabezado>
+      {config.portada ? (
+        <header className="mk-portada" style={{ background: `var(${config.portada.fondo})` }}>
+          <div className="mk-portada-texto">
+            <p className="mk-antetitulo">Versión {config.version}</p>
+            <h1 className="mk-titulo">{config.nombre}</h1>
+            <p className="mk-portada-bajada">
+              Todo lo necesario para aplicar la marca {config.marca}: lineamientos, archivos y el sistema de diseño en uso.
+            </p>
+          </div>
+          <img className="mk-portada-logo" src={config.portada.logo} alt={config.portada.alt ?? config.marca} />
+        </header>
+      ) : (
+        <Encabezado antetitulo={`Versión ${config.version}`} titulo={config.nombre}>
+          <p>Todo lo necesario para aplicar la marca {config.marca}: lineamientos, archivos y el sistema de diseño en uso.</p>
+        </Encabezado>
+      )}
       {tareas.length ? (
         <Bloque id="tareas" titulo="Lo más usado">
           <div className="mk-rejilla">
