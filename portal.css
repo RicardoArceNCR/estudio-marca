@@ -48,7 +48,7 @@
     min-height: 100dvh;
     background: var(--mk-fondo);
     color: var(--mk-texto);
-    font-family: var(--mk-fuente);
+    font-family: var(--mk-fuente), system-ui, sans-serif;
     line-height: 1.5;
   }
 
@@ -437,7 +437,7 @@
   }
 
   .mk-portal code {
-    font-family: var(--mk-fuente-mono);
+    font-family: var(--mk-fuente-mono), ui-monospace, monospace;
     font-size: 0.875rem;
     overflow-wrap: anywhere;
   }
@@ -506,8 +506,9 @@
   }
 
   .mk-logo-lamina {
-    display: grid;
-    place-items: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     aspect-ratio: 3 / 2;
     padding: 2rem;
     border: 1px solid var(--mk-borde-suave);
@@ -533,8 +534,15 @@
     background: var(--mk-superficie-inversa);
   }
 
+  /* El logo entra entero en la lámina, sea vertical u horizontal. */
   .mk-logo-lamina img {
+    display: block;
+    max-width: 100%;
     max-height: 100%;
+    width: auto;
+    height: auto;
+    min-height: 0;
+    object-fit: contain;
   }
 
   .mk-respeto img {
@@ -555,8 +563,9 @@
     transform: rotate(-14deg);
   }
 
+  /* Se aplica a la lámina entera: el logo sobre colores que no son los suyos. */
   .mk-mal-recolorear {
-    filter: hue-rotate(150deg) saturate(1.6);
+    filter: hue-rotate(260deg) saturate(1.4);
   }
 
   .mk-mal-sombra {
@@ -612,7 +621,7 @@
   }
 
   .mk-muestra-hex {
-    font-family: var(--mk-fuente-mono);
+    font-family: var(--mk-fuente-mono), ui-monospace, monospace;
   }
 
   .mk-muestra-boton:hover .mk-muestra-hex {
@@ -678,7 +687,7 @@
   }
 
   .mk-rampa-hex {
-    font-family: var(--mk-fuente-mono);
+    font-family: var(--mk-fuente-mono), ui-monospace, monospace;
     font-size: 0.8125rem;
   }
 
@@ -845,7 +854,7 @@
   }
 
   .mk-escala-valor {
-    font-family: var(--mk-fuente-mono);
+    font-family: var(--mk-fuente-mono), ui-monospace, monospace;
     font-size: 0.875rem;
     color: var(--mk-texto-suave);
   }

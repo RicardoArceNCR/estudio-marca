@@ -2,6 +2,14 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). Versionado: semver; mientras sea 0.x, un cambio de la configuración puede romper.
 
+## [0.1.1] — 2026-11-15
+
+### Corregido
+
+- Los logos verticales se cortaban en su lámina: ahora entran enteros, sean verticales u horizontales.
+- "No cambies sus colores" recolorea la lámina entera, no solo el logo.
+- Código, valores y textos caen en fuentes genéricas si el token de familia nombra una fuente que el sitio no carga.
+
 ## [0.1.0] — 2026-11-15
 
 ### Agregado

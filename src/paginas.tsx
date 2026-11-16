@@ -166,8 +166,15 @@ function PaginaLogo({ config, logo, seccion }: { config: MarcaConfig; logo: Logo
             <div className="mk-rejilla">
               {incorrectos.map((id) => (
                 <figure key={id} className="mk-logo mk-incorrecto">
-                  <div className="mk-logo-lamina" {...lamina(principal.fondo)}>
-                    <img className={INCORRECTOS[id].clase} src={principal.svg} alt={`Ejemplo incorrecto: ${INCORRECTOS[id].texto}`} />
+                  <div
+                    {...lamina(principal.fondo)}
+                    className={`mk-logo-lamina${id === "recolorear" ? ` ${INCORRECTOS[id].clase}` : ""}`}
+                  >
+                    <img
+                      className={id === "recolorear" ? undefined : INCORRECTOS[id].clase}
+                      src={principal.svg}
+                      alt={`Ejemplo incorrecto: ${INCORRECTOS[id].texto}`}
+                    />
                   </div>
                   <figcaption>
                     <span className="mk-no" aria-hidden="true">
