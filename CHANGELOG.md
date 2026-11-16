@@ -2,6 +2,13 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). Versionado: semver; mientras sea 0.x, un cambio de la configuración puede romper.
 
+## [0.4.2] — 2026-11-16
+
+### Agregado
+
+- **Manual en PDF** (`manual`: `href`, `detalle`): botón "Descargar el manual" junto al ZIP en Logo.
+- Los atajos y tarjetas que apuntan a un `.pdf` o `.zip` se bajan con un enlace común (`download`) en lugar de una ruta de Next. `marca-revisar` los pide sin navegar y comprueba que el archivo sea un PDF o un ZIP válido.
+
 ## [0.4.1] — 2026-11-16
 
 ### Cambiado

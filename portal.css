@@ -839,6 +839,12 @@
     }
   }
 
+  .mk-panel-botones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
   .mk-galeria-item .mk-logo-lamina {
     aspect-ratio: 4 / 3;
   }

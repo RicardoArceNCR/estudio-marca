@@ -85,6 +85,7 @@ defineMarca({
   actualizado: "2026-11-16",      // ISO: va en el encabezado de cada página
   ayuda: { nombre: "Equipo de marca", correo: "marca@cliente.com" },
   titulos: { punto: "." },        // gesto: cierre de los títulos en --mk-titulo-punto
+  manual: { href: "/descargas/acme-manual.pdf", detalle: "PDF, 40 páginas" }, // junto al ZIP en Logo
   inicio: {
     encabezado: { titulo: "Marca Acme", bajada: "Para quién es y qué encuentra." },
     publico: [

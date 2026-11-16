@@ -349,6 +349,15 @@ async function revisarAtajos({ page, url, informe }) {
   const hrefs = await page.$$eval("[data-mk-atajo]", (as) => as.map((a) => a.getAttribute("href")));
   for (const href of hrefs) {
     const destino = new URL(href, url);
+    // Un atajo a un archivo se baja: se pide sin navegar y se mira que sea lo que dice ser.
+    if (/\.(pdf|zip)$/i.test(destino.pathname)) {
+      const r = await page.request.get(destino.href);
+      const cuerpo = r.ok() ? await r.body() : Buffer.alloc(0);
+      const firma = destino.pathname.toLowerCase().endsWith(".pdf") ? "%PDF" : "PK";
+      if (!r.ok()) informe.falla("atajos", `${href} respondió ${r.status()}`);
+      else if (cuerpo.subarray(0, firma.length).toString("latin1") !== firma) informe.falla("atajos", `${href} no es un ${firma === "PK" ? "ZIP" : "PDF"} válido`);
+      continue;
+    }
     const res = await page.goto(destino.href, { waitUntil: "networkidle" });
     if (res?.status() !== 200) informe.falla("atajos", `${href} respondió ${res?.status()}`);
     else if (destino.hash && !(await page.locator(destino.hash).count())) informe.falla("atajos", `${href}: la página no tiene ${destino.hash}`);

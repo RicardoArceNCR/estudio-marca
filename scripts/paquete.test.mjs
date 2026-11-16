@@ -132,3 +132,10 @@ test("capítulos y público: el fondo es un token y el destino existe", () => {
   assert.match(errores, /"#edb824" no es un token/);
   assert.match(errores, /público "Prensa": \/marca\/voz está pendiente/);
 });
+
+test("manual en PDF: ruta del sitio a un .pdf; los atajos a archivos no son secciones", () => {
+  assert.deepEqual(validarMarca({ ...BASE, manual: { href: "/descargas/x-manual.pdf", detalle: "PDF" } }), []);
+  assert.match(validarMarca({ ...BASE, manual: { href: "https://x.com/m.doc", detalle: "x" } }).join(), /manual/);
+  const conAtajo = { ...BASE, inicio: { atajos: [{ titulo: "Bajar el manual", texto: "PDF", href: "/descargas/x-manual.pdf", icono: "descargar" }] } };
+  assert.deepEqual(validarMarca(conAtajo), []);
+});

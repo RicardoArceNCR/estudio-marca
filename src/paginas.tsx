@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 import {
+  esArchivo,
   hrefDe,
   seccionDe,
   type LogoConfig,
@@ -162,13 +163,14 @@ function Tarjeta({
   /** Tarjeta de capítulo: con el color y el número de la portada de su sección. */
   capitulo?: Capitulo;
 }) {
-  return (
-    <Link
-      href={href}
-      className={capitulo ? "mk-tarjeta mk-tarjeta-capitulo" : "mk-tarjeta"}
-      data-mk-atajo={atajo ? "" : undefined}
-      {...(capitulo ? superficie(capitulo) : {})}
-    >
+  const props = {
+    href,
+    className: capitulo ? "mk-tarjeta mk-tarjeta-capitulo" : "mk-tarjeta",
+    "data-mk-atajo": atajo ? "" : undefined,
+    ...(capitulo ? superficie(capitulo) : {}),
+  };
+  const contenido = (
+    <>
       {capitulo ? (
         <span className="mk-tarjeta-numero" aria-hidden="true" data-numero={capitulo.numero} />
       ) : null}
@@ -182,7 +184,15 @@ function Tarjeta({
         {pendiente ? <span className="mk-etiqueta">Próximamente</span> : null}
       </span>
       <span className="mk-tarjeta-texto">{children}</span>
-    </Link>
+    </>
+  );
+  // Un archivo (PDF, ZIP) se baja con un enlace común: no es una ruta de Next.
+  return esArchivo(href) ? (
+    <a {...props} download>
+      {contenido}
+    </a>
+  ) : (
+    <Link {...props}>{contenido}</Link>
   );
 }
 
@@ -323,6 +333,7 @@ function PaginaLogo({ config, logo, seccion }: { config: MarcaConfig; logo: Logo
           version={config.version}
           fondos={fondos}
           porDefecto={porDefecto?.id}
+          manual={config.manual}
           leeme={`Usá el SVG siempre que se pueda. Respetá el área de respeto (${logo.respeto.medida}) y el tamaño mínimo (${logo.minimo.digital} en pantalla, ${logo.minimo.impreso} impreso).`}
         />
       </Bloque>

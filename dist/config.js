@@ -51,6 +51,8 @@ export function validarMarca(c) {
         if (!TOKEN.test(`${r.prefijo}0`))
             errores.push(`rampa ${r.familia}: prefijo "${r.prefijo}" inválido`);
     }
+    if (c.manual && !/^\/.+\.pdf$/i.test(c.manual.href))
+        errores.push(`manual "${c.manual.href}": ruta del sitio a un .pdf`);
     if (!/^[a-z0-9-]+$/.test(c.archivo))
         errores.push(`archivo "${c.archivo}": solo minúsculas, números y guiones`);
     if (c.actualizado && !/^\d{4}-\d{2}-\d{2}$/.test(c.actualizado))
@@ -91,6 +93,10 @@ export function defineMarca(c) {
     if (errores.length)
         throw new Error(`Configuración de marca inválida:\n- ${errores.join("\n- ")}`);
     return c;
+}
+/** El destino es un archivo para bajar (PDF o ZIP), no una página. */
+export function esArchivo(href) {
+    return /\.(pdf|zip)(#.*)?$/i.test(href);
 }
 export function baseDe(c) {
     return (c.base ?? "/marca").replace(/\/$/, "");

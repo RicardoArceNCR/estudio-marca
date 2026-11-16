@@ -229,6 +229,11 @@ export interface MarcaConfig {
   estado?: "vigente" | "borrador" | "en-revision";
   /** Fecha de la última actualización, ISO (2026-11-15). */
   actualizado?: string;
+  /**
+   * Manual de marca en PDF, servido por el sitio fuera del portal
+   * (`/descargas/acme-manual.pdf`). Va junto al ZIP en Logo.
+   */
+  manual?: { href: string; detalle: string };
   /** A quién escribir. Reemplaza a `contacto`. */
   ayuda?: Ayuda;
   /** Aparece en buscadores. Por defecto no: el portal se comparte por enlace. */
@@ -275,6 +280,7 @@ export function validarMarca(c: MarcaConfig): string[] {
   for (const r of c.color?.rampas ?? []) {
     if (!TOKEN.test(`${r.prefijo}0`)) errores.push(`rampa ${r.familia}: prefijo "${r.prefijo}" inválido`);
   }
+  if (c.manual && !/^\/.+\.pdf$/i.test(c.manual.href)) errores.push(`manual "${c.manual.href}": ruta del sitio a un .pdf`);
   if (!/^[a-z0-9-]+$/.test(c.archivo)) errores.push(`archivo "${c.archivo}": solo minúsculas, números y guiones`);
   if (c.actualizado && !/^\d{4}-\d{2}-\d{2}$/.test(c.actualizado)) errores.push(`actualizado "${c.actualizado}": fecha ISO (AAAA-MM-DD)`);
   const base = baseDe(c);
@@ -307,6 +313,11 @@ export function defineMarca(c: MarcaConfig): MarcaConfig {
   const errores = validarMarca(c);
   if (errores.length) throw new Error(`Configuración de marca inválida:\n- ${errores.join("\n- ")}`);
   return c;
+}
+
+/** El destino es un archivo para bajar (PDF o ZIP), no una página. */
+export function esArchivo(href: string): boolean {
+  return /\.(pdf|zip)(#.*)?$/i.test(href);
 }
 
 export function baseDe(c: MarcaConfig): string {

@@ -174,6 +174,7 @@ export function PanelDescargas({
   leeme,
   fondos,
   porDefecto,
+  manual,
 }: {
   versiones: VersionLogo[];
   archivo: string;
@@ -184,6 +185,8 @@ export function PanelDescargas({
   fondos: Record<string, { "data-fondo": string; style?: Record<string, string> }>;
   /** Id de la versión por defecto: lleva la etiqueta "Por defecto". */
   porDefecto?: string;
+  /** Manual en PDF: va junto al ZIP. */
+  manual?: { href: string; detalle: string };
 }) {
   // La versión por defecto ocupa su propia fila; el resto se reparte sin huérfanos.
   const destacada = versiones.some((v) => v.id === porDefecto);
@@ -194,8 +197,16 @@ export function PanelDescargas({
       <div className="mk-panel-zip">
         <p className="mk-panel-zip-texto">
           Todas las versiones en SVG y en PNG de 2400 px, con un LEEME.
+          {manual ? ` El manual: ${manual.detalle}.` : null}
         </p>
-        <DescargaZip versiones={versiones} archivo={archivo} marca={marca} version={version} leeme={leeme} />
+        <div className="mk-panel-botones">
+          <DescargaZip versiones={versiones} archivo={archivo} marca={marca} version={version} leeme={leeme} />
+          {manual ? (
+            <a className="mk-boton mk-boton-secundario" href={manual.href} download data-mk-manual>
+              Descargar el manual
+            </a>
+          ) : null}
+        </div>
       </div>
       <div className="mk-rejilla mk-galeria" style={estilo} data-mk-rejilla>
         {versiones.map((v) => (

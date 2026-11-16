@@ -227,6 +227,14 @@ export interface MarcaConfig {
     estado?: "vigente" | "borrador" | "en-revision";
     /** Fecha de la última actualización, ISO (2026-11-15). */
     actualizado?: string;
+    /**
+     * Manual de marca en PDF, servido por el sitio fuera del portal
+     * (`/descargas/acme-manual.pdf`). Va junto al ZIP en Logo.
+     */
+    manual?: {
+        href: string;
+        detalle: string;
+    };
     /** A quién escribir. Reemplaza a `contacto`. */
     ayuda?: Ayuda;
     /** Aparece en buscadores. Por defecto no: el portal se comparte por enlace. */
@@ -241,6 +249,8 @@ export interface MarcaConfig {
 export declare function validarMarca(c: MarcaConfig): string[];
 /** Valida y devuelve la configuración. Falla en el build, no en producción. */
 export declare function defineMarca(c: MarcaConfig): MarcaConfig;
+/** El destino es un archivo para bajar (PDF o ZIP), no una página. */
+export declare function esArchivo(href: string): boolean;
 export declare function baseDe(c: MarcaConfig): string;
 export declare function hrefDe(c: MarcaConfig, slug?: string): string;
 export declare function seccionDe(c: MarcaConfig, slug: string): Seccion | undefined;
