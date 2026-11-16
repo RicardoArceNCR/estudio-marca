@@ -11,6 +11,7 @@ import { esIcono } from "./iconos.js";
  * le gana a la ruta comodín del portal.
  */
 export const SECCIONES_DEL_PAQUETE = ["logo", "color", "tipografia", "sistema"];
+export const USOS_INCORRECTOS = ["estirar", "rotar", "recolorear", "sombra", "contorno", "apretar"];
 const SLUG = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 const TOKEN = /^--[a-z0-9-]+$/;
 /** Errores de forma de la configuración. Vacío = válida. */
@@ -54,16 +55,29 @@ export function validarMarca(c) {
     if (c.actualizado && !/^\d{4}-\d{2}-\d{2}$/.test(c.actualizado))
         errores.push(`actualizado "${c.actualizado}": fecha ISO (AAAA-MM-DD)`);
     const base = baseDe(c);
+    const destino = (que, href) => {
+        const ruta = href.split("#")[0] ?? "";
+        if (!ruta.startsWith(`${base}/`))
+            return;
+        const s = seccionDe(c, ruta.slice(base.length + 1));
+        if (!s)
+            errores.push(`${que}: ${ruta} no es una sección del portal`);
+        else if (s.estado === "pendiente")
+            errores.push(`${que}: ${ruta} está pendiente`);
+    };
     for (const a of c.inicio?.atajos || []) {
         if (a.icono && !esIcono(a.icono))
             errores.push(`atajo "${a.titulo}": ícono "${a.icono}" no existe`);
-        const ruta = a.href.split("#")[0] ?? "";
-        if (ruta.startsWith(`${base}/`)) {
-            const s = seccionDe(c, ruta.slice(base.length + 1));
-            if (!s)
-                errores.push(`atajo "${a.titulo}": ${ruta} no es una sección del portal`);
-            else if (s.estado === "pendiente")
-                errores.push(`atajo "${a.titulo}": ${ruta} está pendiente`);
+        destino(`atajo "${a.titulo}"`, a.href);
+    }
+    if (c.portada?.accion)
+        destino(`acción de la portada "${c.portada.accion.texto}"`, c.portada.accion.href);
+    if (c.logo?.porDefecto && !c.logo.versiones.some((v) => v.id === c.logo.porDefecto)) {
+        errores.push(`logo.porDefecto "${c.logo.porDefecto}": no es el id de ninguna versión`);
+    }
+    for (const u of Object.keys(c.logo?.porque ?? {})) {
+        if (!(c.logo?.incorrectos ?? USOS_INCORRECTOS).includes(u)) {
+            errores.push(`logo.porque.${u}: ese uso incorrecto no se muestra`);
         }
     }
     return errores;

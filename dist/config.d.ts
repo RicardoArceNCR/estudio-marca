@@ -47,6 +47,11 @@ export interface Seccion {
     resumen: string;
     estado?: EstadoSeccion;
     pendiente?: Pendiente;
+    /**
+     * "Si dudás, usá esto": la decisión por defecto de la sección, en una o dos
+     * frases. Va arriba de todo, antes de las reglas.
+     */
+    siDudas?: string;
 }
 export interface VersionLogo {
     id: string;
@@ -60,7 +65,8 @@ export interface VersionLogo {
     fondo: "claro" | "oscuro" | `--${string}`;
     uso: string;
 }
-export type UsoIncorrecto = "estirar" | "rotar" | "recolorear" | "sombra" | "contorno" | "apretar";
+export declare const USOS_INCORRECTOS: readonly ["estirar", "rotar", "recolorear", "sombra", "contorno", "apretar"];
+export type UsoIncorrecto = (typeof USOS_INCORRECTOS)[number];
 export interface LogoConfig {
     versiones: VersionLogo[];
     respeto: {
@@ -73,6 +79,13 @@ export interface LogoConfig {
     };
     /** Se dibujan desde el SVG principal. Por defecto, los seis. */
     incorrectos?: UsoIncorrecto[];
+    /** Por qué no: una frase por uso incorrecto, con la consecuencia real. */
+    porque?: Partial<Record<UsoIncorrecto, string>>;
+    /**
+     * Id de la versión que se usa cuando no hay otra indicación. Se muestra
+     * arriba, con sus descargas directas. Sin esto, la primera.
+     */
+    porDefecto?: string;
 }
 export interface ColorOficial {
     nombre: string;
@@ -154,6 +167,11 @@ export interface MarcaConfig {
         logo: string;
         fondo: `--${string}`;
         alt?: string;
+        /** Una sola acción en la portada: botón sin relleno con borde iluminado. */
+        accion?: {
+            texto: string;
+            href: string;
+        };
     };
     /** Marca chica junto al nombre en la cabecera: logo sobre su color. */
     cabecera?: {

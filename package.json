@@ -1,6 +1,6 @@
 {
   "name": "@estudio/marca",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Portal de marca (/marca) para sitios Next.js: shell, muestras en vivo, descargas y pruebas. Sin datos de ningún cliente.",
   "type": "module",
   "sideEffects": [
@@ -32,7 +32,8 @@
     "test": "node --test scripts/*.test.mjs",
     "sin-clientes": "node scripts/sin-clientes.mjs",
     "prueba": "node scripts/prueba.mjs",
-    "verify": "npm run build && npm test && npm run sin-clientes"
+    "dist-al-dia": "node scripts/dist-al-dia.mjs",
+    "verify": "npm run build && npm test && npm run sin-clientes && npm run dist-al-dia"
   },
   "peerDependencies": {
     "next": ">=15",

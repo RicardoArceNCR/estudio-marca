@@ -23,7 +23,7 @@ export function MarcaShell({ config, children, salir, }) {
     return (_jsxs("div", { className: "mk-portal", children: [_jsx("a", { className: "mk-saltar", href: "#contenido", children: "Saltar al contenido" }), _jsxs("header", { className: "mk-cabecera", children: [_jsxs(Link, { href: baseDe(config), className: "mk-marca", children: [config.cabecera ? (_jsx("span", { className: "mk-marca-insignia", style: { background: `var(${config.cabecera.fondo})` }, "aria-hidden": "true", children: _jsx("img", { src: config.cabecera.logo, alt: "" }) })) : null, config.nombre] }), _jsx("button", { ref: botonMenu, type: "button", className: "mk-menu-boton", "aria-haspopup": "dialog", "aria-expanded": abierto, "aria-controls": "mk-menu", "data-mk-menu": true, onClick: () => {
                             dialogo.current?.showModal();
                             setAbierto(true);
-                        }, children: "Men\u00FA" })] }), _jsxs("div", { className: "mk-cuerpo", children: [_jsxs("aside", { className: "mk-lateral", "aria-label": config.nombre, children: [_jsx("nav", { "aria-label": "Secciones del portal", "data-mk-nav": true, children: _jsx(Navegacion, { config: config, pathname: pathname }) }), _jsx(IndicePagina, { indice: indice, actual: actual }), salir ? (_jsx("button", { type: "button", className: "mk-boton mk-boton-secundario mk-salir", onClick: () => void salir(), children: "Salir" })) : null] }), _jsxs("main", { id: "contenido", tabIndex: -1, className: "mk-principal", children: [children, _jsxs("footer", { className: "mk-pie", children: [_jsxs("span", { children: [config.nombre, " \u00B7 versi\u00F3n ", config.version] }), config.ayuda ? (_jsxs("span", { "data-mk-ayuda": true, children: [config.ayuda.texto ?? "¿Algo falta o está mal?", " Escribile a", " ", config.ayuda.correo ? (_jsx("a", { href: `mailto:${config.ayuda.correo}`, children: config.ayuda.nombre })) : (config.ayuda.nombre), "."] })) : config.contacto ? (_jsxs("span", { children: ["Consultas:", " ", config.contacto.correo ? (_jsx("a", { href: `mailto:${config.contacto.correo}`, children: config.contacto.nombre })) : (config.contacto.nombre)] })) : null] })] })] }), _jsx("dialog", { id: "mk-menu", ref: dialogo, className: "mk-dialogo", "aria-label": `Menú de ${config.nombre}`, onClose: () => {
+                        }, children: "Men\u00FA" })] }), _jsxs("div", { className: "mk-cuerpo", children: [_jsxs("aside", { className: "mk-lateral", "aria-label": config.nombre, children: [_jsx("nav", { "aria-label": "Secciones del portal", "data-mk-nav": true, children: _jsx(Navegacion, { config: config, pathname: pathname }) }), _jsx(IndicePagina, { indice: indice, actual: actual }), config.ayuda ? _jsx(AyudaLateral, { ayuda: config.ayuda }) : null, salir ? (_jsx("button", { type: "button", className: "mk-boton mk-boton-secundario mk-salir", onClick: () => void salir(), children: "Salir" })) : null] }), _jsxs("main", { id: "contenido", tabIndex: -1, className: "mk-principal", children: [pathname !== baseDe(config) ? _jsx(IndiceMovil, { indice: indice, actual: actual }) : null, children, _jsxs("footer", { className: "mk-pie", children: [_jsxs("span", { children: [config.nombre, " \u00B7 versi\u00F3n ", config.version] }), config.ayuda ? (_jsxs("span", { "data-mk-ayuda": true, children: [config.ayuda.texto ?? "¿Algo falta o está mal?", " Escribile a", " ", config.ayuda.correo ? (_jsx("a", { href: `mailto:${config.ayuda.correo}`, children: config.ayuda.nombre })) : (config.ayuda.nombre), "."] })) : config.contacto ? (_jsxs("span", { children: ["Consultas:", " ", config.contacto.correo ? (_jsx("a", { href: `mailto:${config.contacto.correo}`, children: config.contacto.nombre })) : (config.contacto.nombre)] })) : null] })] })] }), _jsx("dialog", { id: "mk-menu", ref: dialogo, className: "mk-dialogo", "aria-label": `Menú de ${config.nombre}`, onClose: () => {
                     setAbierto(false);
                     botonMenu.current?.focus();
                 }, onClick: (e) => {
@@ -67,4 +67,30 @@ function IndicePagina({ indice, actual, alElegir = (id) => enfocarSeccion(id, tr
                             e.preventDefault();
                             alElegir(t.id);
                         }, children: t.titulo }) }, t.id))) })] }));
+}
+function AyudaLateral({ ayuda }) {
+    return (_jsxs("div", { className: "mk-ayuda-lateral", children: [_jsx("h2", { className: "mk-nav-titulo", children: "\u00BFAlgo falta?" }), _jsx("p", { children: ayuda.correo ? _jsx("a", { href: `mailto:${ayuda.correo}`, children: ayuda.nombre }) : ayuda.nombre })] }));
+}
+/**
+ * "En esta página" en pantallas chicas: una franja que se desliza de lado,
+ * pegada a la cabecera. En escritorio vive en el lateral.
+ */
+function IndiceMovil({ indice, actual }) {
+    const lista = useRef(null);
+    useEffect(() => {
+        // Lleva a la vista la sección que se está leyendo, sin mover la página.
+        const ul = lista.current;
+        const a = ul?.querySelector("[aria-current]");
+        if (!ul || !a)
+            return;
+        const izq = a.offsetLeft - ul.offsetLeft;
+        if (izq < ul.scrollLeft || izq + a.offsetWidth > ul.scrollLeft + ul.clientWidth)
+            ul.scrollLeft = izq - 16;
+    }, [actual]);
+    if (indice.length < 2)
+        return null;
+    return (_jsx("nav", { className: "mk-indice-movil", "aria-label": "En esta p\u00E1gina", "data-mk-indice-movil": true, children: _jsx("ul", { ref: lista, children: indice.map((t) => (_jsx("li", { children: _jsx("a", { href: `#${t.id}`, "aria-current": actual === t.id ? "location" : undefined, onClick: (e) => {
+                        e.preventDefault();
+                        enfocarSeccion(t.id, true);
+                    }, children: t.titulo }) }, t.id))) }) }));
 }

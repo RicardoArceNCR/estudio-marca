@@ -2,6 +2,13 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). Versionado: semver; mientras sea 0.x, un cambio de la configuración puede romper.
 
+## [0.3.1] — 2026-11-16
+
+### Corregido
+
+- El tag v0.3.0 salió con el `dist` de la v0.2.0: los sitios no veían `siDudas`, `porDefecto`, `porque` ni `portada.accion` (error de tipos al compilar). Este release trae el `dist` compilado desde el código de la v0.3.0, sin otros cambios.
+- `npm run verify` ahora falla si `dist` no coincide con `src` (`scripts/dist-al-dia.mjs`).
+
 ## [0.3.0] — 2026-11-16
 
 Segundo incremento después de la revisión de diseño. Botones con la voz de cada marca y contenido que decide por el lector. Apunta a **contenido**, **tareas**, **jerarquía** y **móvil**.
