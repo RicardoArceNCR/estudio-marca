@@ -7,18 +7,65 @@ import {
   type LogoConfig,
   type MarcaConfig,
   type Seccion,
+  type Atajo,
   type UsoIncorrecto,
   type VersionLogo,
 } from "./config.js";
-import { DescargaZip, DescargasVersion } from "./descargas.js";
+import { PanelDescargas } from "./descargas.js";
+import { Icono } from "./iconos.js";
+import { columnas } from "./rejilla.js";
 import { slugDe } from "./rutas.js";
 import { Escala, Especimen, Muestra, ParContraste, Rampa } from "./vivo.js";
 
 /* ───────────── bloques ───────────── */
 
-export function Encabezado({ antetitulo, titulo, children }: { antetitulo: string; titulo: string; children?: ReactNode }) {
+const ESTADOS = { vigente: "Vigente", borrador: "Borrador", "en-revision": "En revisión" } as const;
+
+/** "Vigente · Actualizado el 15 de noviembre de 2026", si la configuración lo trae. */
+export function EstadoPortal({ config }: { config: MarcaConfig }) {
+  const partes: string[] = [];
+  if (config.estado) partes.push(ESTADOS[config.estado]);
+  if (config.actualizado) {
+    const [a, m, d] = config.actualizado.split("-").map(Number);
+    const fecha = new Date(Date.UTC(a ?? 2000, (m ?? 1) - 1, d ?? 1)).toLocaleDateString("es", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+      timeZone: "UTC",
+    });
+    partes.push(`Actualizado el ${fecha}`);
+  }
+  if (!partes.length) return null;
+  return (
+    <p className="mk-estado" data-estado={config.estado}>
+      {partes.join(" · ")}
+    </p>
+  );
+}
+
+function Rejilla({ n, max = 4, className, children }: { n: number; max?: number; className?: string; children: ReactNode }) {
+  const estilo = { "--mk-cols": columnas(n, max), "--mk-cols-md": columnas(n, 2) } as Record<string, number>;
+  return (
+    <div className={className ? `mk-rejilla ${className}` : "mk-rejilla"} style={estilo} data-mk-rejilla>
+      {children}
+    </div>
+  );
+}
+
+export function Encabezado({
+  antetitulo,
+  titulo,
+  children,
+  config,
+}: {
+  antetitulo: string;
+  titulo: string;
+  children?: ReactNode;
+  config?: MarcaConfig;
+}) {
   return (
     <header className="mk-encabezado">
+      {config ? <EstadoPortal config={config} /> : null}
       <p className="mk-antetitulo">{antetitulo}</p>
       <h1 className="mk-titulo">{titulo}</h1>
       {children ? <div className="mk-bajada">{children}</div> : null}
@@ -26,20 +73,53 @@ export function Encabezado({ antetitulo, titulo, children }: { antetitulo: strin
   );
 }
 
-export function Bloque({ id, titulo, children }: { id: string; titulo: string; children: ReactNode }) {
+export function Bloque({
+  id,
+  titulo,
+  antetitulo,
+  bajada,
+  children,
+}: {
+  id: string;
+  titulo: string;
+  antetitulo?: string;
+  bajada?: string;
+  children: ReactNode;
+}) {
   return (
-    <section id={id} className="mk-bloque" aria-labelledby={`${id}-titulo`}>
+    <section id={id} className="mk-bloque" aria-labelledby={`${id}-titulo`} data-toc={titulo}>
+      {antetitulo ? <p className="mk-antetitulo">{antetitulo}</p> : null}
       <h2 id={`${id}-titulo`} className="mk-bloque-titulo">
         {titulo}
       </h2>
+      {bajada ? <p className="mk-bloque-bajada">{bajada}</p> : null}
       {children}
     </section>
   );
 }
 
-function Tarjeta({ href, titulo, children, pendiente = false }: { href: string; titulo: string; children: ReactNode; pendiente?: boolean }) {
+function Tarjeta({
+  href,
+  titulo,
+  children,
+  pendiente = false,
+  icono,
+  atajo = false,
+}: {
+  href: string;
+  titulo: string;
+  children: ReactNode;
+  pendiente?: boolean;
+  icono?: Atajo["icono"];
+  atajo?: boolean;
+}) {
   return (
-    <Link href={href} className="mk-tarjeta">
+    <Link href={href} className="mk-tarjeta" data-mk-atajo={atajo ? "" : undefined}>
+      {icono ? (
+        <span className="mk-tarjeta-icono">
+          <Icono nombre={icono} />
+        </span>
+      ) : null}
       <span className="mk-tarjeta-titulo">
         {titulo}
         {pendiente ? <span className="mk-etiqueta">Próximamente</span> : null}
@@ -56,53 +136,59 @@ function PaginaInicio({ config }: { config: MarcaConfig }) {
     const s = seccionDe(config, slug);
     return s && s.estado !== "pendiente" ? s : undefined;
   };
-  const tareas = [
-    lista("logo") && { href: `${hrefDe(config, "logo")}#descargas`, titulo: "Descargar el logo", texto: "SVG, PNG y un ZIP con todas las versiones." },
+  const candidatos: (Atajo | false | undefined)[] = [
+    lista("logo") && { href: `${hrefDe(config, "logo")}#descargas`, titulo: "Descargar el logo", texto: "SVG, PNG y un ZIP con todas las versiones.", icono: "descargar" as const },
     lista("color") && {
       href: `${hrefDe(config, "color")}#oficiales`,
       titulo: "Copiar un color",
       texto: config.color?.oficiales.some((o) => o.cmyk) ? "Valores en HEX, RGB y CMYK, listos para pegar." : "Valores en HEX y RGB, listos para pegar.",
+      icono: "copiar" as const,
     },
-    lista("tipografia") && { href: hrefDe(config, "tipografia"), titulo: "Ver la tipografía", texto: "Familias, pesos y jerarquía." },
-    lista("sistema") && { href: hrefDe(config, "sistema"), titulo: "Usar el sistema", texto: "Tokens y componentes como los pinta el sitio." },
-  ].filter((t): t is { href: string; titulo: string; texto: string } => Boolean(t));
+    lista("tipografia") && { href: hrefDe(config, "tipografia"), titulo: "Ver la tipografía", texto: "Familias, pesos y jerarquía.", icono: "tipografia" as const },
+    lista("sistema") && { href: hrefDe(config, "sistema"), titulo: "Usar el sistema", texto: "Tokens y componentes como los pinta el sitio.", icono: "sistema" as const },
+  ];
+  const generados = candidatos.filter((t): t is Atajo => Boolean(t));
+  const tareas: Atajo[] = config.inicio?.atajos === false ? [] : (config.inicio?.atajos ?? generados);
+  const enc = config.inicio?.encabezado;
+  const bajadaInicio = enc?.bajada ?? `Todo lo necesario para aplicar la marca ${config.marca}: lineamientos, archivos y el sistema de diseño en uso.`;
+  const bAtajos = config.inicio?.bloques?.atajos;
+  const bSecciones = config.inicio?.bloques?.secciones;
   return (
     <>
       {config.portada ? (
         <header className="mk-portada" style={{ background: `var(${config.portada.fondo})` }}>
           <div className="mk-portada-texto">
-            <p className="mk-antetitulo">Versión {config.version}</p>
-            <h1 className="mk-titulo">{config.nombre}</h1>
-            <p className="mk-portada-bajada">
-              Todo lo necesario para aplicar la marca {config.marca}: lineamientos, archivos y el sistema de diseño en uso.
-            </p>
+            <EstadoPortal config={config} />
+            <p className="mk-antetitulo">{enc?.antetitulo ?? `Versión ${config.version}`}</p>
+            <h1 className="mk-titulo">{enc?.titulo ?? config.nombre}</h1>
+            <p className="mk-portada-bajada">{bajadaInicio}</p>
           </div>
           <img className="mk-portada-logo" src={config.portada.logo} alt={config.portada.alt ?? config.marca} />
         </header>
       ) : (
-        <Encabezado antetitulo={`Versión ${config.version}`} titulo={config.nombre}>
-          <p>Todo lo necesario para aplicar la marca {config.marca}: lineamientos, archivos y el sistema de diseño en uso.</p>
+        <Encabezado antetitulo={enc?.antetitulo ?? `Versión ${config.version}`} titulo={enc?.titulo ?? config.nombre} config={config}>
+          <p>{bajadaInicio}</p>
         </Encabezado>
       )}
       {tareas.length ? (
-        <Bloque id="tareas" titulo="Lo más usado">
-          <div className="mk-rejilla">
+        <Bloque id="tareas" titulo={bAtajos?.titulo ?? "Lo más usado"} antetitulo={bAtajos?.antetitulo} bajada={bAtajos?.bajada}>
+          <Rejilla n={tareas.length}>
             {tareas.map((t) => (
-              <Tarjeta key={t.href} href={t.href} titulo={t.titulo}>
+              <Tarjeta key={t.href} href={t.href} titulo={t.titulo} icono={t.icono} atajo>
                 {t.texto}
               </Tarjeta>
             ))}
-          </div>
+          </Rejilla>
         </Bloque>
       ) : null}
-      <Bloque id="secciones" titulo="Secciones">
-        <div className="mk-rejilla">
+      <Bloque id="secciones" titulo={bSecciones?.titulo ?? "Secciones"} antetitulo={bSecciones?.antetitulo} bajada={bSecciones?.bajada}>
+        <Rejilla n={config.secciones.length}>
           {config.secciones.map((s) => (
             <Tarjeta key={s.slug} href={hrefDe(config, s.slug)} titulo={s.titulo} pendiente={s.estado === "pendiente"}>
               {s.resumen}
             </Tarjeta>
           ))}
-        </div>
+        </Rejilla>
       </Bloque>
     </>
   );
@@ -127,14 +213,30 @@ function lamina(fondo: VersionLogo["fondo"]) {
 function PaginaLogo({ config, logo, seccion }: { config: MarcaConfig; logo: LogoConfig; seccion: Seccion }) {
   const principal = logo.versiones[0];
   const incorrectos = logo.incorrectos ?? (Object.keys(INCORRECTOS) as UsoIncorrecto[]);
-  const anchoMinimo = /^\d+(\.\d+)?px$/.test(logo.minimo.digital.replace(/\s/g, "")) ? logo.minimo.digital.replace(/\s/g, "") : undefined;
+  const medida = (v: string, unidad: "px" | "cm") => {
+    const limpio = v.replace(/\s/g, "").replace(",", ".");
+    return new RegExp(`^\\d+(\\.\\d+)?${unidad}$`).test(limpio) ? limpio : undefined;
+  };
+  const anchoMinimo = medida(logo.minimo.digital, "px");
+  const anchoImpreso = medida(logo.minimo.impreso, "cm");
+  const fondos = Object.fromEntries(logo.versiones.map((v) => [v.id, lamina(v.fondo)]));
   return (
     <>
-      <Encabezado antetitulo="Identidad" titulo={seccion.titulo}>
+      <Encabezado antetitulo={seccion.grupo} titulo={seccion.titulo} config={config}>
         <p>{seccion.resumen}</p>
       </Encabezado>
+      <Bloque id="descargas" titulo="Descargas">
+        <PanelDescargas
+          versiones={logo.versiones}
+          archivo={config.archivo}
+          marca={config.marca}
+          version={config.version}
+          fondos={fondos}
+          leeme={`Usá el SVG siempre que se pueda. Respetá el área de respeto (${logo.respeto.medida}) y el tamaño mínimo (${logo.minimo.digital} en pantalla, ${logo.minimo.impreso} impreso).`}
+        />
+      </Bloque>
       <Bloque id="versiones" titulo="Versiones">
-        <div className="mk-rejilla">
+        <Rejilla n={logo.versiones.length} max={3}>
           {logo.versiones.map((v) => (
             <figure key={v.id} className="mk-logo">
               <div className="mk-logo-lamina" {...lamina(v.fondo)}>
@@ -143,11 +245,10 @@ function PaginaLogo({ config, logo, seccion }: { config: MarcaConfig; logo: Logo
               <figcaption>
                 <strong>{v.nombre}</strong>
                 <span>{v.uso}</span>
-                <DescargasVersion version={v} archivo={config.archivo} />
               </figcaption>
             </figure>
           ))}
-        </div>
+        </Rejilla>
       </Bloque>
       {principal ? (
         <>
@@ -163,7 +264,7 @@ function PaginaLogo({ config, logo, seccion }: { config: MarcaConfig; logo: Logo
             </div>
           </Bloque>
           <Bloque id="minimo" titulo="Tamaño mínimo">
-            <div className="mk-rejilla">
+            <Rejilla n={2} max={2}>
               <div className="mk-tarjeta mk-tarjeta-fija">
                 <span className="mk-dato">{logo.minimo.digital}</span>
                 <span>En pantalla, de ancho.</span>
@@ -175,12 +276,17 @@ function PaginaLogo({ config, logo, seccion }: { config: MarcaConfig; logo: Logo
               </div>
               <div className="mk-tarjeta mk-tarjeta-fija">
                 <span className="mk-dato">{logo.minimo.impreso}</span>
-                <span>En impresión, de ancho.</span>
+                <span>En impresión, de ancho. En pantalla, a escala aproximada.</span>
+                {anchoImpreso ? (
+                  <span className="mk-minimo" {...lamina(principal.fondo)}>
+                    <img src={principal.svg} alt={`${config.marca} a ${logo.minimo.impreso}, a escala aproximada`} style={{ width: anchoImpreso }} />
+                  </span>
+                ) : null}
               </div>
-            </div>
+            </Rejilla>
           </Bloque>
           <Bloque id="incorrectos" titulo="Usos incorrectos">
-            <div className="mk-rejilla">
+            <Rejilla n={incorrectos.length} max={3}>
               {incorrectos.map((id) => (
                 <figure key={id} className="mk-logo mk-incorrecto">
                   <div
@@ -201,20 +307,10 @@ function PaginaLogo({ config, logo, seccion }: { config: MarcaConfig; logo: Logo
                   </figcaption>
                 </figure>
               ))}
-            </div>
+            </Rejilla>
           </Bloque>
         </>
       ) : null}
-      <Bloque id="descargas" titulo="Descargas">
-        <p>Los PNG se generan desde los SVG originales al momento de descargar. El ZIP trae todas las versiones en SVG y en PNG de 2400 px.</p>
-        <DescargaZip
-          versiones={logo.versiones}
-          archivo={config.archivo}
-          marca={config.marca}
-          version={config.version}
-          leeme={`Usá el SVG siempre que se pueda. Respetá el área de respeto (${logo.respeto.medida}) y el tamaño mínimo (${logo.minimo.digital} en pantalla, ${logo.minimo.impreso} impreso).`}
-        />
-      </Bloque>
     </>
   );
 }
@@ -223,24 +319,24 @@ function PaginaColor({ config, seccion }: { config: MarcaConfig; seccion: Seccio
   const color = config.color!;
   return (
     <>
-      <Encabezado antetitulo="Identidad" titulo={seccion.titulo}>
+      <Encabezado antetitulo={seccion.grupo} titulo={seccion.titulo} config={config}>
         <p>{seccion.resumen} Hacé clic en una muestra para copiar su valor.</p>
       </Encabezado>
       <Bloque id="oficiales" titulo="Colores oficiales">
-        <div className="mk-rejilla mk-rejilla-muestras">
+        <Rejilla n={color.oficiales.length} max={4} className="mk-rejilla-muestras">
           {color.oficiales.map((c) => (
             <Muestra key={c.token} {...c} />
           ))}
-        </div>
+        </Rejilla>
       </Bloque>
       {color.pares?.length ? (
         <Bloque id="combinaciones" titulo="Combinaciones con texto">
           <p>Medidas sobre el CSS que carga este sitio. Texto: 4,5:1 como mínimo; texto grande e indicadores: 3:1.</p>
-          <div className="mk-rejilla">
+          <Rejilla n={color.pares.length} max={4}>
             {color.pares.map((p) => (
               <ParContraste key={`${p.texto}-${p.fondo}`} {...p} />
             ))}
-          </div>
+          </Rejilla>
         </Bloque>
       ) : null}
       {color.rampas?.length ? (
@@ -258,11 +354,11 @@ function PaginaTipografia({ config, seccion }: { config: MarcaConfig; seccion: S
   const tipo = config.tipografia!;
   return (
     <>
-      <Encabezado antetitulo="Identidad" titulo={seccion.titulo}>
+      <Encabezado antetitulo={seccion.grupo} titulo={seccion.titulo} config={config}>
         <p>{seccion.resumen}</p>
       </Encabezado>
       <Bloque id="familias" titulo="Familias">
-        <div className="mk-rejilla">
+        <Rejilla n={tipo.familias.length} max={3}>
           {tipo.familias.map((f) => (
             <div key={f.token} className="mk-tarjeta mk-tarjeta-fija">
               <span className="mk-familia" style={{ fontFamily: `var(${f.token})` }}>
@@ -280,7 +376,7 @@ function PaginaTipografia({ config, seccion }: { config: MarcaConfig; seccion: S
               <code>{f.token}</code>
             </div>
           ))}
-        </div>
+        </Rejilla>
       </Bloque>
       {tipo.estilos?.length ? (
         <Bloque id="jerarquia" titulo="Jerarquía">
@@ -299,7 +395,7 @@ function PaginaSistema({ config, seccion }: { config: MarcaConfig; seccion: Secc
   const s = config.sistema!;
   return (
     <>
-      <Encabezado antetitulo="Diseño y desarrollo" titulo={seccion.titulo}>
+      <Encabezado antetitulo={seccion.grupo} titulo={seccion.titulo} config={config}>
         <p>{seccion.resumen} Todo se lee del CSS que carga el sitio.</p>
       </Encabezado>
       <Bloque id="componentes" titulo="Componentes y estados">

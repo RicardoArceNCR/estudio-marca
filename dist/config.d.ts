@@ -4,7 +4,28 @@
  * de marca se escribe como token (`--brand-main`), nunca como hex: el
  * navegador lo resuelve contra el CSS del paquete de tokens del sitio.
  */
+import { type IconoMarca } from "./iconos.js";
+export type { IconoMarca };
 export type EstadoSeccion = "lista" | "pendiente";
+/** Antetítulo, título y bajada de un bloque o una página. */
+export interface Titular {
+    antetitulo?: string;
+    titulo?: string;
+    bajada?: string;
+}
+/** Atajo del inicio: una tarea escrita con verbo, con su destino. */
+export interface Atajo {
+    titulo: string;
+    texto: string;
+    href: string;
+    icono?: IconoMarca;
+}
+/** Datos de ayuda para el pie: a quién escribir si algo falta o está mal. */
+export interface Ayuda {
+    nombre: string;
+    correo?: string;
+    texto?: string;
+}
 /** Lo que falta para que una sección pendiente se pueda publicar. */
 export interface Pendiente {
     falta: string;
@@ -139,6 +160,22 @@ export interface MarcaConfig {
         logo: string;
         fondo: `--${string}`;
     };
+    /** Inicio: encabezado propio, atajos por tarea y títulos de sus bloques. */
+    inicio?: {
+        encabezado?: Titular;
+        /** `false` quita los atajos; sin el campo, el paquete arma los de siempre. */
+        atajos?: Atajo[] | false;
+        bloques?: {
+            atajos?: Titular;
+            secciones?: Titular;
+        };
+    };
+    /** Estado del portal, a la vista en cada página. */
+    estado?: "vigente" | "borrador" | "en-revision";
+    /** Fecha de la última actualización, ISO (2026-11-15). */
+    actualizado?: string;
+    /** A quién escribir. Reemplaza a `contacto`. */
+    ayuda?: Ayuda;
     /** Aparece en buscadores. Por defecto no: el portal se comparte por enlace. */
     indexar?: boolean;
     secciones: Seccion[];

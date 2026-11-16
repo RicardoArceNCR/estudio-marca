@@ -7,6 +7,18 @@ export default defineMarca({
   archivo: "cliente-prueba",
   contacto: { nombre: "Equipo de prueba", correo: "marca@example.com" },
   portada: { logo: "/marca/logo/negativo.svg", fondo: "--brand-main" },
+  estado: "vigente",
+  actualizado: "2026-11-16",
+  ayuda: { nombre: "el equipo de prueba", correo: "marca@example.com" },
+  inicio: {
+    encabezado: { titulo: "Marca de prueba", bajada: "Una marca ficticia para probar el paquete." },
+    atajos: [
+      { titulo: "Bajar el logo", texto: "SVG, PNG y ZIP.", href: "/marca/logo#descargas", icono: "descargar" },
+      { titulo: "Copiar un color", texto: "HEX y RGB.", href: "/marca/color#oficiales", icono: "copiar" },
+      { titulo: "Ver la letra", texto: "Familias y jerarquía.", href: "/marca/tipografia#familias", icono: "tipografia" },
+    ],
+    bloques: { atajos: { antetitulo: "Atajos", titulo: "¿Qué necesitás?" } },
+  },
   cabecera: { logo: "/marca/logo/negativo.svg", fondo: "--surface-inverse" },
   secciones: [
     { slug: "logo", titulo: "Logo", grupo: "Identidad", resumen: "Versiones, área de respeto, tamaño mínimo y descargas." },

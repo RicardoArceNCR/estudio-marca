@@ -81,7 +81,17 @@ export function MarcaShell({
             <span>
               {config.nombre} · versión {config.version}
             </span>
-            {config.contacto ? (
+            {config.ayuda ? (
+              <span data-mk-ayuda>
+                {config.ayuda.texto ?? "¿Algo falta o está mal?"} Escribile a{" "}
+                {config.ayuda.correo ? (
+                  <a href={`mailto:${config.ayuda.correo}`}>{config.ayuda.nombre}</a>
+                ) : (
+                  config.ayuda.nombre
+                )}
+                .
+              </span>
+            ) : config.contacto ? (
               <span>
                 Consultas:{" "}
                 {config.contacto.correo ? (

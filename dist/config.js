@@ -4,6 +4,7 @@
  * de marca se escribe como token (`--brand-main`), nunca como hex: el
  * navegador lo resuelve contra el CSS del paquete de tokens del sitio.
  */
+import { esIcono } from "./iconos.js";
 /**
  * Secciones que el paquete sabe pintar a partir de la configuración. Otra
  * sección (por ejemplo, productos) la arma el sitio en una ruta explícita, que
@@ -50,6 +51,21 @@ export function validarMarca(c) {
     }
     if (!/^[a-z0-9-]+$/.test(c.archivo))
         errores.push(`archivo "${c.archivo}": solo minúsculas, números y guiones`);
+    if (c.actualizado && !/^\d{4}-\d{2}-\d{2}$/.test(c.actualizado))
+        errores.push(`actualizado "${c.actualizado}": fecha ISO (AAAA-MM-DD)`);
+    const base = baseDe(c);
+    for (const a of c.inicio?.atajos || []) {
+        if (a.icono && !esIcono(a.icono))
+            errores.push(`atajo "${a.titulo}": ícono "${a.icono}" no existe`);
+        const ruta = a.href.split("#")[0] ?? "";
+        if (ruta.startsWith(`${base}/`)) {
+            const s = seccionDe(c, ruta.slice(base.length + 1));
+            if (!s)
+                errores.push(`atajo "${a.titulo}": ${ruta} no es una sección del portal`);
+            else if (s.estado === "pendiente")
+                errores.push(`atajo "${a.titulo}": ${ruta} está pendiente`);
+        }
+    }
     return errores;
 }
 /** Valida y devuelve la configuración. Falla en el build, no en producción. */

@@ -62,12 +62,38 @@ pnpm add -D playwright @axe-core/playwright
    npx marca-revisar --url http://localhost:3101/marca
    ```
 
+## Campos para que el portal oriente, no solo describa
+
+```ts
+defineMarca({
+  // …
+  estado: "vigente",              // vigente | borrador | en-revision
+  actualizado: "2026-11-16",      // ISO: va en el encabezado de cada página
+  ayuda: { nombre: "Equipo de marca", correo: "marca@cliente.com" },
+  inicio: {
+    encabezado: { titulo: "Marca Acme", bajada: "Para quién es y qué encuentra." },
+    atajos: [
+      { titulo: "Bajar el logo", texto: "SVG, PNG y ZIP.", href: "/marca/logo#descargas", icono: "descargar" },
+    ],
+    bloques: { atajos: { antetitulo: "Atajos", titulo: "¿Qué necesitás?" } },
+  },
+});
+```
+
+- Atajos: títulos con verbo, escritos como la tarea de quien llega. Un
+  atajo a una sección inexistente o pendiente falla en el build.
+- Íconos disponibles: `inicio`, `logo`, `color`, `tipografia`, `sistema`,
+  `descargar`, `copiar`, `imagen`, `voz`, `correo`, `personaje`,
+  `documento`, `externo` y `flecha`.
+- La rúbrica de diseño del estudio (ADR 0012) es la vara: cada versión del
+  CHANGELOG dice qué criterio sube.
+
 ## Qué pinta el paquete
 
 | Sección | Desde |
 | --- | --- |
 | Inicio | `secciones`: accesos a tareas y a cada sección |
-| `logo` | `logo`: versiones sobre su fondo, área de respeto, tamaño mínimo, seis usos incorrectos dibujados desde el SVG, descargas SVG, PNG 1200/2400 y ZIP |
+| `logo` | `logo`: panel de descargas arriba (ZIP y formatos por versión), versiones sobre su fondo, área de respeto, tamaño mínimo, usos incorrectos dibujados desde el SVG |
 | `color` | `color`: muestras copiables con HEX, RGB y CMYK, pares medidos con resultado en texto, rampas |
 | `tipografia` | `tipografia`: familias con pesos y licencia, jerarquía medida |
 | `sistema` | `sistema`: componentes con estados, espaciado, radios, sombras |

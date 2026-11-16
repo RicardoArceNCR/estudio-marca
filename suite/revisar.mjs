@@ -113,6 +113,43 @@ async function revisarPagina({ page, AxeBuilder, origen, ruta, ancho, informe, p
     if (img.alt === null) informe.falla(donde, `imagen sin alt: ${img.src}`);
     else if (/\.(svg|png|jpe?g|webp)$/i.test(img.alt)) informe.aviso(donde, `alt con nombre de archivo: ${img.alt}`);
   }
+  const medidas = await page.evaluate(() => {
+    const visible = (el) => {
+      const r = el.getBoundingClientRect();
+      const cs = getComputedStyle(el);
+      return r.width > 0 && r.height > 0 && cs.visibility !== "hidden" && cs.display !== "none";
+    };
+    const chico = [];
+    const caminante = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    while (caminante.nextNode()) {
+      const nodo = caminante.currentNode;
+      const el = nodo.parentElement;
+      if (!el || !nodo.textContent.trim() || !visible(el)) continue;
+      if (el.closest(".mk-oculto, [aria-hidden='true'], dialog:not([open]), [hidden]")) continue;
+      const px = parseFloat(getComputedStyle(el).fontSize);
+      if (px < 12) chico.push(`${nodo.textContent.trim().slice(0, 30)} (${px} px)`);
+    }
+    const objetivos = [];
+    for (const el of document.querySelectorAll("a[href], button, summary, input, select")) {
+      if (!visible(el) || el.closest("dialog:not([open]), [hidden]")) continue;
+      if (el.tagName === "A" && el.closest("p, li > span, figcaption, .mk-pie")) continue;
+      const r = el.getBoundingClientRect();
+      if (r.width < 24 || r.height < 24) objetivos.push(`${(el.textContent || el.getAttribute("aria-label") || el.tagName).trim().slice(0, 30)} (${Math.round(r.width)}×${Math.round(r.height)})`);
+    }
+    const huerfanas = [];
+    for (const g of document.querySelectorAll("[data-mk-rejilla]")) {
+      const filas = new Map();
+      for (const h of g.children) if (visible(h)) filas.set(h.offsetTop, (filas.get(h.offsetTop) ?? 0) + 1);
+      const conteos = [...filas.values()];
+      if (conteos.length > 1 && conteos[0] > 1 && conteos.at(-1) === 1) {
+        huerfanas.push(g.closest("section")?.id ?? "rejilla");
+      }
+    }
+    return { chico, objetivos, huerfanas };
+  });
+  if (medidas.chico.length) informe.falla(donde, `texto de menos de 12 px: ${medidas.chico.slice(0, 3).join("; ")}`);
+  if (medidas.objetivos.length) informe.falla(donde, `objetivos de menos de 24 px: ${medidas.objetivos.slice(0, 3).join("; ")}`);
+  for (const h of medidas.huerfanas) informe.falla(donde, `la rejilla de "${h}" deja un elemento solo en la última fila`);
   const faltas = await page.$$eval("[data-mk-falta]", (els) => els.map((e) => e.getAttribute("data-mk-falta")));
   for (const f of faltas) informe.falla(donde, `la configuración usa tokens que el CSS no define: ${f}`);
   const midiendo = await page.$$eval(".mk-par-resultado", (els) => els.filter((e) => /Midiendo/.test(e.textContent ?? "")).length);
@@ -240,6 +277,8 @@ async function revisarDescargas({ page, origen, rutas, informe }) {
   let total = 0;
   for (const ruta of rutas) {
     await page.goto(origen + ruta, { waitUntil: "networkidle" });
+    const menus = page.locator("[data-mk-formatos][aria-expanded='false']");
+    for (let i = await menus.count(); i > 0; i--) await menus.first().click();
     const botones = page.locator("[data-mk-descarga]");
     const n = await botones.count();
     for (let i = 0; i < n; i++) {
@@ -248,7 +287,10 @@ async function revisarDescargas({ page, origen, rutas, informe }) {
       const esperado = await boton.getAttribute("data-mk-archivo");
       const donde = `descarga ${esperado}`;
       try {
-        const [descarga] = await Promise.all([page.waitForEvent("download", { timeout: 20000 }), boton.click()]);
+        // Otra descarga en curso deja los botones en aria-disabled y el clic no hace nada.
+        await page.waitForFunction(() => !document.querySelector('[data-mk-descarga][aria-disabled="true"]'), null, { timeout: 20000 });
+        const intentar = () => Promise.all([page.waitForEvent("download", { timeout: 15000 }), boton.click()]);
+        const [descarga] = await intentar().catch(intentar);
         const stream = await descarga.createReadStream();
         const partes = [];
         for await (const p of stream) partes.push(p);
@@ -266,6 +308,30 @@ async function revisarDescargas({ page, origen, rutas, informe }) {
     }
   }
   return total;
+}
+
+async function revisarZipALaVista({ page, origen, rutas, informe }) {
+  const base = new URL(origen + rutas[0]).pathname.replace(/\/$/, "");
+  if (!rutas.includes(`${base}/logo`)) return;
+  for (const [w, h] of [[390, 844], [1440, 900]]) {
+    await page.setViewportSize({ width: w, height: h });
+    await page.goto(`${origen}${base}/logo`, { waitUntil: "networkidle" });
+    const caja = await page.locator("[data-mk-tipo='zip']").first().boundingBox();
+    if (!caja) informe.falla(`descargas @${w}`, "la página de logo no tiene ZIP");
+    else if (caja.y + caja.height > 2 * h) informe.falla(`descargas @${w}`, `el ZIP aparece a ${Math.round(caja.y)} px: tiene que estar en las dos primeras pantallas`);
+  }
+}
+
+async function revisarAtajos({ page, url, informe }) {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto(url, { waitUntil: "networkidle" });
+  const hrefs = await page.$$eval("[data-mk-atajo]", (as) => as.map((a) => a.getAttribute("href")));
+  for (const href of hrefs) {
+    const destino = new URL(href, url);
+    const res = await page.goto(destino.href, { waitUntil: "networkidle" });
+    if (res?.status() !== 200) informe.falla("atajos", `${href} respondió ${res?.status()}`);
+    else if (destino.hash && !(await page.locator(destino.hash).count())) informe.falla("atajos", `${href}: la página no tiene ${destino.hash}`);
+  }
 }
 
 export async function revisar({ url, anchos = [320, 390, 1440], prohibidos = [] }) {
@@ -295,6 +361,8 @@ export async function revisar({ url, anchos = [320, 390, 1440], prohibidos = [] 
     await revisarMenu({ page, url, informe });
     await revisarCopiar({ page, origen, rutas, informe });
     const descargas = await revisarDescargas({ page, origen, rutas, informe });
+    await revisarZipALaVista({ page, origen, rutas, informe });
+    await revisarAtajos({ page, url, informe });
     const base = new URL(url).pathname.replace(/\/$/, "");
     if (rutas.includes(`${base}/logo`) && descargas === 0) informe.falla("descargas", "la sección de logo no ofrece ninguna descarga");
     return { rutas, descargas, ...informe };

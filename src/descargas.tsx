@@ -152,3 +152,77 @@ export function DescargaZip({
     </BotonDescarga>
   );
 }
+
+/**
+ * Panel de descargas: el ZIP primero y, por versión, una vista previa con sus
+ * formatos agrupados en un menú. Va arriba en Logo: es la tarea más común.
+ */
+export function PanelDescargas({
+  versiones,
+  archivo,
+  marca,
+  version,
+  leeme,
+  fondos,
+}: {
+  versiones: VersionLogo[];
+  archivo: string;
+  marca: string;
+  version: string;
+  leeme: string;
+  /** Estilo de la lámina de cada versión (fondo claro, oscuro o token). */
+  fondos: Record<string, { "data-fondo": string; style?: Record<string, string> }>;
+}) {
+  return (
+    <div className="mk-panel-descargas">
+      <div className="mk-panel-zip">
+        <p className="mk-panel-zip-texto">
+          Todas las versiones en SVG y en PNG de 2400 px, con un LEEME. Los PNG se generan desde los SVG originales.
+        </p>
+        <DescargaZip versiones={versiones} archivo={archivo} marca={marca} version={version} leeme={leeme} />
+      </div>
+      <ul className="mk-panel-lista">
+        {versiones.map((v) => (
+          <li key={v.id} className="mk-panel-item">
+            <span className="mk-panel-vista mk-logo-lamina" {...fondos[v.id]}>
+              <img src={v.svg} alt="" />
+            </span>
+            <span className="mk-panel-nombre">{v.nombre}</span>
+            <Formatos version={v} archivo={archivo} />
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function Formatos({ version, archivo }: { version: VersionLogo; archivo: string }) {
+  const [abierto, setAbierto] = useState(false);
+  const id = `mk-formatos-${version.id}`;
+  return (
+    <div
+      className="mk-formatos"
+      onKeyDown={(e) => {
+        if (e.key === "Escape" && abierto) {
+          setAbierto(false);
+          (e.currentTarget.querySelector("[data-mk-formatos]") as HTMLButtonElement | null)?.focus();
+        }
+      }}
+    >
+      <button
+        type="button"
+        className="mk-boton mk-boton-secundario"
+        aria-expanded={abierto}
+        aria-controls={id}
+        data-mk-formatos
+        onClick={() => setAbierto((a) => !a)}
+      >
+        Formatos<span className="mk-oculto"> de {version.nombre}</span>
+        <span aria-hidden="true">{abierto ? " ▴" : " ▾"}</span>
+      </button>
+      <div id={id} hidden={!abierto} className="mk-formatos-lista">
+        <DescargasVersion version={version} archivo={archivo} />
+      </div>
+    </div>
+  );
+}

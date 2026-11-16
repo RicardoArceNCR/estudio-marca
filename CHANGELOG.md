@@ -2,6 +2,26 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). Versionado: semver; mientras sea 0.x, un cambio de la configuración puede romper.
 
+## [0.2.0] — 2026-11-16
+
+Primer incremento después de la revisión de diseño (ADR 0012 del estudio). Sube los criterios **descargas**, **tareas**, **arquitectura** y **jerarquía**.
+
+### Agregado
+
+- **Panel de descargas arriba en Logo.** El ZIP primero y, por versión, una vista previa con sus formatos (SVG, PNG 1200 y 2400) en un menú desplegable. Reemplaza los botones sueltos y el bloque de descargas del final.
+- **Inicio configurable** (`inicio`): encabezado propio, atajos por tarea con ícono (`inicio.atajos`, o `false` para quitarlos) y títulos de sus bloques. Sin el campo, se arman los atajos de siempre.
+- **Íconos**: un set propio de 14 íconos de línea (`Icono`, `ICONOS`), nombrados desde la configuración.
+- **Estado y fecha** (`estado`, `actualizado`) en el encabezado de cada página.
+- **Ayuda** (`ayuda`) en el pie: a quién escribir si algo falta o está mal. Reemplaza a `contacto`, que sigue funcionando.
+- **Rejillas sin huérfanos**: cada rejilla calcula sus columnas para no dejar un elemento solo en la última fila.
+- Bloques con antetítulo y bajada opcionales; el antetítulo de cada página es el grupo de su sección.
+- `marca-revisar` también verifica: ZIP en las dos primeras pantallas de Logo a 390 y 1440, texto de 12 px o más, objetivos de 24 px o más, rejillas sin huérfanos y que cada atajo lleve a una página y un ancla que existen.
+
+### Cambiado
+
+- Escala de títulos: H1 hasta 4,5rem (4 veces el cuerpo o más en escritorio) y títulos de bloque hasta 2,25rem.
+- El tamaño mínimo impreso se muestra a escala aproximada cuando viene en cm.
+
 ## [0.1.2] — 2026-11-15
 
 ### Agregado

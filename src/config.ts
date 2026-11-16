@@ -5,7 +5,33 @@
  * navegador lo resuelve contra el CSS del paquete de tokens del sitio.
  */
 
+import { esIcono, type IconoMarca } from "./iconos.js";
+
+export type { IconoMarca };
+
 export type EstadoSeccion = "lista" | "pendiente";
+
+/** Antetítulo, título y bajada de un bloque o una página. */
+export interface Titular {
+  antetitulo?: string;
+  titulo?: string;
+  bajada?: string;
+}
+
+/** Atajo del inicio: una tarea escrita con verbo, con su destino. */
+export interface Atajo {
+  titulo: string;
+  texto: string;
+  href: string;
+  icono?: IconoMarca;
+}
+
+/** Datos de ayuda para el pie: a quién escribir si algo falta o está mal. */
+export interface Ayuda {
+  nombre: string;
+  correo?: string;
+  texto?: string;
+}
 
 /** Lo que falta para que una sección pendiente se pueda publicar. */
 export interface Pendiente {
@@ -139,6 +165,19 @@ export interface MarcaConfig {
   portada?: { logo: string; fondo: `--${string}`; alt?: string };
   /** Marca chica junto al nombre en la cabecera: logo sobre su color. */
   cabecera?: { logo: string; fondo: `--${string}` };
+  /** Inicio: encabezado propio, atajos por tarea y títulos de sus bloques. */
+  inicio?: {
+    encabezado?: Titular;
+    /** `false` quita los atajos; sin el campo, el paquete arma los de siempre. */
+    atajos?: Atajo[] | false;
+    bloques?: { atajos?: Titular; secciones?: Titular };
+  };
+  /** Estado del portal, a la vista en cada página. */
+  estado?: "vigente" | "borrador" | "en-revision";
+  /** Fecha de la última actualización, ISO (2026-11-15). */
+  actualizado?: string;
+  /** A quién escribir. Reemplaza a `contacto`. */
+  ayuda?: Ayuda;
   /** Aparece en buscadores. Por defecto no: el portal se comparte por enlace. */
   indexar?: boolean;
   secciones: Seccion[];
@@ -183,6 +222,17 @@ export function validarMarca(c: MarcaConfig): string[] {
     if (!TOKEN.test(`${r.prefijo}0`)) errores.push(`rampa ${r.familia}: prefijo "${r.prefijo}" inválido`);
   }
   if (!/^[a-z0-9-]+$/.test(c.archivo)) errores.push(`archivo "${c.archivo}": solo minúsculas, números y guiones`);
+  if (c.actualizado && !/^\d{4}-\d{2}-\d{2}$/.test(c.actualizado)) errores.push(`actualizado "${c.actualizado}": fecha ISO (AAAA-MM-DD)`);
+  const base = baseDe(c);
+  for (const a of c.inicio?.atajos || []) {
+    if (a.icono && !esIcono(a.icono)) errores.push(`atajo "${a.titulo}": ícono "${a.icono}" no existe`);
+    const ruta = a.href.split("#")[0] ?? "";
+    if (ruta.startsWith(`${base}/`)) {
+      const s = seccionDe(c, ruta.slice(base.length + 1));
+      if (!s) errores.push(`atajo "${a.titulo}": ${ruta} no es una sección del portal`);
+      else if (s.estado === "pendiente") errores.push(`atajo "${a.titulo}": ${ruta} está pendiente`);
+    }
+  }
   return errores;
 }
 

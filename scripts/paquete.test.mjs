@@ -4,6 +4,7 @@ import { contrast, formatRatio, parseColor, toHex } from "../dist/color.js";
 import { defineMarca, gruposDe, validarMarca } from "../dist/config.js";
 import { marcaParams } from "../dist/rutas.js";
 import { makeZip } from "../dist/zip.js";
+import { columnas } from "../dist/rejilla.js";
 import { validarArchivo } from "../suite/revisar.mjs";
 import { buscarHex, buscarProhibidos } from "./sin-clientes.mjs";
 
@@ -64,4 +65,33 @@ test("detector de datos de clientes", () => {
   assert.deepEqual(buscarProhibidos("Portal de Marca VPER", ["vper"]), ["vper"]);
   assert.deepEqual(buscarProhibidos("superposición", ["vper"]), []);
   assert.deepEqual(buscarHex("color: #D62828; a { } &#039; --x"), ["#D62828"]);
+});
+
+test("atajos: destino dentro del portal tiene que existir y no estar pendiente", () => {
+  const conAtajos = {
+    ...BASE,
+    actualizado: "16/11/2026",
+    inicio: {
+      atajos: [
+        { titulo: "Ir a voz", texto: "t", href: "/marca/voz" },
+        { titulo: "Ir a nada", texto: "t", href: "/marca/nada#x" },
+        { titulo: "Afuera", texto: "t", href: "https://example.com" },
+      ],
+    },
+  };
+  const e = validarMarca(conAtajos);
+  assert.ok(e.some((m) => m.includes("Ir a voz") && m.includes("pendiente")));
+  assert.ok(e.some((m) => m.includes("Ir a nada") && m.includes("no es una sección")));
+  assert.ok(!e.some((m) => m.includes("Afuera")));
+  assert.ok(e.some((m) => m.includes("fecha ISO")));
+});
+
+test("columnas: nunca un elemento solo en la última fila", () => {
+  for (let n = 1; n <= 20; n++) {
+    for (const max of [2, 3, 4]) {
+      const c = columnas(n, max);
+      assert.ok(c >= 1 && c <= max + 1);
+      if (n > c) assert.notEqual(n % c, 1, `n=${n} max=${max} c=${c}`);
+    }
+  }
 });

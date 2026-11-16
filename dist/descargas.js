@@ -64,3 +64,20 @@ export function DescargaZip({ versiones, archivo, marca, version, leeme, }) {
             saveBlob(makeZip(entradas), nombre);
         }), children: `Descargar todo (.zip)` }));
 }
+/**
+ * Panel de descargas: el ZIP primero y, por versión, una vista previa con sus
+ * formatos agrupados en un menú. Va arriba en Logo: es la tarea más común.
+ */
+export function PanelDescargas({ versiones, archivo, marca, version, leeme, fondos, }) {
+    return (_jsxs("div", { className: "mk-panel-descargas", children: [_jsxs("div", { className: "mk-panel-zip", children: [_jsx("p", { className: "mk-panel-zip-texto", children: "Todas las versiones en SVG y en PNG de 2400 px, con un LEEME. Los PNG se generan desde los SVG originales." }), _jsx(DescargaZip, { versiones: versiones, archivo: archivo, marca: marca, version: version, leeme: leeme })] }), _jsx("ul", { className: "mk-panel-lista", children: versiones.map((v) => (_jsxs("li", { className: "mk-panel-item", children: [_jsx("span", { className: "mk-panel-vista mk-logo-lamina", ...fondos[v.id], children: _jsx("img", { src: v.svg, alt: "" }) }), _jsx("span", { className: "mk-panel-nombre", children: v.nombre }), _jsx(Formatos, { version: v, archivo: archivo })] }, v.id))) })] }));
+}
+function Formatos({ version, archivo }) {
+    const [abierto, setAbierto] = useState(false);
+    const id = `mk-formatos-${version.id}`;
+    return (_jsxs("div", { className: "mk-formatos", onKeyDown: (e) => {
+            if (e.key === "Escape" && abierto) {
+                setAbierto(false);
+                e.currentTarget.querySelector("[data-mk-formatos]")?.focus();
+            }
+        }, children: [_jsxs("button", { type: "button", className: "mk-boton mk-boton-secundario", "aria-expanded": abierto, "aria-controls": id, "data-mk-formatos": true, onClick: () => setAbierto((a) => !a), children: ["Formatos", _jsxs("span", { className: "mk-oculto", children: [" de ", version.nombre] }), _jsx("span", { "aria-hidden": "true", children: abierto ? " ▴" : " ▾" })] }), _jsx("div", { id: id, hidden: !abierto, className: "mk-formatos-lista", children: _jsx(DescargasVersion, { version: version, archivo: archivo }) })] }));
+}

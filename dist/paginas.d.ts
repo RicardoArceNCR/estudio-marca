@@ -1,13 +1,20 @@
 import type { ReactNode } from "react";
 import { type MarcaConfig } from "./config.js";
-export declare function Encabezado({ antetitulo, titulo, children }: {
+/** "Vigente · Actualizado el 15 de noviembre de 2026", si la configuración lo trae. */
+export declare function EstadoPortal({ config }: {
+    config: MarcaConfig;
+}): import("react").JSX.Element | null;
+export declare function Encabezado({ antetitulo, titulo, children, config, }: {
     antetitulo: string;
     titulo: string;
     children?: ReactNode;
+    config?: MarcaConfig;
 }): import("react").JSX.Element;
-export declare function Bloque({ id, titulo, children }: {
+export declare function Bloque({ id, titulo, antetitulo, bajada, children, }: {
     id: string;
     titulo: string;
+    antetitulo?: string;
+    bajada?: string;
     children: ReactNode;
 }): import("react").JSX.Element;
 /**
