@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { contrast, formatRatio, parseColor, toHex, toRgb, type Rgba } from "./color.js";
+import { tokenDe, type TokenSistema } from "./config.js";
 
 /**
  * Muestras en vivo: pintan con `var(--token)` y después leen lo que resolvió
@@ -288,6 +289,7 @@ export function Especimen({
   family,
   weight,
   tracking,
+  uso,
   children,
 }: {
   nombre: string;
@@ -296,6 +298,8 @@ export function Especimen({
   family?: string;
   weight?: string;
   tracking?: string;
+  /** Cuándo se usa el estilo. */
+  uso?: string;
   children: ReactNode;
 }) {
   const ref = useRef<HTMLParagraphElement>(null);
@@ -317,6 +321,7 @@ export function Especimen({
         <strong>{nombre}</strong>
         <span>{medida}</span>
         <code>{size}</code>
+        {uso ? <span className="mk-especimen-uso">{uso}</span> : null}
       </div>
       <p ref={ref} className="mk-especimen-texto" style={estilo}>
         {children}
@@ -326,7 +331,8 @@ export function Especimen({
 }
 
 /** Espaciado, radios o sombras: dibuja el token y escribe su valor resuelto. */
-export function Escala({ tipo, tokens }: { tipo: "espaciado" | "radio" | "sombra"; tokens: string[] }) {
+export function Escala({ tipo, tokens: entradas }: { tipo: "espaciado" | "radio" | "sombra"; tokens: TokenSistema[] }) {
+  const tokens = entradas.map(tokenDe);
   const refs = useRef<(HTMLSpanElement | null)[]>([]);
   const v = useVersionTema();
   const [valores, setValores] = useState<string[]>([]);
@@ -356,6 +362,7 @@ export function Escala({ tipo, tokens }: { tipo: "espaciado" | "radio" | "sombra
           />
           <code>{t}</code>
           <span className="mk-escala-valor">{valores[i] ?? ""}</span>
+          {typeof entradas[i] === "object" ? <span className="mk-escala-uso">{(entradas[i] as { uso: string }).uso}</span> : null}
         </li>
       ))}
     </ul>

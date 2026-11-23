@@ -1,4 +1,5 @@
 import { type ReactNode } from "react";
+import { type TokenSistema } from "./config.js";
 /**
  * Muestras en vivo: pintan con `var(--token)` y después leen lo que resolvió
  * el navegador. Nunca escriben un valor a mano, así que muestran lo que de
@@ -34,17 +35,19 @@ export declare function ParContraste({ etiqueta, texto, fondo, minimo, }: {
     fondo: string;
     minimo?: number;
 }): import("react").JSX.Element;
-export declare function Especimen({ nombre, size, lineHeight, family, weight, tracking, children, }: {
+export declare function Especimen({ nombre, size, lineHeight, family, weight, tracking, uso, children, }: {
     nombre: string;
     size: string;
     lineHeight?: string;
     family?: string;
     weight?: string;
     tracking?: string;
+    /** Cuándo se usa el estilo. */
+    uso?: string;
     children: ReactNode;
 }): import("react").JSX.Element;
 /** Espaciado, radios o sombras: dibuja el token y escribe su valor resuelto. */
-export declare function Escala({ tipo, tokens }: {
+export declare function Escala({ tipo, tokens: entradas }: {
     tipo: "espaciado" | "radio" | "sombra";
-    tokens: string[];
+    tokens: TokenSistema[];
 }): import("react").JSX.Element;

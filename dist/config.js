@@ -12,6 +12,10 @@ import { esIcono } from "./iconos.js";
  */
 export const SECCIONES_DEL_PAQUETE = ["logo", "color", "tipografia", "sistema"];
 export const USOS_INCORRECTOS = ["estirar", "rotar", "recolorear", "sombra", "contorno", "apretar"];
+/** El nombre del token de una entrada del sistema. */
+export function tokenDe(t) {
+    return typeof t === "string" ? t : t.token;
+}
 const SLUG = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 const TOKEN = /^--[a-z0-9-]+$/;
 /** Errores de forma de la configuración. Vacío = válida. */
@@ -40,9 +44,9 @@ export function validarMarca(c) {
         ...(c.portada ? [c.portada.fondo] : []),
         ...c.secciones.flatMap((s) => (s.capitulo ? [s.capitulo.fondo] : [])),
         ...(c.cabecera ? [c.cabecera.fondo] : []),
-        ...(c.sistema?.espaciado ?? []),
-        ...(c.sistema?.radios ?? []),
-        ...(c.sistema?.sombras ?? []),
+        ...(c.sistema?.espaciado ?? []).map(tokenDe),
+        ...(c.sistema?.radios ?? []).map(tokenDe),
+        ...(c.sistema?.sombras ?? []).map(tokenDe),
     ];
     for (const t of tokens)
         if (!TOKEN.test(t))

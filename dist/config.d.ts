@@ -154,17 +154,37 @@ export interface EstiloTexto {
     family?: string;
     weight?: string;
     tracking?: string;
+    /** Cuándo se usa, en una frase: "Títulos de página; uno por pantalla." */
+    uso?: string;
+    /** Texto real de muestra para este estilo. Sin esto, `tipografia.muestra`. */
+    muestra?: string;
 }
 export interface TipografiaConfig {
     familias: Familia[];
     estilos?: EstiloTexto[];
     /** Frase de muestra. */
     muestra: string;
+    /** Por qué la jerarquía es así: va como bajada del bloque Jerarquía. */
+    porque?: string;
 }
+/** Un token del sistema, solo o con cuándo se usa. */
+export type TokenSistema = string | {
+    token: string;
+    uso: string;
+};
+/** El nombre del token de una entrada del sistema. */
+export declare function tokenDe(t: TokenSistema): string;
 export interface SistemaConfig {
-    espaciado?: string[];
-    radios?: string[];
-    sombras?: string[];
+    espaciado?: TokenSistema[];
+    radios?: TokenSistema[];
+    sombras?: TokenSistema[];
+    /** Por qué de cada bloque, en una o dos frases. Va como bajada. */
+    porque?: {
+        componentes?: string;
+        espaciado?: string;
+        radios?: string;
+        sombras?: string;
+    };
 }
 export interface MarcaConfig {
     /** Nombre del portal: "Marca Acme". */

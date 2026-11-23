@@ -2,6 +2,21 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). Versionado: semver; mientras sea 0.x, un cambio de la configuración puede romper.
 
+## [0.5.0] — 2026-11-23
+
+Cuarto incremento de diseño: que Tipografía y Sistema digan cuándo y por qué, y que la jerarquía se sostenga en móvil. Apunta a **contenido** y **jerarquía** de la rúbrica. Sale de la revisión intermedia de Avanz (12/16).
+
+### Agregado
+
+- `tipografia.estilos[].uso` (cuándo se usa) y `.muestra` (texto real del estilo), y `tipografia.porque` como bajada de Jerarquía.
+- `sistema.espaciado`, `radios` y `sombras` aceptan `{ token, uso }` además del token solo; `sistema.porque` (`componentes`, `espaciado`, `radios`, `sombras`) va como bajada de cada bloque.
+- `tokenDe()` exportado.
+- Ganchos `--mk-bloque-titulo-tamano`, `--mk-dato-tamano` y `--mk-portada-titulo-movil`.
+
+### Cambiado
+
+- El título de bloque (H2) arranca en 2rem en móvil (antes 1,5rem): el doble del cuerpo. Una cifra destacada (`.mk-dato`) baja de 2rem a 1,75rem y queda debajo del H2. El título de la portada en móvil sube de 1,75–2,25rem a 2–2,75rem.
+
 ## [0.4.2] — 2026-11-16
 
 ### Agregado

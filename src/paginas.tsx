@@ -469,10 +469,10 @@ function PaginaTipografia({ config, seccion }: { config: MarcaConfig; seccion: S
         </Rejilla>
       </Bloque>
       {tipo.estilos?.length ? (
-        <Bloque id="jerarquia" titulo="Jerarquía">
-          {tipo.estilos.map((e) => (
+        <Bloque id="jerarquia" titulo="Jerarquía" bajada={tipo.porque}>
+          {tipo.estilos.map(({ muestra, ...e }) => (
             <Especimen key={e.nombre} {...e}>
-              {tipo.muestra}
+              {muestra ?? tipo.muestra}
             </Especimen>
           ))}
         </Bloque>
@@ -489,7 +489,7 @@ function PaginaSistema({ config, seccion }: { config: MarcaConfig; seccion: Secc
         <p>{seccion.resumen}</p>
       </Encabezado>
       {seccion.siDudas ? <SiDudas texto={seccion.siDudas} /> : null}
-      <Bloque id="componentes" titulo="Componentes y estados">
+      <Bloque id="componentes" titulo="Componentes y estados" bajada={s.porque?.componentes}>
         <div className="mk-componentes">
           <div className="mk-fila">
             <button type="button" className="mk-boton">
@@ -521,17 +521,17 @@ function PaginaSistema({ config, seccion }: { config: MarcaConfig; seccion: Secc
         </div>
       </Bloque>
       {s.espaciado?.length ? (
-        <Bloque id="espaciado" titulo="Espaciado">
+        <Bloque id="espaciado" titulo="Espaciado" bajada={s.porque?.espaciado}>
           <Escala tipo="espaciado" tokens={s.espaciado} />
         </Bloque>
       ) : null}
       {s.radios?.length ? (
-        <Bloque id="radios" titulo="Radios">
+        <Bloque id="radios" titulo="Radios" bajada={s.porque?.radios}>
           <Escala tipo="radio" tokens={s.radios} />
         </Bloque>
       ) : null}
       {s.sombras?.length ? (
-        <Bloque id="sombras" titulo="Sombras">
+        <Bloque id="sombras" titulo="Sombras" bajada={s.porque?.sombras}>
           <Escala tipo="sombra" tokens={s.sombras} />
         </Bloque>
       ) : null}

@@ -139,3 +139,10 @@ test("manual en PDF: ruta del sitio a un .pdf; los atajos a archivos no son secc
   const conAtajo = { ...BASE, inicio: { atajos: [{ titulo: "Bajar el manual", texto: "PDF", href: "/descargas/x-manual.pdf", icono: "descargar" }] } };
   assert.deepEqual(validarMarca(conAtajo), []);
 });
+
+test("sistema: tokens solos o con uso; un uso con un token inválido falla", () => {
+  const ok = { ...BASE, sistema: { espaciado: ["--spacing-4", { token: "--spacing-8", uso: "u" }], porque: { espaciado: "p" } } };
+  assert.deepEqual(validarMarca(ok), []);
+  const mala = { ...BASE, sistema: { radios: [{ token: "8px", uso: "u" }] } };
+  assert.ok(validarMarca(mala).some((e) => e.includes('"8px" no es un token')));
+});

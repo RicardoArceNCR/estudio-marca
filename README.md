@@ -107,6 +107,23 @@ defineMarca({
 - La rúbrica de diseño del estudio (ADR 0012) es la vara: cada versión del
   CHANGELOG dice qué criterio sube.
 
+Cuándo y por qué, en Tipografía y Sistema (v0.5):
+
+```ts
+tipografia: {
+  muestra: "Frase por defecto",
+  porque: "Una sola familia: la jerarquía la dan el tamaño y el peso.",
+  estilos: [
+    { nombre: "Título 1", size: "--typography-styles-heading-h1-size",
+      uso: "Un título por página.", muestra: "Cómo usar el logo" },
+  ],
+},
+sistema: {
+  porque: { espaciado: "Múltiplos de 4: el ritmo se arma con pocos pasos." },
+  espaciado: [{ token: "--spacing-4", uso: "Entre elementos de un grupo." }, "--spacing-8"],
+},
+```
+
 ## Qué pinta el paquete
 
 | Sección | Desde |
@@ -115,8 +132,8 @@ defineMarca({
 | Toda sección | `siDudas`: la decisión por defecto, arriba de todo |
 | `logo` | `logo`: "si dudás" con la versión `porDefecto` y sus descargas, panel de descargas (ZIP y formatos por versión), versiones sobre su fondo, área de respeto, tamaño mínimo, usos incorrectos dibujados desde el SVG, con su `porque` |
 | `color` | `color`: muestras copiables con HEX, RGB y CMYK, pares medidos con resultado en texto, rampas |
-| `tipografia` | `tipografia`: familias con pesos y licencia, jerarquía medida |
-| `sistema` | `sistema`: componentes con estados, espaciado, radios, sombras |
+| `tipografia` | `tipografia`: familias con pesos y licencia, jerarquía medida; cada estilo con `uso` (cuándo) y `muestra` (texto real), y `porque` de la jerarquía |
+| `sistema` | `sistema`: componentes con estados, espaciado, radios, sombras; cada token puede ir como `{ token, uso }` y cada bloque con su `porque` |
 | Pendiente | `estado: "pendiente"`: qué falta, quién y para cuándo |
 
 ## Tokens que lee

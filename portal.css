@@ -50,6 +50,14 @@
      * decorativo: su color y opacidad los decide cada marca.
      */
     --mk-titulo-tamano: clamp(2.25rem, 1.2rem + 3.6vw, 4.5rem);
+    /*
+     * Jerarquía (ADR 0012 del estudio): el título de bloque (H2) es al menos
+     * el doble del cuerpo también en móvil, y una cifra destacada (.mk-dato)
+     * queda por debajo del H2.
+     */
+    --mk-bloque-titulo-tamano: clamp(2rem, 1.6rem + 1.2vw, 2.5rem);
+    --mk-dato-tamano: 1.75rem;
+    --mk-portada-titulo-movil: clamp(2rem, 0.5rem + 8vw, 2.75rem);
     --mk-titulo-punto: currentColor;
     --mk-capitulo-numero-color: currentColor;
     --mk-capitulo-numero-opacidad: 0.2;
@@ -443,7 +451,7 @@
     }
 
     .mk-portada .mk-titulo {
-      font-size: clamp(1.75rem, 0.5rem + 7vw, 2.25rem);
+      font-size: var(--mk-portada-titulo-movil);
     }
 
     .mk-portada-accion {
@@ -677,7 +685,7 @@
   .mk-bloque-titulo {
     margin: 0 0 1rem;
     font-family: var(--mk-fuente-titulos);
-    font-size: clamp(1.5rem, 1.2rem + 1.2vw, 2.25rem);
+    font-size: var(--mk-bloque-titulo-tamano);
     line-height: 1.2;
   }
 
@@ -942,7 +950,7 @@
   .mk-dato {
     margin: 0;
     font-family: var(--mk-fuente-titulos);
-    font-size: 2rem;
+    font-size: var(--mk-dato-tamano);
     font-weight: 700;
     line-height: 1.1;
   }
@@ -1409,6 +1417,11 @@
     overflow-wrap: anywhere;
   }
 
+  .mk-especimen-uso {
+    margin-top: 0.25rem;
+    color: var(--mk-texto);
+  }
+
   /* sistema */
 
   .mk-componentes {
@@ -1482,6 +1495,12 @@
 
   .mk-escala-valor {
     font-family: var(--mk-fuente-mono), ui-monospace, monospace;
+    font-size: 0.875rem;
+    color: var(--mk-texto-suave);
+  }
+
+  .mk-escala-uso {
+    grid-column: 1 / -1;
     font-size: 0.875rem;
     color: var(--mk-texto-suave);
   }

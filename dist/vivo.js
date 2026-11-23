@@ -2,6 +2,7 @@
 import { jsxs as _jsxs, jsx as _jsx } from "react/jsx-runtime";
 import { useEffect, useRef, useState } from "react";
 import { contrast, formatRatio, parseColor, toHex, toRgb } from "./color.js";
+import { tokenDe } from "./config.js";
 /**
  * Muestras en vivo: pintan con `var(--token)` y después leen lo que resolvió
  * el navegador. Nunca escriben un valor a mano, así que muestran lo que de
@@ -156,7 +157,7 @@ export function ParContraste({ etiqueta, texto, fondo, minimo = 4.5, }) {
     const cumple = ratio !== null && ratio >= minimo;
     return (_jsxs("figure", { className: "mk-par", children: [_jsxs("div", { ref: ref, className: "mk-par-muestra", style: { color: `var(${texto})`, background: `var(${fondo})` }, children: ["Aa ", etiqueta] }), _jsxs("figcaption", { className: "mk-par-datos", children: [_jsxs("code", { children: [texto, " sobre ", fondo] }), falta.length ? (_jsx(FaltaToken, { tokens: falta })) : (_jsx("span", { className: "mk-par-resultado", "data-cumple": ratio === null ? undefined : String(cumple), "data-mk-ratio": ratio ?? "", children: ratio === null ? "Midiendo…" : `${formatRatio(ratio)} · ${cumple ? "cumple" : "no cumple"} ${formatRatio(minimo)}` }))] })] }));
 }
-export function Especimen({ nombre, size, lineHeight, family, weight, tracking, children, }) {
+export function Especimen({ nombre, size, lineHeight, family, weight, tracking, uso, children, }) {
     const ref = useRef(null);
     const v = useVersionTema();
     const [medida, setMedida] = useState("");
@@ -175,10 +176,11 @@ export function Especimen({ nombre, size, lineHeight, family, weight, tracking, 
         estilo.fontWeight = `var(${weight})`;
     if (tracking)
         estilo.letterSpacing = `var(${tracking})`;
-    return (_jsxs("div", { className: "mk-especimen", children: [_jsxs("div", { className: "mk-especimen-datos", children: [_jsx("strong", { children: nombre }), _jsx("span", { children: medida }), _jsx("code", { children: size })] }), _jsx("p", { ref: ref, className: "mk-especimen-texto", style: estilo, children: children })] }));
+    return (_jsxs("div", { className: "mk-especimen", children: [_jsxs("div", { className: "mk-especimen-datos", children: [_jsx("strong", { children: nombre }), _jsx("span", { children: medida }), _jsx("code", { children: size }), uso ? _jsx("span", { className: "mk-especimen-uso", children: uso }) : null] }), _jsx("p", { ref: ref, className: "mk-especimen-texto", style: estilo, children: children })] }));
 }
 /** Espaciado, radios o sombras: dibuja el token y escribe su valor resuelto. */
-export function Escala({ tipo, tokens }) {
+export function Escala({ tipo, tokens: entradas }) {
+    const tokens = entradas.map(tokenDe);
     const refs = useRef([]);
     const v = useVersionTema();
     const [valores, setValores] = useState([]);
@@ -197,5 +199,5 @@ export function Escala({ tipo, tokens }) {
     const estilo = (t) => tipo === "espaciado" ? { width: `var(${t})` } : tipo === "radio" ? { borderRadius: `var(${t})` } : { boxShadow: `var(${t})` };
     return (_jsx("ul", { className: "mk-escala", "data-tipo": tipo, children: tokens.map((t, i) => (_jsxs("li", { className: "mk-escala-fila", children: [_jsx("span", { ref: (el) => {
                         refs.current[i] = el;
-                    }, className: "mk-escala-muestra", style: estilo(t) }), _jsx("code", { children: t }), _jsx("span", { className: "mk-escala-valor", children: valores[i] ?? "" })] }, t))) }));
+                    }, className: "mk-escala-muestra", style: estilo(t) }), _jsx("code", { children: t }), _jsx("span", { className: "mk-escala-valor", children: valores[i] ?? "" }), typeof entradas[i] === "object" ? _jsx("span", { className: "mk-escala-uso", children: entradas[i].uso }) : null] }, t))) }));
 }
