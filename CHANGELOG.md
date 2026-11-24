@@ -9,7 +9,7 @@ Portada con capa propia. Sale de Avanz, que lleva a la portada el banner del ban
 ### Agregado
 
 - `MarcaPagina` acepta `portadaCapa` (`ReactNode`): una capa decorativa detrás del texto de la portada del inicio, con `aria-hidden` y sin recibir el puntero (`.mk-portada-capa`). Va como prop porque la configuración la lee también el shell, que es de cliente.
-- Ganchos de la placa del logo de la portada: `--mk-portada-logo-fondo`, `--mk-portada-logo-relleno`, `--mk-portada-logo-radio` y `--mk-portada-logo-sombra` (por defecto, sin placa).
+- Ganchos de la placa del logo de la portada: `--mk-portada-logo-fondo`, `--mk-portada-logo-relleno`, `--mk-portada-logo-radio` y `--mk-portada-logo-sombra` (por defecto, sin placa). `--mk-portada-logo-alto` fija el alto máximo del logo en pantallas medianas y grandes (por defecto, 18rem).
 
 ### Cambiado
 

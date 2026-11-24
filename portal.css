@@ -504,7 +504,7 @@
     }
 
     .mk-portada-logo {
-      max-height: 18rem;
+      max-height: var(--mk-portada-logo-alto, 18rem);
     }
   }
 
