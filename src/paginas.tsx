@@ -481,6 +481,15 @@ function PaginaTipografia({ config, seccion }: { config: MarcaConfig; seccion: S
   );
 }
 
+/** Estados del botón que muestra Sistema: muestras forzadas, no controles. */
+const ESTADOS_BOTON: [string, string][] = [
+  ["", "Reposo"],
+  ["hover", "Al pasar el cursor"],
+  ["presionado", "Presionado"],
+  ["foco", "Con foco de teclado"],
+  ["deshabilitado", "Deshabilitado"],
+];
+
 function PaginaSistema({ config, seccion }: { config: MarcaConfig; seccion: Seccion }) {
   const s = config.sistema!;
   return (
@@ -505,6 +514,24 @@ function PaginaSistema({ config, seccion }: { config: MarcaConfig; seccion: Secc
               Enlace de texto
             </a>
           </div>
+          <dl className="mk-estados" aria-label="Estados del botón principal">
+            {ESTADOS_BOTON.map(([estado, nombre]) => (
+              <div key={nombre}>
+                <dt>{nombre}</dt>
+                <dd>
+                  {estado === "deshabilitado" ? (
+                    <button type="button" className="mk-boton" disabled>
+                      Descargar
+                    </button>
+                  ) : (
+                    <span className="mk-boton" data-estado={estado || undefined} aria-hidden="true">
+                      Descargar
+                    </span>
+                  )}
+                </dd>
+              </div>
+            ))}
+          </dl>
           <div className="mk-fila mk-banda-inversa">
             <button type="button" className="mk-boton mk-boton-fantasma mk-boton-brillo">
               Con brillo

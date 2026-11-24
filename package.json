@@ -1,6 +1,6 @@
 {
   "name": "@estudio/marca",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "Portal de marca (/marca) para sitios Next.js: shell, muestras en vivo, descargas y pruebas. Sin datos de ningún cliente.",
   "type": "module",
   "sideEffects": [
