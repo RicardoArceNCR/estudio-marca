@@ -88,6 +88,14 @@
      * Sombras (0.6.0). Por defecto ninguna: cada marca decide si sus
      * superficies flotan. Tarjeta y panel, aviso flotante, botones.
      */
+    /*
+     * Siluetas (0.8.0): color y opacidad de cada copia. Donde dos copias se
+     * cruzan la opacidad se compone (1 − (1 − α)²): calibrala para que el
+     * texto siga pasando AA sobre la zona más oscura.
+     */
+    --mk-silueta-color: currentColor;
+    --mk-silueta-opacidad: 0.06;
+    --mk-siluetas-alto: 140%;
     /* Portada (0.7.0): placa detrás del logo, por si el fondo no lo sostiene. */
     --mk-portada-logo-fondo: transparent;
     --mk-portada-logo-relleno: 0;
@@ -667,6 +675,56 @@
     opacity: var(--mk-capitulo-numero-opacidad);
     pointer-events: none;
     user-select: none;
+  }
+
+  /*
+   * Siluetas: detrás del número y del texto, cortadas por el borde de su
+   * lado. Entran una vez y se detienen (menos de 5 s, WCAG 2.2.2).
+   */
+  .mk-siluetas {
+    position: absolute;
+    z-index: -2;
+    top: 50%;
+    height: var(--mk-siluetas-alto);
+    width: auto;
+    overflow: visible;
+    color: var(--mk-silueta-color);
+    pointer-events: none;
+  }
+
+  .mk-siluetas[data-lado="inicio"] {
+    left: 0;
+    transform: translate(-38%, -52%);
+    --mk-silueta-desde: -10%;
+  }
+
+  .mk-siluetas[data-lado="fin"] {
+    right: 0;
+    transform: translate(34%, -58%);
+    --mk-silueta-desde: 10%;
+  }
+
+  /* En móvil, más chicas: el texto ocupa casi todo el ancho. */
+  @media (max-width: 47.99rem) {
+    .mk-siluetas {
+      height: calc(var(--mk-siluetas-alto) * 0.75);
+    }
+  }
+
+  .mk-silueta {
+    fill: currentColor;
+    fill-opacity: var(--mk-silueta-opacidad);
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: mk-silueta-entrada 2.4s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+    animation-delay: calc(var(--mk-silueta-i, 0) * 120ms);
+  }
+
+  @keyframes mk-silueta-entrada {
+    from {
+      opacity: 0;
+      transform: translateX(var(--mk-silueta-desde, 0)) rotate(-8deg) scale(1.08);
+    }
   }
 
   .mk-capitulo-numero::before,
@@ -1638,6 +1696,10 @@
     .mk-boton:active,
     .mk-boton[data-estado="presionado"] {
       transform: none;
+    }
+
+    .mk-silueta {
+      animation: none;
     }
   }
 }

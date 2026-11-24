@@ -44,6 +44,26 @@ export interface Capitulo {
   /** Token del fondo: `--brand-main`. */
   fondo: `--${string}`;
   tinta?: "clara" | "oscura";
+  /** Siluetas decorativas detrás del texto (0.8.0). */
+  siluetas?: CapaSiluetas;
+}
+
+/**
+ * Siluetas de una portada (0.8.0): una forma de la marca repetida y girada,
+ * cortada por el borde de `lado`. Solo datos: la configuración la lee también
+ * el shell, que es de cliente.
+ */
+export interface CapaSiluetas {
+  /** Un trazo cerrado y su viewBox ("0 0 355.5 327.5"). */
+  forma: { d: string; viewBox: string };
+  /** Cuántas copias, de 1 a 3. Por defecto 2. */
+  copias?: number;
+  /** Grados entre una copia y la siguiente. Por defecto 18. */
+  giro?: number;
+  /** Punto de giro en unidades del viewBox. Por defecto, el centro. */
+  pivote?: [number, number];
+  /** Borde por el que se cortan: "inicio" (izquierda) o "fin" (derecha). */
+  lado: "inicio" | "fin";
 }
 
 /** Un público del portal y la tarea que viene a resolver. */
@@ -223,6 +243,8 @@ export interface MarcaConfig {
     accion?: { texto: string; href: string };
     /** De borde a borde del área de contenido, sin radio, como las portadas de capítulo. */
     sangrado?: boolean;
+    /** Siluetas decorativas detrás del texto (0.8.0). */
+    siluetas?: CapaSiluetas;
   };
   /**
    * Gesto de los títulos de página: un signo de cierre (por ejemplo, ".")
@@ -265,10 +287,24 @@ const SLUG = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 const TOKEN = /^--[a-z0-9-]+$/;
 
 /** Errores de forma de la configuración. Vacío = válida. */
+const VIEWBOX = /^\s*-?[\d.]+[\s,]+-?[\d.]+[\s,]+[\d.]*[1-9][\d.]*[\s,]+[\d.]*[1-9][\d.]*\s*$/;
+
+/** Errores de forma de unas siluetas. Vacío = válidas. */
+export function validarSiluetas(donde: string, s: CapaSiluetas): string[] {
+  const e: string[] = [];
+  if (!/^\s*[Mm]/.test(s.forma.d)) e.push(`${donde}: el trazo de las siluetas tiene que empezar con M`);
+  if (!VIEWBOX.test(s.forma.viewBox)) e.push(`${donde}: viewBox inválido ("x y ancho alto")`);
+  if (s.lado !== "inicio" && s.lado !== "fin") e.push(`${donde}: lado tiene que ser "inicio" o "fin"`);
+  if (s.copias !== undefined && (s.copias < 1 || s.copias > 3)) e.push(`${donde}: copias va de 1 a 3`);
+  return e;
+}
+
 export function validarMarca(c: MarcaConfig): string[] {
   const errores: string[] = [];
   const vistos = new Set<string>();
+  if (c.portada?.siluetas) errores.push(...validarSiluetas("portada", c.portada.siluetas));
   for (const s of c.secciones) {
+    if (s.capitulo?.siluetas) errores.push(...validarSiluetas(`sección "${s.slug}"`, s.capitulo.siluetas));
     if (!SLUG.test(s.slug)) errores.push(`sección "${s.slug}": slug inválido`);
     if (vistos.has(s.slug)) errores.push(`sección "${s.slug}": repetida`);
     vistos.add(s.slug);
