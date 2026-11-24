@@ -3,7 +3,7 @@ import { jsx as _jsx, jsxs as _jsxs, Fragment as _Fragment } from "react/jsx-run
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { baseDe, gruposDe, hrefDe } from "./config.js";
+import { baseDe, etiquetaNavegacionVigente, gruposDe, hrefDe } from "./config.js";
 import { enfocarSeccion, useIndice } from "./toc.js";
 import { Aviso } from "./vivo.js";
 /**
@@ -84,9 +84,20 @@ function VolverArriba({ pathname }) {
 }
 function Navegacion({ config, pathname, alNavegar, }) {
     const inicio = hrefDe(config);
+    const conCaducidad = config.secciones.some((s) => s.etiquetaNavegacion?.hasta);
+    const [hoy, setHoy] = useState();
+    useEffect(() => {
+        if (!conCaducidad)
+            return;
+        const actualizar = () => setHoy(new Date().toISOString().slice(0, 10));
+        actualizar();
+        const temporizador = window.setInterval(actualizar, 60_000);
+        return () => window.clearInterval(temporizador);
+    }, [conCaducidad]);
     return (_jsxs(_Fragment, { children: [_jsx("ul", { className: "mk-nav-lista", children: _jsx("li", { children: _jsx(Link, { href: inicio, className: "mk-nav-enlace", "aria-current": pathname === inicio ? "page" : undefined, onClick: alNavegar, children: "Inicio" }) }) }), gruposDe(config).map(({ grupo, secciones }) => (_jsxs("div", { className: "mk-nav-grupo", children: [_jsx("h2", { className: "mk-nav-titulo", id: `mk-grupo-${grupo}`, children: grupo }), _jsx("ul", { className: "mk-nav-lista", "aria-labelledby": `mk-grupo-${grupo}`, children: secciones.map((s) => {
                             const href = hrefDe(config, s.slug);
-                            return (_jsx("li", { children: _jsxs(Link, { href: href, className: "mk-nav-enlace", "aria-current": pathname === href ? "page" : undefined, onClick: alNavegar, children: [s.titulo, s.estado === "pendiente" ? _jsx("span", { className: "mk-etiqueta", children: "Pr\u00F3ximamente" }) : null] }) }, s.slug));
+                            const etiqueta = s.estado === "pendiente" ? undefined : etiquetaNavegacionVigente(s.etiquetaNavegacion, hoy);
+                            return (_jsx("li", { children: _jsxs(Link, { href: href, className: "mk-nav-enlace", "aria-current": pathname === href ? "page" : undefined, onClick: alNavegar, children: [s.titulo, etiqueta ? _jsxs(_Fragment, { children: [" ", _jsx("span", { className: "mk-nav-distintivo", children: etiqueta })] }) : null, s.estado === "pendiente" ? _jsx("span", { className: "mk-etiqueta", children: "Pr\u00F3ximamente" }) : null] }) }, s.slug));
                         }) })] }, grupo)))] }));
 }
 function IndicePagina({ indice, actual, alElegir = (id) => enfocarSeccion(id, true), }) {

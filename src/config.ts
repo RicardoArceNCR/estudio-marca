@@ -96,6 +96,12 @@ export interface Seccion {
   grupo: string;
   /** Una línea: qué resuelve la sección. Va en la portada y en la navegación. */
   resumen: string;
+  /** Distintivo informativo del menú, independiente de la página activa. */
+  etiquetaNavegacion?: {
+    texto: string;
+    /** Último día visible, inclusive, en UTC (AAAA-MM-DD). Sin fecha no caduca. */
+    hasta?: string;
+  };
   estado?: EstadoSeccion;
   pendiente?: Pendiente;
   /**
@@ -316,11 +322,29 @@ export function validarSiluetas(donde: string, s: CapaSiluetas): string[] {
   return e;
 }
 
+/** Una fecha de calendario real, no solo un texto con apariencia ISO. */
+function esFechaISO(fecha: string): boolean {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(fecha)) return false;
+  const valor = Date.parse(`${fecha}T00:00:00Z`);
+  return Number.isFinite(valor) && new Date(valor).toISOString().slice(0, 10) === fecha;
+}
+
+/** Fecha UTC explícita para evitar diferencias entre el build y la hidratación. */
+export function etiquetaNavegacionVigente(etiqueta: Seccion["etiquetaNavegacion"], hoy?: string): string | undefined {
+  if (!etiqueta?.texto.trim()) return undefined;
+  if (etiqueta.hasta && (!hoy || !esFechaISO(etiqueta.hasta) || !esFechaISO(hoy) || hoy > etiqueta.hasta)) return undefined;
+  return etiqueta.texto.trim();
+}
+
 export function validarMarca(c: MarcaConfig): string[] {
   const errores: string[] = [];
   const vistos = new Set<string>();
   if (c.portada?.siluetas) errores.push(...validarSiluetas("portada", c.portada.siluetas));
   for (const s of c.secciones) {
+    if (s.etiquetaNavegacion) {
+      if (!s.etiquetaNavegacion.texto.trim()) errores.push(`sección "${s.slug}": etiqueta de navegación sin texto`);
+      if (s.etiquetaNavegacion.hasta && !esFechaISO(s.etiquetaNavegacion.hasta)) errores.push(`sección "${s.slug}": etiqueta de navegación con fecha ISO inválida`);
+    }
     if (s.capitulo?.siluetas) errores.push(...validarSiluetas(`sección "${s.slug}"`, s.capitulo.siluetas));
     if (!SLUG.test(s.slug)) errores.push(`sección "${s.slug}": slug inválido`);
     if (vistos.has(s.slug)) errores.push(`sección "${s.slug}": repetida`);

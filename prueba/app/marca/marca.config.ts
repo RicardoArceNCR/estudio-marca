@@ -39,7 +39,7 @@ export default defineMarca({
       siDudas: "Usá la principal sobre fondo claro. Si el fondo es oscuro, la negativa.",
       capitulo: { numero: "01", fondo: "--brand-main", tinta: "clara" },
     },
-    { slug: "color", titulo: "Color", grupo: "Identidad", resumen: "Colores oficiales, combinaciones y rampas." },
+    { slug: "color", titulo: "Color", grupo: "Identidad", resumen: "Colores oficiales, combinaciones y rampas.", etiquetaNavegacion: { texto: "Actualizada", hasta: "2099-12-31" } },
     { slug: "tipografia", titulo: "Tipografía", grupo: "Identidad", resumen: "Familias, pesos y jerarquía." },
     {
       slug: "personaje",

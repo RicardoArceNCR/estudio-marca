@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
-import { baseDe, gruposDe, hrefDe, type Ayuda, type MarcaConfig } from "./config.js";
+import { baseDe, etiquetaNavegacionVigente, gruposDe, hrefDe, type Ayuda, type MarcaConfig } from "./config.js";
 import { enfocarSeccion, useIndice, type Indice } from "./toc.js";
 import { Aviso } from "./vivo.js";
 
@@ -238,6 +238,15 @@ function Navegacion({
   alNavegar?: () => void;
 }) {
   const inicio = hrefDe(config);
+  const conCaducidad = config.secciones.some((s) => s.etiquetaNavegacion?.hasta);
+  const [hoy, setHoy] = useState<string>();
+  useEffect(() => {
+    if (!conCaducidad) return;
+    const actualizar = () => setHoy(new Date().toISOString().slice(0, 10));
+    actualizar();
+    const temporizador = window.setInterval(actualizar, 60_000);
+    return () => window.clearInterval(temporizador);
+  }, [conCaducidad]);
   return (
     <>
       <ul className="mk-nav-lista">
@@ -260,6 +269,7 @@ function Navegacion({
           <ul className="mk-nav-lista" aria-labelledby={`mk-grupo-${grupo}`}>
             {secciones.map((s) => {
               const href = hrefDe(config, s.slug);
+              const etiqueta = s.estado === "pendiente" ? undefined : etiquetaNavegacionVigente(s.etiquetaNavegacion, hoy);
               return (
                 <li key={s.slug}>
                   <Link
@@ -269,6 +279,7 @@ function Navegacion({
                     onClick={alNavegar}
                   >
                     {s.titulo}
+                    {etiqueta ? <> <span className="mk-nav-distintivo">{etiqueta}</span></> : null}
                     {s.estado === "pendiente" ? <span className="mk-etiqueta">Próximamente</span> : null}
                   </Link>
                 </li>

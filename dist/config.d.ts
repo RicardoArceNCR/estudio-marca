@@ -87,6 +87,12 @@ export interface Seccion {
     grupo: string;
     /** Una línea: qué resuelve la sección. Va en la portada y en la navegación. */
     resumen: string;
+    /** Distintivo informativo del menú, independiente de la página activa. */
+    etiquetaNavegacion?: {
+        texto: string;
+        /** Último día visible, inclusive, en UTC (AAAA-MM-DD). Sin fecha no caduca. */
+        hasta?: string;
+    };
     estado?: EstadoSeccion;
     pendiente?: Pendiente;
     /**
@@ -309,6 +315,8 @@ export interface MarcaConfig {
 }
 /** Errores de forma de unas siluetas. Vacío = válidas. */
 export declare function validarSiluetas(donde: string, s: CapaSiluetas): string[];
+/** Fecha UTC explícita para evitar diferencias entre el build y la hidratación. */
+export declare function etiquetaNavegacionVigente(etiqueta: Seccion["etiquetaNavegacion"], hoy?: string): string | undefined;
 export declare function validarMarca(c: MarcaConfig): string[];
 /** Valida y devuelve la configuración. Falla en el build, no en producción. */
 export declare function defineMarca(c: MarcaConfig): MarcaConfig;

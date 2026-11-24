@@ -373,6 +373,20 @@
     text-decoration: underline;
   }
 
+  /* Distintivo editorial: texto real, sin foco adicional ni animación. */
+  .mk-nav-distintivo {
+    display: inline-block;
+    flex: none;
+    padding: 0.125rem 0.5rem;
+    border-radius: 999px;
+    background: var(--mk-nav-distintivo-fondo, var(--brand-subtle, var(--mk-superficie-suave)));
+    color: var(--mk-nav-distintivo-texto, var(--brand-strong, var(--mk-texto)));
+    font-size: 0.875rem;
+    font-weight: 700;
+    line-height: 1.4;
+    white-space: nowrap;
+  }
+
   .mk-nav-enlace[aria-current="page"] {
     background: var(--mk-nav-actual-fondo);
     color: var(--mk-nav-actual-texto);
