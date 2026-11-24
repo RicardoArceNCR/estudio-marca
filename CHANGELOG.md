@@ -2,6 +2,17 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). Versionado: semver; mientras sea 0.x, un cambio de la configuración puede romper.
 
+## [0.9.0] — 2026-11-24
+
+Cabecera con el logo a su tamaño, número de capítulo con peso propio y botón "Volver arriba". Para las demás marcas no cambia nada visible.
+
+### Agregado
+
+- `cabecera.texto`: texto corto junto al logo ("Marca"); el enlace sigue llamándose `nombre` (`aria-label`). El texto va en `.mk-marca-nombre`.
+- Ganchos de la cabecera: `--mk-insignia-alto`, `--mk-insignia-alto-movil`, `--mk-insignia-ancho` (`auto` para el logo entero), `--mk-insignia-relleno`, `--mk-marca-separador`, `--mk-marca-separacion`, `--mk-marca-nombre-peso`, `--mk-marca-nombre-color` y `--mk-marca-nombre-movil` (`none` lo oculta en móvil).
+- Número de capítulo: `--mk-capitulo-numero-peso` (también en las tarjetas del inicio), `--mk-capitulo-numero-tamano` y `--mk-capitulo-numero-tracking`.
+- `volverArriba: true`: enlace fijo abajo a la derecha (44 px) que aparece después de dos pantallas de scroll, sube (suave solo sin movimiento reducido) y deja el foco en el `h1`. Mientras se ve, el aviso sube para no taparlo.
+
 ## [0.8.0] — 2026-11-24
 
 Siluetas en las portadas: una forma de la marca, repetida y girada, cortada por un borde. SVG en el HTML y CSS, sin JS. Para las demás marcas no cambia nada hasta que configuren `siluetas`.

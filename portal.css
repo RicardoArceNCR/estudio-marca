@@ -199,14 +199,18 @@
     overflow-wrap: anywhere;
   }
 
+  /*
+   * Insignia del logo (0.9.0: tamaño por ganchos). Con --mk-insignia-ancho:
+   * auto el logo entero va a lo alto de --mk-insignia-alto.
+   */
   .mk-marca-insignia {
     display: inline-flex;
     flex: none;
     align-items: center;
     justify-content: center;
-    width: 2.25rem;
-    height: 2.25rem;
-    padding: 0.125rem;
+    width: var(--mk-insignia-ancho, 2.25rem);
+    height: var(--mk-insignia-alto, 2.25rem);
+    padding: var(--mk-insignia-relleno, 0.125rem);
     border-radius: var(--mk-radio-chico);
     overflow: hidden;
   }
@@ -214,6 +218,55 @@
   .mk-marca-insignia img {
     max-width: 100%;
     max-height: 100%;
+  }
+
+  /* Texto junto al logo, con un filete opcional entre los dos. */
+  .mk-marca-nombre {
+    padding-inline-start: var(--mk-marca-separacion, 0);
+    border-inline-start: var(--mk-marca-separador, none);
+    font-weight: var(--mk-marca-nombre-peso, inherit);
+    color: var(--mk-marca-nombre-color, inherit);
+    line-height: 1.5rem;
+  }
+
+  @media (max-width: 47.99rem) {
+    .mk-marca-insignia {
+      height: var(--mk-insignia-alto-movil, var(--mk-insignia-alto, 2.25rem));
+    }
+
+    .mk-marca-nombre {
+      display: var(--mk-marca-nombre-movil, inline);
+    }
+  }
+
+  /* Volver arriba (0.9.0): abajo a la derecha; el aviso sube si están los dos. */
+  .mk-arriba {
+    position: fixed;
+    z-index: 30;
+    inset-inline-end: 1rem;
+    bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border: 1px solid var(--mk-borde-suave);
+    border-radius: var(--mk-boton-radio);
+    background: var(--mk-superficie);
+    color: var(--mk-texto);
+    box-shadow: var(--mk-sombra-flotante);
+    text-decoration: none;
+  }
+
+  .mk-arriba[hidden] {
+    display: none;
+  }
+
+  .mk-arriba:hover {
+    background: var(--mk-superficie-suave);
+  }
+
+  .mk-portal:has(.mk-arriba:not([hidden])) .mk-aviso {
+    bottom: calc(1.5rem + 3.25rem);
   }
 
   .mk-menu-boton {
@@ -669,7 +722,9 @@
     right: calc(var(--mk-principal-x) + var(--mk-principal-sobrante, 0px));
     bottom: -0.12em;
     font-family: var(--mk-fuente-titulos);
-    font-size: clamp(7rem, 3rem + 16vw, 17rem);
+    font-size: var(--mk-capitulo-numero-tamano, clamp(7rem, 3rem + 16vw, 17rem));
+    font-weight: var(--mk-capitulo-numero-peso, 400);
+    letter-spacing: var(--mk-capitulo-numero-tracking, normal);
     line-height: 0.8;
     color: var(--mk-capitulo-numero-color);
     opacity: var(--mk-capitulo-numero-opacidad);
@@ -896,6 +951,7 @@
 
   .mk-tarjeta-numero {
     font-family: var(--mk-fuente-titulos);
+    font-weight: var(--mk-capitulo-numero-peso, 400);
     font-size: 3.5rem;
     line-height: 0.9;
     color: var(--mk-capitulo-numero-color);

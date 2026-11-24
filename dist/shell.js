@@ -20,7 +20,7 @@ export function MarcaShell({ config, children, salir, }) {
     const [abierto, setAbierto] = useState(false);
     const cerrar = () => dialogo.current?.close();
     useEffect(cerrar, [pathname]);
-    return (_jsxs("div", { className: "mk-portal", children: [_jsx("a", { className: "mk-saltar", href: "#contenido", children: "Saltar al contenido" }), _jsxs("header", { className: "mk-cabecera", children: [_jsxs(Link, { href: baseDe(config), className: "mk-marca", children: [config.cabecera ? (_jsx("span", { className: "mk-marca-insignia", style: { background: `var(${config.cabecera.fondo})` }, "aria-hidden": "true", children: _jsx("img", { src: config.cabecera.logo, alt: "" }) })) : null, config.nombre] }), _jsx("button", { ref: botonMenu, type: "button", className: "mk-menu-boton", "aria-haspopup": "dialog", "aria-expanded": abierto, "aria-controls": "mk-menu", "data-mk-menu": true, onClick: () => {
+    return (_jsxs("div", { className: "mk-portal", children: [_jsx("a", { className: "mk-saltar", href: "#contenido", children: "Saltar al contenido" }), _jsxs("header", { className: "mk-cabecera", children: [_jsxs(Link, { href: baseDe(config), className: "mk-marca", "aria-label": config.cabecera?.texto ? config.nombre : undefined, children: [config.cabecera ? (_jsx("span", { className: "mk-marca-insignia", style: { background: `var(${config.cabecera.fondo})` }, "aria-hidden": "true", children: _jsx("img", { src: config.cabecera.logo, alt: "" }) })) : null, _jsx("span", { className: "mk-marca-nombre", children: config.cabecera?.texto ?? config.nombre })] }), _jsx("button", { ref: botonMenu, type: "button", className: "mk-menu-boton", "aria-haspopup": "dialog", "aria-expanded": abierto, "aria-controls": "mk-menu", "data-mk-menu": true, onClick: () => {
                             dialogo.current?.showModal();
                             setAbierto(true);
                         }, children: "Men\u00FA" })] }), _jsxs("div", { className: "mk-cuerpo", children: [_jsxs("aside", { className: "mk-lateral", "aria-label": config.nombre, children: [_jsx("nav", { "aria-label": "Secciones del portal", "data-mk-nav": true, children: _jsx(Navegacion, { config: config, pathname: pathname }) }), _jsx(IndicePagina, { indice: indice, actual: actual }), config.ayuda ? _jsx(AyudaLateral, { ayuda: config.ayuda }) : null, salir ? (_jsx("button", { type: "button", className: "mk-boton mk-boton-secundario mk-salir", onClick: () => void salir(), children: "Salir" })) : null] }), _jsxs("main", { id: "contenido", tabIndex: -1, className: "mk-principal", children: [pathname !== baseDe(config) ? _jsx(IndiceMovil, { indice: indice, actual: actual }) : null, children, _jsxs("footer", { className: "mk-pie", children: [_jsxs("span", { children: [config.nombre, " \u00B7 versi\u00F3n ", config.version] }), config.ayuda ? (_jsxs("span", { "data-mk-ayuda": true, children: [config.ayuda.texto ?? "¿Algo falta o está mal?", " Escribile a", " ", config.ayuda.correo ? (_jsx("a", { href: `mailto:${config.ayuda.correo}`, children: config.ayuda.nombre })) : (config.ayuda.nombre), "."] })) : config.contacto ? (_jsxs("span", { children: ["Consultas:", " ", config.contacto.correo ? (_jsx("a", { href: `mailto:${config.contacto.correo}`, children: config.contacto.nombre })) : (config.contacto.nombre)] })) : null] })] })] }), _jsx("dialog", { id: "mk-menu", ref: dialogo, className: "mk-dialogo", "aria-label": `Menú de ${config.nombre}`, onClose: () => {
@@ -51,7 +51,36 @@ export function MarcaShell({ config, children, salir, }) {
                 }, children: _jsxs("div", { className: "mk-dialogo-caja", children: [_jsxs("div", { className: "mk-dialogo-cabecera", children: [_jsx("span", { className: "mk-marca", children: config.nombre }), _jsx("button", { type: "button", className: "mk-boton mk-boton-secundario", onClick: cerrar, children: "Cerrar" })] }), _jsx("nav", { "aria-label": "Secciones del portal", children: _jsx(Navegacion, { config: config, pathname: pathname, alNavegar: cerrar }) }), _jsx(IndicePagina, { indice: indice, actual: actual, alElegir: (id) => {
                                 cerrar();
                                 requestAnimationFrame(() => enfocarSeccion(id, true));
-                            } })] }) }), _jsx(Aviso, {})] }));
+                            } })] }) }), config.volverArriba ? _jsx(VolverArriba, { pathname: pathname }) : null, _jsx(Aviso, {})] }));
+}
+/**
+ * Aparece después de dos pantallas de scroll. Es un enlace a #contenido: sube
+ * (suave solo sin movimiento reducido) y deja el foco en el título de la
+ * página, así el lector de pantalla lo anuncia y el próximo Tab sigue desde ahí.
+ */
+function VolverArriba({ pathname }) {
+    const [visible, setVisible] = useState(false);
+    useEffect(() => {
+        const medir = () => setVisible(window.scrollY > window.innerHeight * 2);
+        medir();
+        window.addEventListener("scroll", medir, { passive: true });
+        window.addEventListener("resize", medir);
+        return () => {
+            window.removeEventListener("scroll", medir);
+            window.removeEventListener("resize", medir);
+        };
+    }, [pathname]);
+    return (_jsx("a", { className: "mk-arriba", href: "#contenido", hidden: !visible, "aria-label": "Volver arriba", title: "Volver arriba", onClick: (e) => {
+            e.preventDefault();
+            const quieto = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+            window.scrollTo({ top: 0, behavior: quieto ? "auto" : "smooth" });
+            const destino = document.querySelector("#contenido h1") ?? document.getElementById("contenido");
+            if (destino) {
+                if (!destino.hasAttribute("tabindex"))
+                    destino.setAttribute("tabindex", "-1");
+                destino.focus({ preventScroll: true });
+            }
+        }, children: _jsx("svg", { viewBox: "0 0 24 24", width: "20", height: "20", "aria-hidden": "true", focusable: "false", children: _jsx("path", { d: "M12 19V5M5 12l7-7 7 7", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" }) }) }));
 }
 function Navegacion({ config, pathname, alNavegar, }) {
     const inicio = hrefDe(config);
