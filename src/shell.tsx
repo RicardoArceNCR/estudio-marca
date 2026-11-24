@@ -38,13 +38,17 @@ export function MarcaShell({
         Saltar al contenido
       </a>
       <header className="mk-cabecera">
-        <Link href={baseDe(config)} className="mk-marca">
+        <Link
+          href={baseDe(config)}
+          className="mk-marca"
+          aria-label={config.cabecera?.texto ? config.nombre : undefined}
+        >
           {config.cabecera ? (
             <span className="mk-marca-insignia" style={{ background: `var(${config.cabecera.fondo})` }} aria-hidden="true">
               <img src={config.cabecera.logo} alt="" />
             </span>
           ) : null}
-          {config.nombre}
+          <span className="mk-marca-nombre">{config.cabecera?.texto ?? config.nombre}</span>
         </Link>
         <button
           ref={botonMenu}
@@ -159,8 +163,51 @@ export function MarcaShell({
           />
         </div>
       </dialog>
+      {config.volverArriba ? <VolverArriba pathname={pathname} /> : null}
       <Aviso />
     </div>
+  );
+}
+
+/**
+ * Aparece después de dos pantallas de scroll. Es un enlace a #contenido: sube
+ * (suave solo sin movimiento reducido) y deja el foco en el título de la
+ * página, así el lector de pantalla lo anuncia y el próximo Tab sigue desde ahí.
+ */
+function VolverArriba({ pathname }: { pathname: string }) {
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    const medir = () => setVisible(window.scrollY > window.innerHeight * 2);
+    medir();
+    window.addEventListener("scroll", medir, { passive: true });
+    window.addEventListener("resize", medir);
+    return () => {
+      window.removeEventListener("scroll", medir);
+      window.removeEventListener("resize", medir);
+    };
+  }, [pathname]);
+  return (
+    <a
+      className="mk-arriba"
+      href="#contenido"
+      hidden={!visible}
+      aria-label="Volver arriba"
+      title="Volver arriba"
+      onClick={(e) => {
+        e.preventDefault();
+        const quieto = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        window.scrollTo({ top: 0, behavior: quieto ? "auto" : "smooth" });
+        const destino = document.querySelector<HTMLElement>("#contenido h1") ?? document.getElementById("contenido");
+        if (destino) {
+          if (!destino.hasAttribute("tabindex")) destino.setAttribute("tabindex", "-1");
+          destino.focus({ preventScroll: true });
+        }
+      }}
+    >
+      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">
+        <path d="M12 19V5M5 12l7-7 7 7" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    </a>
   );
 }
 

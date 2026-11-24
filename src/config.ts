@@ -253,7 +253,18 @@ export interface MarcaConfig {
    */
   titulos?: { punto?: string };
   /** Marca chica junto al nombre en la cabecera: logo sobre su color. */
-  cabecera?: { logo: string; fondo: `--${string}` };
+  cabecera?: {
+    logo: string;
+    fondo: `--${string}`;
+    /**
+     * Texto junto al logo (0.9.0). Por defecto, `nombre`. Si el logo ya dice
+     * la marca, conviene uno corto ("Marca"): el enlace sigue llamándose
+     * `nombre` para los lectores de pantalla.
+     */
+    texto?: string;
+  };
+  /** Botón "Volver arriba" fijo abajo a la derecha (0.9.0). */
+  volverArriba?: boolean;
   /** Inicio: encabezado propio, atajos por tarea y títulos de sus bloques. */
   inicio?: {
     encabezado?: Titular;
