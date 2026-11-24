@@ -2,6 +2,19 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). Versionado: semver; mientras sea 0.x, un cambio de la configuración puede romper.
 
+## [0.7.0] — 2026-11-23
+
+Portada con capa propia. Sale de Avanz, que lleva a la portada el banner del banco animado; para las demás marcas no cambia nada.
+
+### Agregado
+
+- `MarcaPagina` acepta `portadaCapa` (`ReactNode`): una capa decorativa detrás del texto de la portada del inicio, con `aria-hidden` y sin recibir el puntero (`.mk-portada-capa`). Va como prop porque la configuración la lee también el shell, que es de cliente.
+- Ganchos de la placa del logo de la portada: `--mk-portada-logo-fondo`, `--mk-portada-logo-relleno`, `--mk-portada-logo-radio` y `--mk-portada-logo-sombra` (por defecto, sin placa). `--mk-portada-logo-alto` fija el alto máximo del logo en pantallas medianas y grandes (por defecto, 18rem).
+
+### Cambiado
+
+- `.mk-portada` pasa a `position: relative` con `isolation: isolate`.
+
 ## [0.6.0] — 2026-11-23
 
 Quinto incremento de diseño: sombras opcionales y estados visibles. Sale del pedido de Avanz de bordes más redondos y sombras; para las demás marcas no cambia nada visible hasta que pisen los ganchos.
