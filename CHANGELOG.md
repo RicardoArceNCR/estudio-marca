@@ -2,6 +2,21 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). Versionado: semver; mientras sea 0.x, un cambio de la configuración puede romper.
 
+## [0.8.0] — 2026-11-24
+
+Siluetas en las portadas: una forma de la marca, repetida y girada, cortada por un borde. SVG en el HTML y CSS, sin JS. Para las demás marcas no cambia nada hasta que configuren `siluetas`.
+
+### Agregado
+
+- `portada.siluetas` y `seccion.capitulo.siluetas` (`CapaSiluetas`: `forma` con `d` y `viewBox`, `copias` 1–3, `giro` en grados, `pivote`, `lado` `"inicio"` o `"fin"`). Solo datos, así viajan con la configuración al shell.
+- Componente `Siluetas` (exportado) y `validarSiluetas()`; `validarMarca` revisa las siluetas de la portada y de cada capítulo.
+- Ganchos `--mk-silueta-color`, `--mk-silueta-opacidad` (por defecto `currentColor` al 6 %) y `--mk-siluetas-alto` (140 % de la portada).
+- Entrada de 2,4 s que se detiene (`mk-silueta-entrada`); sin movimiento con `prefers-reduced-motion`.
+
+### Obsoleto
+
+- `portadaCapa` de `MarcaPagina`: sigue funcionando, pero para una forma de la marca conviene `portada.siluetas`, que no necesita JS.
+
 ## [0.7.0] — 2026-11-23
 
 Portada con capa propia. Sale de Avanz, que lleva a la portada el banner del banco animado; para las demás marcas no cambia nada.

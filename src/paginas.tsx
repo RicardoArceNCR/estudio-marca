@@ -17,6 +17,7 @@ import { PanelDescargas } from "./descargas.js";
 import { Icono } from "./iconos.js";
 import { columnas } from "./rejilla.js";
 import { slugDe } from "./rutas.js";
+import { Siluetas } from "./siluetas.js";
 import { Escala, Especimen, Muestra, ParContraste, Rampa } from "./vivo.js";
 
 /* ───────────── bloques ───────────── */
@@ -95,6 +96,7 @@ export function Encabezado({
         // El número va como contenido de CSS: es decorativo y no es texto que leer.
         <span className="mk-capitulo-numero" aria-hidden="true" data-numero={capitulo.numero} />
       ) : null}
+      {capitulo?.siluetas ? <Siluetas capa={capitulo.siluetas} /> : null}
       <div className="mk-encabezado-texto">
         {config ? <EstadoPortal config={config} /> : null}
         <p className="mk-antetitulo">{antetitulo}</p>
@@ -230,6 +232,7 @@ function PaginaInicio({ config, portadaCapa }: { config: MarcaConfig; portadaCap
           data-fondo={config.portada.fondo}
           style={{ background: `var(${config.portada.fondo})` }}
         >
+          {config.portada.siluetas ? <Siluetas capa={config.portada.siluetas} /> : null}
           {portadaCapa ? (
             <div className="mk-portada-capa" aria-hidden="true">
               {portadaCapa}

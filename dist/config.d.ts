@@ -37,6 +37,28 @@ export interface Capitulo {
     /** Token del fondo: `--brand-main`. */
     fondo: `--${string}`;
     tinta?: "clara" | "oscura";
+    /** Siluetas decorativas detrás del texto (0.8.0). */
+    siluetas?: CapaSiluetas;
+}
+/**
+ * Siluetas de una portada (0.8.0): una forma de la marca repetida y girada,
+ * cortada por el borde de `lado`. Solo datos: la configuración la lee también
+ * el shell, que es de cliente.
+ */
+export interface CapaSiluetas {
+    /** Un trazo cerrado y su viewBox ("0 0 355.5 327.5"). */
+    forma: {
+        d: string;
+        viewBox: string;
+    };
+    /** Cuántas copias, de 1 a 3. Por defecto 2. */
+    copias?: number;
+    /** Grados entre una copia y la siguiente. Por defecto 18. */
+    giro?: number;
+    /** Punto de giro en unidades del viewBox. Por defecto, el centro. */
+    pivote?: [number, number];
+    /** Borde por el que se cortan: "inicio" (izquierda) o "fin" (derecha). */
+    lado: "inicio" | "fin";
 }
 /** Un público del portal y la tarea que viene a resolver. */
 export interface Perfil {
@@ -216,6 +238,8 @@ export interface MarcaConfig {
         };
         /** De borde a borde del área de contenido, sin radio, como las portadas de capítulo. */
         sangrado?: boolean;
+        /** Siluetas decorativas detrás del texto (0.8.0). */
+        siluetas?: CapaSiluetas;
     };
     /**
      * Gesto de los títulos de página: un signo de cierre (por ejemplo, ".")
@@ -265,7 +289,8 @@ export interface MarcaConfig {
     tipografia?: TipografiaConfig;
     sistema?: SistemaConfig;
 }
-/** Errores de forma de la configuración. Vacío = válida. */
+/** Errores de forma de unas siluetas. Vacío = válidas. */
+export declare function validarSiluetas(donde: string, s: CapaSiluetas): string[];
 export declare function validarMarca(c: MarcaConfig): string[];
 /** Valida y devuelve la configuración. Falla en el build, no en producción. */
 export declare function defineMarca(c: MarcaConfig): MarcaConfig;

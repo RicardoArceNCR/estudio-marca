@@ -3,6 +3,7 @@ export * from "./color.js";
 export { MarcaShell } from "./shell.js";
 export { MarcaPagina, MarcaNoEncontrada, Encabezado, Bloque, EstadoPortal, Titulo } from "./paginas.js";
 export { columnas } from "./rejilla.js";
+export { Siluetas } from "./siluetas.js";
 export { Icono, ICONOS, esIcono } from "./iconos.js";
 export { marcaParams, marcaMetadata } from "./rutas.js";
 export { Aviso, Muestra, Rampa, ParContraste, Especimen, Escala, copiar, avisar } from "./vivo.js";

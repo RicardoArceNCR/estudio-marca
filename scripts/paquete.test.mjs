@@ -146,3 +146,12 @@ test("sistema: tokens solos o con uso; un uso con un token inválido falla", () 
   const mala = { ...BASE, sistema: { radios: [{ token: "8px", uso: "u" }] } };
   assert.ok(validarMarca(mala).some((e) => e.includes('"8px" no es un token')));
 });
+
+test("siluetas: forma, viewBox, lado y copias", () => {
+  const forma = { d: "M0,0L10,0L0,10Z", viewBox: "0 0 10 10" };
+  const ok = { ...BASE, portada: { logo: "/l.svg", fondo: "--surface-base", siluetas: { forma, lado: "inicio" } } };
+  assert.deepEqual(validarMarca(ok), []);
+  const mala = { ...BASE, portada: { logo: "/l.svg", fondo: "--surface-base", siluetas: { forma: { d: "L0,0", viewBox: "0 0 0 10" }, lado: "arriba", copias: 5 } } };
+  const e = validarMarca(mala);
+  for (const t of ["empezar con M", "viewBox inválido", "lado tiene que ser", "copias va de 1 a 3"]) assert.ok(e.some((x) => x.includes(t)), t);
+});

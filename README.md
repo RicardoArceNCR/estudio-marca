@@ -160,6 +160,11 @@ Los botones (`mk-boton`, `mk-boton-secundario`, `mk-boton-fantasma`) leen
 .mk-portada { --mk-boton-brillo: var(--color-white); }
 ```
 
+Siluetas (0.8.0): `portada.siluetas` y `seccion.capitulo.siluetas` reciben
+una forma (`d`, `viewBox`), cuántas copias, el giro, el pivote y el lado. Color
+y opacidad por `--mk-silueta-color` y `--mk-silueta-opacidad`; alto con
+`--mk-siluetas-alto`.
+
 Sombras (0.6.0), por defecto `none`: `--mk-sombra-tarjeta`,
 `--mk-sombra-tarjeta-hover`, `--mk-sombra-flotante`, `--mk-boton-sombra`,
 `--mk-boton-sombra-hover` y `--mk-boton-secundario-sombra`. Para mostrar un

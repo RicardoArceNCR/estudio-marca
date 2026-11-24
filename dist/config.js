@@ -19,10 +19,28 @@ export function tokenDe(t) {
 const SLUG = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 const TOKEN = /^--[a-z0-9-]+$/;
 /** Errores de forma de la configuración. Vacío = válida. */
+const VIEWBOX = /^\s*-?[\d.]+[\s,]+-?[\d.]+[\s,]+[\d.]*[1-9][\d.]*[\s,]+[\d.]*[1-9][\d.]*\s*$/;
+/** Errores de forma de unas siluetas. Vacío = válidas. */
+export function validarSiluetas(donde, s) {
+    const e = [];
+    if (!/^\s*[Mm]/.test(s.forma.d))
+        e.push(`${donde}: el trazo de las siluetas tiene que empezar con M`);
+    if (!VIEWBOX.test(s.forma.viewBox))
+        e.push(`${donde}: viewBox inválido ("x y ancho alto")`);
+    if (s.lado !== "inicio" && s.lado !== "fin")
+        e.push(`${donde}: lado tiene que ser "inicio" o "fin"`);
+    if (s.copias !== undefined && (s.copias < 1 || s.copias > 3))
+        e.push(`${donde}: copias va de 1 a 3`);
+    return e;
+}
 export function validarMarca(c) {
     const errores = [];
     const vistos = new Set();
+    if (c.portada?.siluetas)
+        errores.push(...validarSiluetas("portada", c.portada.siluetas));
     for (const s of c.secciones) {
+        if (s.capitulo?.siluetas)
+            errores.push(...validarSiluetas(`sección "${s.slug}"`, s.capitulo.siluetas));
         if (!SLUG.test(s.slug))
             errores.push(`sección "${s.slug}": slug inválido`);
         if (vistos.has(s.slug))
