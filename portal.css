@@ -26,6 +26,7 @@
     --mk-foco: var(--focus-ring-color, Highlight);
     --mk-accion: var(--button-primary-bg, var(--brand-action, var(--brand-main, CanvasText)));
     --mk-accion-hover: var(--button-primary-bg-hover, var(--mk-accion));
+    --mk-accion-presionado: var(--button-primary-bg-press, var(--mk-accion-hover));
     --mk-accion-texto: var(--button-primary-text, var(--text-on-brand, Canvas));
     --mk-enlace: var(--link-default, var(--text-link, var(--text-brand, LinkText)));
     --mk-error: var(--feedback-error-text, var(--text-error, CanvasText));
@@ -83,6 +84,18 @@
     --mk-boton-fantasma-texto: currentColor;
     --mk-boton-fantasma-borde: currentColor;
     --mk-boton-brillo: currentColor;
+    /*
+     * Sombras (0.6.0). Por defecto ninguna: cada marca decide si sus
+     * superficies flotan. Tarjeta y panel, aviso flotante, botones.
+     */
+    --mk-sombra-tarjeta: none;
+    --mk-sombra-tarjeta-hover: var(--mk-sombra-tarjeta);
+    --mk-sombra-flotante: none;
+    --mk-boton-sombra: none;
+    --mk-boton-sombra-hover: var(--mk-boton-sombra);
+    --mk-boton-secundario-sombra: none;
+    --mk-boton-deshabilitado-fondo: var(--button-disabled-bg, var(--mk-superficie-suave));
+    --mk-boton-deshabilitado-texto: var(--button-disabled-text, var(--mk-texto-suave));
     --mk-nivel-3: 1.125rem;
     --mk-cabecera: 3.5rem;
     --mk-lateral: 16rem;
@@ -532,6 +545,7 @@
     border-radius: var(--mk-radio);
     background: var(--mk-superficie-inversa);
     color: var(--mk-texto-inverso);
+    box-shadow: var(--mk-sombra-flotante);
     font-weight: 600;
     overflow-wrap: anywhere;
   }
@@ -838,6 +852,7 @@
     border-radius: var(--mk-radio);
     background: var(--mk-tarjeta-fondo);
     border: 1px solid var(--mk-borde-suave);
+    box-shadow: var(--mk-sombra-tarjeta);
   }
 
   @media (min-width: 48rem) {
@@ -903,6 +918,7 @@
     border: 1px solid var(--mk-borde-suave);
     border-radius: var(--mk-radio);
     background: var(--mk-tarjeta-fondo);
+    box-shadow: var(--mk-sombra-tarjeta);
     color: var(--mk-texto);
     text-decoration: none;
     min-width: 0;
@@ -912,10 +928,11 @@
     position: relative;
     padding-right: 2.75rem;
     border-top: var(--mk-tarjeta-filete) solid var(--mk-tarjeta-acento);
-    transition: transform 0.15s ease, border-color 0.15s ease;
+    transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
   }
 
   a.mk-tarjeta:hover {
+    box-shadow: var(--mk-sombra-tarjeta-hover);
     border-color: var(--mk-borde);
     border-top-color: var(--mk-nav-actual-texto);
     transform: translateY(-2px);
@@ -1036,6 +1053,7 @@
     border-radius: var(--mk-boton-radio);
     background: var(--mk-accion);
     color: var(--mk-accion-texto);
+    box-shadow: var(--mk-boton-sombra);
     font-family: var(--mk-boton-fuente);
     font-size: var(--mk-boton-tamano);
     font-weight: var(--mk-boton-peso);
@@ -1047,35 +1065,69 @@
     cursor: pointer;
   }
 
-  .mk-boton:hover {
+  /* data-estado fuerza un estado para mostrarlo en la página Sistema. */
+  .mk-boton:hover,
+  .mk-boton[data-estado="hover"] {
     background: var(--mk-accion-hover);
     border-color: var(--mk-accion-hover);
+    box-shadow: var(--mk-boton-sombra-hover);
   }
 
-  .mk-boton:active {
+  .mk-boton:active,
+  .mk-boton[data-estado="presionado"] {
+    background: var(--mk-accion-presionado);
+    border-color: var(--mk-accion-presionado);
     transform: translateY(1px);
+    box-shadow: none;
+  }
+
+  .mk-boton[data-estado="foco"] {
+    outline: 3px solid var(--mk-foco);
+    outline-offset: 2px;
   }
 
   .mk-boton-secundario {
     background: var(--mk-boton-secundario-fondo);
     color: var(--mk-boton-secundario-texto);
     border-color: var(--mk-boton-secundario-borde);
+    box-shadow: var(--mk-boton-secundario-sombra);
   }
 
-  .mk-boton-secundario:hover {
+  .mk-boton-secundario:hover,
+  .mk-boton-secundario[data-estado="hover"] {
     background: var(--mk-superficie-suave);
     border-color: var(--mk-texto);
+    box-shadow: var(--mk-boton-secundario-sombra);
+  }
+
+  .mk-boton-secundario:active,
+  .mk-boton-secundario[data-estado="presionado"] {
+    background: var(--button-secondary-bg-press, var(--mk-superficie-suave));
+    border-color: var(--mk-texto);
+    box-shadow: none;
   }
 
   /* Sin relleno: toma el color del texto de donde está (portada, banda). */
   .mk-boton-fantasma,
-  .mk-boton-fantasma:hover {
+  .mk-boton-fantasma:hover,
+  .mk-boton-fantasma[data-estado="hover"] {
     background: transparent;
     color: var(--mk-boton-fantasma-texto);
     border-color: var(--mk-boton-fantasma-borde);
+    box-shadow: none;
   }
 
-  .mk-boton-fantasma:not(.mk-boton-brillo):hover {
+  .mk-boton:disabled,
+  .mk-boton:disabled:hover {
+    background: var(--mk-boton-deshabilitado-fondo);
+    border-color: var(--mk-boton-deshabilitado-fondo);
+    color: var(--mk-boton-deshabilitado-texto);
+    box-shadow: none;
+    transform: none;
+    cursor: not-allowed;
+  }
+
+  .mk-boton-fantasma:not(.mk-boton-brillo):is(:hover, [data-estado="hover"]) {
     text-decoration: underline;
     text-underline-offset: 0.2em;
   }
@@ -1424,6 +1476,28 @@
 
   /* sistema */
 
+  .mk-estados {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
+    gap: 1rem;
+    margin: 0;
+  }
+
+  .mk-estados div {
+    display: grid;
+    gap: 0.5rem;
+    justify-items: start;
+  }
+
+  .mk-estados dt {
+    font-size: 0.875rem;
+    color: var(--mk-texto-suave);
+  }
+
+  .mk-estados dd {
+    margin: 0;
+  }
+
   .mk-componentes {
     display: grid;
     gap: 1.5rem;
@@ -1537,7 +1611,8 @@
       transition: none;
     }
 
-    .mk-boton:active {
+    .mk-boton:active,
+    .mk-boton[data-estado="presionado"] {
       transform: none;
     }
   }

@@ -2,6 +2,17 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). Versionado: semver; mientras sea 0.x, un cambio de la configuración puede romper.
 
+## [0.6.0] — 2026-11-23
+
+Quinto incremento de diseño: sombras opcionales y estados visibles. Sale del pedido de Avanz de bordes más redondos y sombras; para las demás marcas no cambia nada visible hasta que pisen los ganchos.
+
+### Agregado
+
+- Ganchos de sombra, por defecto `none`: `--mk-sombra-tarjeta` (tarjetas y panel del ZIP), `--mk-sombra-tarjeta-hover`, `--mk-sombra-flotante` (aviso), `--mk-boton-sombra`, `--mk-boton-sombra-hover` y `--mk-boton-secundario-sombra`. Al presionar, el botón pierde la sombra y toma `--mk-accion-presionado` (lee `--button-primary-bg-press`).
+- Botón deshabilitado (`:disabled`) con `--mk-boton-deshabilitado-fondo` y `--mk-boton-deshabilitado-texto`, que leen `--button-disabled-bg` y `--button-disabled-text` del cliente.
+- `data-estado` (`hover`, `presionado`, `foco`) fuerza un estado del botón para mostrarlo.
+- Sistema muestra los cinco estados del botón principal (`.mk-estados`).
+
 ## [0.5.0] — 2026-11-23
 
 Cuarto incremento de diseño: que Tipografía y Sistema digan cuándo y por qué, y que la jerarquía se sostenga en móvil. Apunta a **contenido** y **jerarquía** de la rúbrica. Sale de la revisión intermedia de Avanz (12/16).

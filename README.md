@@ -160,6 +160,11 @@ Los botones (`mk-boton`, `mk-boton-secundario`, `mk-boton-fantasma`) leen
 .mk-portada { --mk-boton-brillo: var(--color-white); }
 ```
 
+Sombras (0.6.0), por defecto `none`: `--mk-sombra-tarjeta`,
+`--mk-sombra-tarjeta-hover`, `--mk-sombra-flotante`, `--mk-boton-sombra`,
+`--mk-boton-sombra-hover` y `--mk-boton-secundario-sombra`. Para mostrar un
+estado del botón sin interacción: `data-estado="hover" | "presionado" | "foco"`.
+
 `mk-boton-brillo` agrega un borde iluminado que solo anima su opacidad. Va
 en **un** botón por vista, sobre un fondo oscuro o de marca; `marca-revisar`
 falla si hay más de uno. El color del brillo tiene que dar 3:1 contra el
