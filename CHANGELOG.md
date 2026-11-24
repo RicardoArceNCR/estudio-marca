@@ -2,6 +2,13 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). Versionado: semver; mientras sea 0.x, un cambio de la configuración puede romper.
 
+## [0.11.0] — 2026-11-23
+
+### Agregado
+
+- `seccion.etiquetaNavegacion`: distintivo textual opcional (`texto`, `hasta`) en el enlace del menú, compartido por sidebar y menú móvil. `hasta` es el último día UTC visible (inclusive); una etiqueta caducada se oculta tras hidratar y se revisa cada minuto. Las secciones pendientes conservan solo “Próximamente”. No cambia el estado activo ni agrega focos o animaciones.
+- Ganchos `--mk-nav-distintivo-fondo` y `--mk-nav-distintivo-texto`, con valores por defecto semánticos. No cambia nada en sitios que no configuran distintivos.
+
 ## [0.10.0] — 2026-11-24
 
 ### Agregado

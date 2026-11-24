@@ -199,3 +199,10 @@ Reglas:
   `scripts/prohibidos.json`.
 - Cada release: `npm run prueba` en verde, `CHANGELOG.md` y tag igual a
   `version`. Nunca se mueve un tag publicado.
+
+## Distintivo de navegación
+
+Una sección puede agregar `etiquetaNavegacion: { texto: "Actualizada", hasta: "2026-12-23" }`.
+Es información dentro del mismo enlace en sidebar y menú móvil: no un botón separado ni un indicador de “no leído”. `hasta` es una fecha UTC inclusiva; sin ella la etiqueta no caduca. Las secciones pendientes mantienen “Próximamente” con prioridad. Las etiquetas con caducidad aparecen después de hidratar y se comprueban cada minuto, por lo que no dependen de volver a publicar un build estático para retirarse.
+
+El sitio controla el aspecto con `--mk-nav-distintivo-fondo` y `--mk-nav-distintivo-texto`. El foco, hover y `aria-current="page"` conservan sus funciones.

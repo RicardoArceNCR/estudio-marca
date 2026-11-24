@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { contrast, formatRatio, parseColor, toHex } from "../dist/color.js";
-import { defineMarca, gruposDe, validarMarca } from "../dist/config.js";
+import { defineMarca, etiquetaNavegacionVigente, gruposDe, validarMarca } from "../dist/config.js";
 import { marcaParams } from "../dist/rutas.js";
 import { makeZip } from "../dist/zip.js";
 import { columnas } from "../dist/rejilla.js";
@@ -154,4 +154,21 @@ test("siluetas: forma, viewBox, lado y copias", () => {
   const mala = { ...BASE, portada: { logo: "/l.svg", fondo: "--surface-base", siluetas: { forma: { d: "L0,0", viewBox: "0 0 0 10" }, lado: "arriba", copias: 5 } } };
   const e = validarMarca(mala);
   for (const t of ["empezar con M", "viewBox inválido", "lado tiene que ser", "copias va de 1 a 3"]) assert.ok(e.some((x) => x.includes(t)), t);
+});
+
+test("distintivo: fecha inclusiva, caducidad y render inicial sin reloj", () => {
+  const etiqueta = { texto: "Actualizada", hasta: "2026-12-23" };
+  assert.equal(etiquetaNavegacionVigente(etiqueta), undefined);
+  assert.equal(etiquetaNavegacionVigente(etiqueta, "2026-12-23"), "Actualizada");
+  assert.equal(etiquetaNavegacionVigente(etiqueta, "2026-12-24"), undefined);
+  assert.equal(etiquetaNavegacionVigente({ texto: "Destacada" }), "Destacada");
+  assert.equal(etiquetaNavegacionVigente({ texto: "X", hasta: "2026-02-30" }, "2026-02-28"), undefined);
+  assert.equal(etiquetaNavegacionVigente(undefined, "2026-12-23"), undefined);
+});
+
+test("distintivo: rechaza etiquetas vacías y fechas imposibles", () => {
+  const conEtiqueta = (etiquetaNavegacion) => ({ ...BASE, secciones: BASE.secciones.map((s, i) => i ? s : { ...s, etiquetaNavegacion }) });
+  assert.deepEqual(validarMarca(conEtiqueta({ texto: "Actualizada", hasta: "2026-12-23" })), []);
+  assert.ok(validarMarca(conEtiqueta({ texto: " " })).some((e) => e.includes("sin texto")));
+  assert.ok(validarMarca(conEtiqueta({ texto: "X", hasta: "2026-02-30" })).some((e) => e.includes("fecha ISO")));
 });

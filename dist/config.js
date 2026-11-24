@@ -33,12 +33,33 @@ export function validarSiluetas(donde, s) {
         e.push(`${donde}: copias va de 1 a 3`);
     return e;
 }
+/** Una fecha de calendario real, no solo un texto con apariencia ISO. */
+function esFechaISO(fecha) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(fecha))
+        return false;
+    const valor = Date.parse(`${fecha}T00:00:00Z`);
+    return Number.isFinite(valor) && new Date(valor).toISOString().slice(0, 10) === fecha;
+}
+/** Fecha UTC explícita para evitar diferencias entre el build y la hidratación. */
+export function etiquetaNavegacionVigente(etiqueta, hoy) {
+    if (!etiqueta?.texto.trim())
+        return undefined;
+    if (etiqueta.hasta && (!hoy || !esFechaISO(etiqueta.hasta) || !esFechaISO(hoy) || hoy > etiqueta.hasta))
+        return undefined;
+    return etiqueta.texto.trim();
+}
 export function validarMarca(c) {
     const errores = [];
     const vistos = new Set();
     if (c.portada?.siluetas)
         errores.push(...validarSiluetas("portada", c.portada.siluetas));
     for (const s of c.secciones) {
+        if (s.etiquetaNavegacion) {
+            if (!s.etiquetaNavegacion.texto.trim())
+                errores.push(`sección "${s.slug}": etiqueta de navegación sin texto`);
+            if (s.etiquetaNavegacion.hasta && !esFechaISO(s.etiquetaNavegacion.hasta))
+                errores.push(`sección "${s.slug}": etiqueta de navegación con fecha ISO inválida`);
+        }
         if (s.capitulo?.siluetas)
             errores.push(...validarSiluetas(`sección "${s.slug}"`, s.capitulo.siluetas));
         if (!SLUG.test(s.slug))
