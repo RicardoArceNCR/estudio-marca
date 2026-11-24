@@ -2,6 +2,13 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). Versionado: semver; mientras sea 0.x, un cambio de la configuración puede romper.
 
+## [0.10.0] — 2026-11-24
+
+### Agregado
+
+- Siluetas al pasar el cursor por la portada: el grupo se corre y gira (`--mk-siluetas-hover-giro`, 4° por defecto) y las copias se abren en abanico sobre el pivote (`--mk-silueta-abanico`, −12° por copia); duración `--mk-siluetas-hover-duracion` (0,9 s). Solo con cursor (`hover: hover`) y sin movimiento reducido; vuelve al salir.
+- `creditos` (`nombre`, `href`, `logo`): enlace al final del pie. El logo SVG se pinta como máscara en el color del texto del pie (`--mk-creditos-ancho`, `--mk-creditos-proporcion`); `nombre` es el nombre accesible.
+
 ## [0.9.0] — 2026-11-24
 
 Cabecera con el logo a su tamaño, número de capítulo con peso propio y botón "Volver arriba". Para las demás marcas no cambia nada visible.

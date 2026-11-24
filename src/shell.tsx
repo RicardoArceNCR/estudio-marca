@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { baseDe, gruposDe, hrefDe, type Ayuda, type MarcaConfig } from "./config.js";
 import { enfocarSeccion, useIndice, type Indice } from "./toc.js";
 import { Aviso } from "./vivo.js";
@@ -106,6 +106,23 @@ export function MarcaShell({
                   config.contacto.nombre
                 )}
               </span>
+            ) : null}
+            {config.creditos ? (
+              <a
+                className="mk-creditos"
+                href={config.creditos.href}
+                aria-label={config.creditos.logo ? config.creditos.nombre : undefined}
+              >
+                {config.creditos.logo ? (
+                  <span
+                    className="mk-creditos-logo"
+                    aria-hidden="true"
+                    style={{ "--mk-creditos-logo": `url("${config.creditos.logo}")` } as CSSProperties}
+                  />
+                ) : (
+                  config.creditos.nombre
+                )}
+              </a>
             ) : null}
           </footer>
         </main>

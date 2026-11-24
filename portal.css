@@ -646,6 +646,33 @@
     font-size: 0.9375rem;
   }
 
+  .mk-pie {
+    align-items: center;
+  }
+
+  /* Créditos (0.10.0): al final del pie; el logo toma el color del texto. */
+  .mk-pie a.mk-creditos {
+    display: inline-flex;
+    align-items: center;
+    min-height: 1.5rem;
+    margin-inline-start: auto;
+    color: var(--mk-texto-suave);
+    text-decoration: none;
+  }
+
+  .mk-pie a.mk-creditos:hover {
+    color: var(--mk-texto);
+  }
+
+  .mk-creditos-logo {
+    display: block;
+    width: var(--mk-creditos-ancho, 7.5rem);
+    aspect-ratio: var(--mk-creditos-proporcion, 238 / 19);
+    background: currentColor;
+    -webkit-mask: var(--mk-creditos-logo) center / contain no-repeat;
+    mask: var(--mk-creditos-logo) center / contain no-repeat;
+  }
+
   .mk-pie a,
   .mk-enlace,
   .mk-bajada a {
@@ -773,6 +800,35 @@
     transform-origin: center;
     animation: mk-silueta-entrada 2.4s cubic-bezier(0.2, 0.7, 0.2, 1) both;
     animation-delay: calc(var(--mk-silueta-i, 0) * 120ms);
+  }
+
+  /*
+   * Al pasar el cursor (0.10.0): el grupo se corre y las copias se abren en
+   * abanico sobre el pivote. Solo con cursor y sin movimiento reducido;
+   * vuelve sola al salir, así que no es movimiento automático (2.2.2).
+   */
+  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    .mk-siluetas,
+    .mk-silueta-capa {
+      transition: transform var(--mk-siluetas-hover-duracion, 0.9s) cubic-bezier(0.2, 0.7, 0.2, 1);
+    }
+
+    .mk-silueta-capa {
+      transform-box: view-box;
+      transform-origin: var(--mk-pivote, center);
+    }
+
+    :is(.mk-portada, .mk-capitulo):hover .mk-siluetas[data-lado="inicio"] {
+      transform: translate(-32%, -55%) rotate(var(--mk-siluetas-hover-giro, 4deg));
+    }
+
+    :is(.mk-portada, .mk-capitulo):hover .mk-siluetas[data-lado="fin"] {
+      transform: translate(28%, -61%) rotate(calc(-1 * var(--mk-siluetas-hover-giro, 4deg)));
+    }
+
+    :is(.mk-portada, .mk-capitulo):hover .mk-silueta-capa {
+      transform: rotate(calc(var(--mk-silueta-abanico, -12deg) * var(--mk-silueta-i, 0)));
+    }
   }
 
   @keyframes mk-silueta-entrada {
