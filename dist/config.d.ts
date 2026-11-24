@@ -262,6 +262,16 @@ export interface MarcaConfig {
     };
     /** Botón "Volver arriba" fijo abajo a la derecha (0.9.0). */
     volverArriba?: boolean;
+    /**
+     * Créditos en el pie (0.10.0): quién hizo el portal, con enlace. Con `logo`
+     * (SVG) se pinta como máscara en el color del texto del pie; `nombre` es el
+     * nombre accesible del enlace.
+     */
+    creditos?: {
+        nombre: string;
+        href: string;
+        logo?: string;
+    };
     /** Inicio: encabezado propio, atajos por tarea y títulos de sus bloques. */
     inicio?: {
         encabezado?: Titular;
