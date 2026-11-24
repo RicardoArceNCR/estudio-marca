@@ -198,7 +198,7 @@ function Tarjeta({
 
 /* ───────────── páginas ───────────── */
 
-function PaginaInicio({ config }: { config: MarcaConfig }) {
+function PaginaInicio({ config, portadaCapa }: { config: MarcaConfig; portadaCapa?: ReactNode }) {
   const lista = (slug: string) => {
     const s = seccionDe(config, slug);
     return s && s.estado !== "pendiente" ? s : undefined;
@@ -230,6 +230,11 @@ function PaginaInicio({ config }: { config: MarcaConfig }) {
           data-fondo={config.portada.fondo}
           style={{ background: `var(${config.portada.fondo})` }}
         >
+          {portadaCapa ? (
+            <div className="mk-portada-capa" aria-hidden="true">
+              {portadaCapa}
+            </div>
+          ) : null}
           <div className="mk-portada-texto">
             <EstadoPortal config={config} />
             <p className="mk-antetitulo">{enc?.antetitulo ?? `Versión ${config.version}`}</p>
@@ -593,10 +598,22 @@ function PaginaPendiente({ seccion }: { seccion: Seccion }) {
  * Página del portal para una ruta comodín opcional (`app/marca/[[...slug]]`).
  * Pinta inicio, las secciones del paquete y las pendientes; cualquier otra
  * ruta da 404. Una sección propia del sitio va en una ruta explícita.
+ *
+ * `portadaCapa`: una capa decorativa detrás del texto de la portada del inicio
+ * (un fondo animado, por ejemplo). Va como prop y no en la configuración,
+ * porque la configuración también la lee el shell, que es de cliente.
  */
-export function MarcaPagina({ config, slug }: { config: MarcaConfig; slug?: string[] | string }) {
+export function MarcaPagina({
+  config,
+  slug,
+  portadaCapa,
+}: {
+  config: MarcaConfig;
+  slug?: string[] | string;
+  portadaCapa?: ReactNode;
+}) {
   const s = slugDe(slug);
-  if (s === "") return <PaginaInicio config={config} />;
+  if (s === "") return <PaginaInicio config={config} portadaCapa={portadaCapa} />;
   const seccion = s ? seccionDe(config, s) : undefined;
   if (!seccion) notFound();
   if (seccion.estado === "pendiente") return <PaginaPendiente seccion={seccion} />;

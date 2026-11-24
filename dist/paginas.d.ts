@@ -28,10 +28,15 @@ export declare function Bloque({ id, titulo, antetitulo, bajada, children, }: {
  * Página del portal para una ruta comodín opcional (`app/marca/[[...slug]]`).
  * Pinta inicio, las secciones del paquete y las pendientes; cualquier otra
  * ruta da 404. Una sección propia del sitio va en una ruta explícita.
+ *
+ * `portadaCapa`: una capa decorativa detrás del texto de la portada del inicio
+ * (un fondo animado, por ejemplo). Va como prop y no en la configuración,
+ * porque la configuración también la lee el shell, que es de cliente.
  */
-export declare function MarcaPagina({ config, slug }: {
+export declare function MarcaPagina({ config, slug, portadaCapa, }: {
     config: MarcaConfig;
     slug?: string[] | string;
+    portadaCapa?: ReactNode;
 }): import("react").JSX.Element;
 export declare function MarcaNoEncontrada({ config }: {
     config: MarcaConfig;

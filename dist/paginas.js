@@ -66,7 +66,7 @@ function Tarjeta({ href, titulo, children, pendiente = false, icono, atajo = fal
     return esArchivo(href) ? (_jsx("a", { ...props, download: true, children: contenido })) : (_jsx(Link, { ...props, children: contenido }));
 }
 /* ───────────── páginas ───────────── */
-function PaginaInicio({ config }) {
+function PaginaInicio({ config, portadaCapa }) {
     const lista = (slug) => {
         const s = seccionDe(config, slug);
         return s && s.estado !== "pendiente" ? s : undefined;
@@ -90,7 +90,7 @@ function PaginaInicio({ config }) {
     const bSecciones = config.inicio?.bloques?.secciones;
     const bPublico = config.inicio?.bloques?.publico;
     const publico = config.inicio?.publico ?? [];
-    return (_jsxs(_Fragment, { children: [config.portada ? (_jsxs("header", { className: config.portada.sangrado ? "mk-portada mk-portada-sangrado" : "mk-portada", "data-fondo": config.portada.fondo, style: { background: `var(${config.portada.fondo})` }, children: [_jsxs("div", { className: "mk-portada-texto", children: [_jsx(EstadoPortal, { config: config }), _jsx("p", { className: "mk-antetitulo", children: enc?.antetitulo ?? `Versión ${config.version}` }), _jsx(Titulo, { titulo: enc?.titulo ?? config.nombre, config: config }), _jsx("p", { className: "mk-portada-bajada", children: bajadaInicio }), config.portada.accion ? (_jsx("p", { className: "mk-portada-accion", children: _jsx(Link, { className: "mk-boton mk-boton-fantasma mk-boton-brillo", href: config.portada.accion.href, children: config.portada.accion.texto }) })) : null] }), _jsx("img", { className: "mk-portada-logo", src: config.portada.logo, alt: config.portada.alt ?? config.marca })] })) : (_jsx(Encabezado, { antetitulo: enc?.antetitulo ?? `Versión ${config.version}`, titulo: enc?.titulo ?? config.nombre, config: config, children: _jsx("p", { children: bajadaInicio }) })), tareas.length ? (_jsx(Bloque, { id: "tareas", titulo: bAtajos?.titulo ?? "Lo más usado", antetitulo: bAtajos?.antetitulo, bajada: bAtajos?.bajada, children: _jsx(Rejilla, { n: tareas.length, children: tareas.map((t) => (_jsx(Tarjeta, { href: t.href, titulo: t.titulo, icono: t.icono, atajo: true, children: t.texto }, t.href))) }) })) : null, publico.length ? (_jsx(Bloque, { id: "publico", titulo: bPublico?.titulo ?? "¿Para quién es esto?", antetitulo: bPublico?.antetitulo, bajada: bPublico?.bajada, children: _jsx(Rejilla, { n: publico.length, children: publico.map((p) => (_jsx(Tarjeta, { href: p.href, titulo: p.quien, children: p.necesita }, p.quien))) }) })) : null, _jsx(Bloque, { id: "secciones", titulo: bSecciones?.titulo ?? "Secciones", antetitulo: bSecciones?.antetitulo, bajada: bSecciones?.bajada, children: _jsx(Rejilla, { n: config.secciones.length, children: config.secciones.map((s) => (_jsx(Tarjeta, { href: hrefDe(config, s.slug), titulo: s.titulo, pendiente: s.estado === "pendiente", capitulo: s.estado === "pendiente" ? undefined : s.capitulo, children: s.resumen }, s.slug))) }) })] }));
+    return (_jsxs(_Fragment, { children: [config.portada ? (_jsxs("header", { className: config.portada.sangrado ? "mk-portada mk-portada-sangrado" : "mk-portada", "data-fondo": config.portada.fondo, style: { background: `var(${config.portada.fondo})` }, children: [portadaCapa ? (_jsx("div", { className: "mk-portada-capa", "aria-hidden": "true", children: portadaCapa })) : null, _jsxs("div", { className: "mk-portada-texto", children: [_jsx(EstadoPortal, { config: config }), _jsx("p", { className: "mk-antetitulo", children: enc?.antetitulo ?? `Versión ${config.version}` }), _jsx(Titulo, { titulo: enc?.titulo ?? config.nombre, config: config }), _jsx("p", { className: "mk-portada-bajada", children: bajadaInicio }), config.portada.accion ? (_jsx("p", { className: "mk-portada-accion", children: _jsx(Link, { className: "mk-boton mk-boton-fantasma mk-boton-brillo", href: config.portada.accion.href, children: config.portada.accion.texto }) })) : null] }), _jsx("img", { className: "mk-portada-logo", src: config.portada.logo, alt: config.portada.alt ?? config.marca })] })) : (_jsx(Encabezado, { antetitulo: enc?.antetitulo ?? `Versión ${config.version}`, titulo: enc?.titulo ?? config.nombre, config: config, children: _jsx("p", { children: bajadaInicio }) })), tareas.length ? (_jsx(Bloque, { id: "tareas", titulo: bAtajos?.titulo ?? "Lo más usado", antetitulo: bAtajos?.antetitulo, bajada: bAtajos?.bajada, children: _jsx(Rejilla, { n: tareas.length, children: tareas.map((t) => (_jsx(Tarjeta, { href: t.href, titulo: t.titulo, icono: t.icono, atajo: true, children: t.texto }, t.href))) }) })) : null, publico.length ? (_jsx(Bloque, { id: "publico", titulo: bPublico?.titulo ?? "¿Para quién es esto?", antetitulo: bPublico?.antetitulo, bajada: bPublico?.bajada, children: _jsx(Rejilla, { n: publico.length, children: publico.map((p) => (_jsx(Tarjeta, { href: p.href, titulo: p.quien, children: p.necesita }, p.quien))) }) })) : null, _jsx(Bloque, { id: "secciones", titulo: bSecciones?.titulo ?? "Secciones", antetitulo: bSecciones?.antetitulo, bajada: bSecciones?.bajada, children: _jsx(Rejilla, { n: config.secciones.length, children: config.secciones.map((s) => (_jsx(Tarjeta, { href: hrefDe(config, s.slug), titulo: s.titulo, pendiente: s.estado === "pendiente", capitulo: s.estado === "pendiente" ? undefined : s.capitulo, children: s.resumen }, s.slug))) }) })] }));
 }
 const INCORRECTOS = {
     estirar: { texto: "No lo estires ni lo deformes.", clase: "mk-mal-estirar" },
@@ -148,11 +148,15 @@ function PaginaPendiente({ seccion }) {
  * Página del portal para una ruta comodín opcional (`app/marca/[[...slug]]`).
  * Pinta inicio, las secciones del paquete y las pendientes; cualquier otra
  * ruta da 404. Una sección propia del sitio va en una ruta explícita.
+ *
+ * `portadaCapa`: una capa decorativa detrás del texto de la portada del inicio
+ * (un fondo animado, por ejemplo). Va como prop y no en la configuración,
+ * porque la configuración también la lee el shell, que es de cliente.
  */
-export function MarcaPagina({ config, slug }) {
+export function MarcaPagina({ config, slug, portadaCapa, }) {
     const s = slugDe(slug);
     if (s === "")
-        return _jsx(PaginaInicio, { config: config });
+        return _jsx(PaginaInicio, { config: config, portadaCapa: portadaCapa });
     const seccion = s ? seccionDe(config, s) : undefined;
     if (!seccion)
         notFound();
